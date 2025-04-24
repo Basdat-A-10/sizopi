@@ -92,7 +92,7 @@ CREATE TABLE CATATAN_MEDIS (
     pengobatan VARCHAR(100),
     status_kesehatan VARCHAR(50) NOT NULL,
     catatan_tindak_lanjut VARCHAR(100),
-    PRIMARY KEY (id_hewan, username_dh, tanggal_pemeriksaan),
+    PRIMARY KEY (id_hewan, tanggal_pemeriksaan),
     FOREIGN KEY (id_hewan) REFERENCES HEWAN(id),
     FOREIGN KEY (username_dh) REFERENCES DOKTER_HEWAN(username_DH)
 );
@@ -100,7 +100,7 @@ CREATE TABLE CATATAN_MEDIS (
 -- 11. PAKAN table
 CREATE TABLE PAKAN (
     id_hewan UUID,
-    jadwal TIMESTAMP,
+    jadwal DATETIME,
     jenis VARCHAR(50) NOT NULL,
     jumlah INT NOT NULL,
     status VARCHAR(50) NOT NULL,
@@ -110,10 +110,9 @@ CREATE TABLE PAKAN (
 
 -- 12. MEMBERI table
 CREATE TABLE MEMBERI (
-    id_hewan UUID,
-    jadwal TIMESTAMP NOT NULL,
+    id_hewan UUID PRIMARY KEY,
+    jadwal DATETIME NOT NULL,
     username_jh VARCHAR(50),
-    PRIMARY KEY (id_hewan, username_jh),
     FOREIGN KEY (id_hewan) REFERENCES HEWAN(id),
     FOREIGN KEY (username_jh) REFERENCES PENJAGA_HEWAN(username_jh)
 );
@@ -121,7 +120,7 @@ CREATE TABLE MEMBERI (
 -- 13. FASILITAS table
 CREATE TABLE FASILITAS (
     nama VARCHAR(50) PRIMARY KEY,
-    jadwal TIMESTAMP NOT NULL,
+    jadwal DATETIME NOT NULL,
     kapasitas_max INT NOT NULL
 );
 
@@ -135,7 +134,7 @@ CREATE TABLE ATRAKSI (
 -- 15. JADWAL_PENUGASAN table
 CREATE TABLE JADWAL_PENUGASAN (
     username_lh VARCHAR(50),
-    tgl_penugasan TIMESTAMP,
+    tgl_penugasan DATETIME,
     nama_atraksi VARCHAR(50),
     PRIMARY KEY (username_lh, tgl_penugasan),
     FOREIGN KEY (username_lh) REFERENCES PELATIH_HEWAN(username_lh),
