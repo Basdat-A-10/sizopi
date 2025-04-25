@@ -203,9 +203,61 @@ CREATE TABLE ADOPSI (
     FOREIGN KEY (id_hewan) REFERENCES HEWAN(id)
 );
 
--- Insert datas for 1. PENGGUNA table, 15 DOKTER_HEWAN
+-- Insert datas for 1. PENGGUNA table,
 INSERT INTO PENGGUNA (username, email, password, nama_depan, nama_tengah, nama_belakang, no_telepon)
 VALUES 
+-- 50 PENGUNJUNG
+('ahmad_fauzi', 'ahmad.fauzi@gmail.com', 'F4uz1Ahmad!', 'Ahmad', NULL, 'Fauzi', '081234567891'),
+('bayu_setiawan', 'bayu.setiawan@yahoo.com', 'B4yuS3t1aw4n', 'Bayu', 'Adi', 'Setiawan', '081234567892'),
+('citra_lestari', 'citra.lestari@gmail.com', 'C1tr4L3st4r1', 'Citra', 'Ayu', 'Lestari', '081234567893'),
+('dian_sastro', 'dian.sastro@hotmail.com', 'D14nS4str0!', 'Dian', NULL, 'Sastrowardoyo', '081234567894'),
+('eko_patrio', 'eko.patrio@gmail.com', 'Ek0P4tr10', 'Eko', NULL, 'Patrio', '081234567895'),
+('fanny_fadillah', 'fanny.fadillah@yahoo.co.id', 'F4nnyF4d1ll4h', 'Fanny', 'Nur', 'Fadillah', '081234567896'),
+('galih_ginanjar', 'galih.ginanjar@gmail.com', 'G4l1hG1n4nj4r', 'Galih', NULL, 'Ginanjar', '081234567897'),
+('hani_soraya', 'hani.soraya@gmail.com', 'H4n1S0r4y4', 'Hani', 'Putri', 'Soraya', '081234567898'),
+('irfan_bachdim', 'irfan.bachdim@yahoo.com', '1rf4nB4chd1m', 'Irfan', NULL, 'Bachdim', '081234567899'),
+('jessica_mila', 'jessica.mila@gmail.com', 'J3ss1c4M1l4', 'Jessica', 'Aurum', 'Mila', '081234567810'),
+('kevin_julio', 'kevin.julio@hotmail.com', 'K3v1nJul10', 'Kevin', NULL, 'Julio', '081234567811'),
+('luna_maya', 'luna.maya@gmail.com', 'Lun4M4y4!', 'Luna', NULL, 'Maya', '081234567812'),
+('maudy_ayunda', 'maudy.ayunda@yahoo.co.id', 'M4udyAyund4', 'Maudy', NULL, 'Ayunda', '081234567813'),
+('nicholas_saputra', 'nicholas.saputra@gmail.com', 'N1ch0l4sS4putr4', 'Nicholas', NULL, 'Saputra', '081234567814'),
+('olivia_jensen', 'olivia.jensen@gmail.com', '0l1v14J3ns3n', 'Olivia', NULL, 'Jensen', '081234567815'),
+('prilly_latuconsina', 'prilly.latuconsina@yahoo.com', 'Pr1llyL4tu', 'Prilly', NULL, 'Latuconsina', '081234567816'),
+('quinn_avrilia', 'quinn.avrilia@gmail.com', 'Qu1nnAvr1l14', 'Quinn', 'Putri', 'Avrilia', '081234567817'),
+('raisa_andriana', 'raisa.andriana@hotmail.com', 'R41s4Andr14n4', 'Raisa', NULL, 'Andriana', '081234567818'),
+('surya_saputra', 'surya.saputra@gmail.com', 'Sury4S4putr4', 'Surya', 'Bima', 'Saputra', '081234567819'),
+('titi_kamal', 'titi.kamal@yahoo.co.id', 'T1t1K4m4l!', 'Titi', NULL, 'Kamal', '081234567820'),
+('umar_zein', 'umar.zein@gmail.com', 'Um4rZ31n', 'Umar', NULL, 'Zein', '081234567821'),
+('vino_bastian', 'vino.bastian@gmail.com', 'V1n0B4st14n', 'Vino', 'Giovani', 'Bastian', '081234567822'),
+('wulan_guritno', 'wulan.guritno@yahoo.com', 'Wul4nGur1tn0', 'Wulan', NULL, 'Guritno', '081234567823'),
+('xavier_muhammad', 'xavier.muhammad@hotmail.com', 'X4v13rMuh4mm4d', 'Xavier', NULL, 'Muhammad', '081234567824'),
+('yuki_kato', 'yuki.kato@gmail.com', 'Yuk1K4t0!', 'Yuki', NULL, 'Kato', '081234567825'),
+('zaskia_adya', 'zaskia.adya@yahoo.co.id', 'Z4sk14Ady4', 'Zaskia', 'Sungkar', 'Adya', '081234567826'),
+('aditya_zoni', 'aditya.zoni@gmail.com', 'Ad1ty4Z0n1', 'Aditya', NULL, 'Zoni', '081234567827'),
+('bella_shofie', 'bella.shofie@gmail.com', 'B3ll4Sh0f13', 'Bella', NULL, 'Shofie', '081234567828'),
+('cakra_khan', 'cakra.khan@yahoo.com', 'C4kr4Kh4n!', 'Cakra', NULL, 'Khan', '081234567829'),
+('dewi_sandra', 'dewi.sandra@hotmail.com', 'D3w1S4ndr4', 'Dewi', NULL, 'Sandra', '081234567830'),
+('ernest_prakasa', 'ernest.prakasa@gmail.com', '3rn3stPr4k4s4', 'Ernest', NULL, 'Prakasa', '081234567831'),
+('farah_quinn', 'farah.quinn@yahoo.co.id', 'F4r4hQu1nn', 'Farah', NULL, 'Quinn', '081234567832'),
+('gading_marten', 'gading.marten@gmail.com', 'G4d1ngM4rt3n', 'Gading', NULL, 'Marten', '081234567833'),
+('happy_salma', 'happy.salma@gmail.com', 'H4ppyS4lm4', 'Happy', NULL, 'Salma', '081234567834'),
+('indra_bekti', 'indra.bekti@yahoo.com', '1ndr4B3kt1', 'Indra', NULL, 'Bekti', '081234567835'),
+('julie_estelle', 'julie.estelle@hotmail.com', 'Jul13Est3ll3', 'Julie', NULL, 'Estelle', '081234567836'),
+('kimberly_ryder', 'kimberly.ryder@gmail.com', 'K1mb3rlyRyd3r', 'Kimberly', NULL, 'Ryder', '081234567837'),
+('laura_basuki', 'laura.basuki@yahoo.co.id', 'L4ur4B4suk1', 'Laura', NULL, 'Basuki', '081234567838'),
+('marshanda_aulia', 'marshanda.aulia@gmail.com', 'M4rsh4nd4Aul14', 'Marshanda', NULL, 'Aulia', '081234567839'),
+('nikita_willy', 'nikita.willy@gmail.com', 'N1k1t4W1lly', 'Nikita', NULL, 'Willy', '081234567840'),
+('olga_syahputra', 'olga.syahputra@yahoo.com', '0lg4Sy4hputr4', 'Olga', NULL, 'Syahputra', '081234567841'),
+('pevita_pearce', 'pevita.pearce@hotmail.com', 'P3v1t4P34rc3', 'Pevita', NULL, 'Pearce', '081234567842'),
+('qory_sandioriva', 'qory.sandioriva@gmail.com', 'Q0ryS4nd10r1v4', 'Qory', NULL, 'Sandioriva', '081234567843'),
+('reza_rahadian', 'reza.rahadian@yahoo.co.id', 'R3z4R4h4d14n', 'Reza', NULL, 'Rahadian', '081234567844'),
+('syahrini_zahra', 'syahrini.zahra@gmail.com', 'Sy4hr1n1Z4hr4', 'Syahrini', NULL, 'Zahra', '081234567845'),
+('tara_basro', 'tara.basro@gmail.com', 'T4r4B4sr0', 'Tara', NULL, 'Basro', '081234567846'),
+('uwais_qorny', 'uwais.qorny@yahoo.com', 'Uw41sQ0rny', 'Uwais', 'Al', 'Qorny', '081234567847'),
+('velove_vexia', 'velove.vexia@hotmail.com', 'V3l0v3V3x14', 'Velove', NULL, 'Vexia', '081234567848'),
+('widika_sidmore', 'widika.sidmore@gmail.com', 'W1d1k4S1dm0r3', 'Widika', NULL, 'Sidmore', '081234567849'),
+('zacky_zimah', 'zacky.zimah@yahoo.co.id', 'Z4ckyZ1m4h', 'Zacky', NULL, 'Zimah', '081234567850');
+-- 15 DOKTER_HEWAN
 ('ajeng_pratiwi', 'ajeng.pratiwi@gmail.com', 'Pas$w0rd123', 'Ajeng', 'Kusuma', 'Pratiwi', '081234567890'),
 ('budi_santoso', 'budi.santoso@gmail.com', 'Bud1S4nt0s0!', 'Budi', 'Dharma', 'Santoso', '081298765432'),
 ('dewi_anggraini', 'dewi.anggraini@yahoo.com', 'D3w1Anggrn', 'Dewi', NULL, 'Anggraini', '085678901234'),
@@ -221,10 +273,7 @@ VALUES
 ('nugroho_santoso', 'nugroho.santoso@yahoo.co.id', 'Nugr0h0S4nt0', 'Nugroho', 'Budi', 'Santoso', '081567890123'),
 ('putri_maharani', 'putri.maharani@gmail.com', 'Putr1M4h4r4n1', 'Putri', 'Ayu', 'Maharani', '082109876543'),
 ('rizky_pratama', 'rizky.pratama@gmail.com', 'R1zkyPr4t4m4', 'Rizky', 'Aditya', 'Pratama', '087891234567');
-
--- Insert datas for 1. PENGGUNA table, 10 PENJAGA_HEWAN
-INSERT INTO PENGGUNA (username, email, password, nama_depan, nama_tengah, nama_belakang, no_telepon)
-VALUES 
+-- 10 PENJAGA_HEWAN
 ('arya_wijaya', 'arya.wijaya@gmail.com', 'Ary4W1j4y4!', 'Arya', 'Dharma', 'Wijaya', '081234567891'),
 ('bayu_pradana', 'bayu.pradana@gmail.com', 'B4yuPr4d4n4', 'Bayu', NULL, 'Pradana', '082345678912'),
 ('citra_lestari', 'citra.lestari@yahoo.com', 'C1tr4L3st4r1', 'Citra', 'Ayu', 'Lestari', '083456789123'),
@@ -235,6 +284,28 @@ VALUES
 ('haris_kurniawan', 'haris.kurniawan@gmail.com', 'H4r1sKurn14w4n', 'Haris', NULL, 'Kurniawan', '088912345678'),
 ('indra_maulana', 'indra.maulana@yahoo.com', '1ndr4M4ul4n4', 'Indra', 'Bima', 'Maulana', '089123456789'),
 ('jasmine_putri', 'jasmine.putri@gmail.com', 'J4sm1n3Putr1', 'Jasmine', 'Ayu', 'Putri', '081234567890');
+-- 10 PELATIH_HEWAN
+('andrea_trainer', 'andrea.trainer@hewan.com', 'Tr41n3rAndr34', 'Andrea', NULL, 'Hirata', '083234567861'),
+('bagus_pelatih', 'bagus.pelatih@hewan.com', 'B4gusP3l4t1h', 'Bagus', 'Satria', 'Wirawan', '083234567862'),
+('cindy_trainer', 'cindy.trainer@hewan.com', 'C1ndyTr41n3r', 'Cindy', 'Ayu', 'Larasati', '083234567863'),
+('david_pelatih', 'david.pelatih@hewan.com', 'D4v1dP3l4t1h', 'David', NULL, 'Kurniawan', '083234567864'),
+('elsa_trainer', 'elsa.trainer@hewan.com', '3ls4Tr41n3r', 'Elsa', 'Putri', 'Maharani', '083234567865'),
+('fahmi_pelatih', 'fahmi.pelatih@hewan.com', 'F4hm1P3l4t1h', 'Fahmi', NULL, 'Alfarisi', '083234567866'),
+('grace_trainer', 'grace.trainer@hewan.com', 'Gr4c3Tr41n3r', 'Grace', 'Meilani', 'Susanto', '083234567867'),
+('hadi_pelatih', 'hadi.pelatih@hewan.com', 'H4d1P3l4t1h', 'Hadi', 'Gunawan', 'Wicaksono', '083234567868'),
+('irene_trainer', 'irene.trainer@hewan.com', '1r3n3Tr41n3r', 'Irene', NULL, 'Setiawati', '083234567869'),
+('jaya_pelatih', 'jaya.pelatih@hewan.com', 'J4y4P3l4t1h', 'Jaya', 'Putra', 'Perdana', '083234567870');
+-- 10 STAF_ADMIN
+('amir_admin', 'amir.admin@hewan.com', 'Am1rAdm1n!', 'Amir', NULL, 'Mahmud', '084234567871'),
+('bunga_staff', 'bunga.staff@hewan.com', 'Bung4St4ff', 'Bunga', 'Citra', 'Lestari', '084234567872'),
+('candra_admin', 'candra.admin@hewan.com', 'C4ndr4Adm1n', 'Candra', 'Arif', 'Gunawan', '084234567873'),
+('dina_staff', 'dina.staff@hewan.com', 'D1n4St4ff', 'Dina', NULL, 'Maulida', '084234567874'),
+('eka_admin', 'eka.admin@hewan.com', '3k4Adm1n', 'Eka', 'Surya', 'Pradana', '084234567875'),
+('fira_staff', 'fira.staff@hewan.com', 'F1r4St4ff', 'Fira', 'Intan', 'Puspita', '084234567876'),
+('guntur_admin', 'guntur.admin@hewan.com', 'Guntur4dm1n', 'Guntur', NULL, 'Ramadhan', '084234567877'),
+('hanna_staff', 'hanna.staff@hewan.com', 'H4nn4St4ff', 'Hanna', 'Nur', 'Azizah', '084234567878'),
+('ivan_admin', 'ivan.admin@hewan.com', '1v4nAdm1n', 'Ivan', 'Dimas', 'Setiawan', '084234567879'),
+('jasmine_staff', 'jasmine.staff@hewan.com', 'J4sm1n3St4ff', 'Jasmine', NULL, 'Anggraini', '084234567880');
 
 -- Insert 15 datas for 3. DOKTER_HEWAN table
 INSERT INTO DOKTER_HEWAN (username_DH, no_STR)
