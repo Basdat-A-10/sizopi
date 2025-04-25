@@ -468,3 +468,82 @@ VALUES
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a39', '2024-05-05', 1),
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a44', '2024-05-25', 2),
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a46', '2024-07-12', 3);
+
+INSERT INTO FASILITAS (nama, jadwal, kapasitas_max)
+VALUES 
+('Zona Akuatik', '2025-05-01 09:00:00', 200),
+('Amphitheater Utama', '2025-05-01 10:00:00', 300),
+('Zona Harimau', '2025-05-01 11:00:00', 100),
+('Area Petualangan Anak', '2025-05-01 09:30:00', 150),
+('Taman Air Mini', '2025-05-01 10:30:00', 100),
+('Kandang Reptil', '2025-05-01 11:30:00', 80),
+('Rumah Burung', '2025-05-01 13:00:00', 120),
+('Savana Afrika', '2025-05-01 14:00:00', 250),
+('Hutan Hujan', '2025-05-01 15:00:00', 180),
+('Taman Kupu-kupu', '2025-05-01 16:00:00', 50);
+
+INSERT INTO ATRAKSI (nama_atraksi, lokasi)
+VALUES 
+('Zona Akuatik', 'Area Barat Safari'),
+('Amphitheater Utama', 'Area Tengah Safari'),
+('Zona Harimau', 'Area Utara Safari'),
+('Area Petualangan Anak', 'Area Selatan Safari'),
+('Taman Air Mini', 'Area Barat Safari');
+
+INSERT INTO WAHANA (nama_wahana, peraturan, kapasitas, jadwal)
+VALUES 
+('Taman Air Mini', '1. Dilarang Berenang. 2. Dilarang membawa makanan. 3. Anak-anak harus didampingi orang dewasa.', 100, '10:00:00'),
+('Area Petualangan Anak', '1. Dilarang memanjat pagar. 2. Dilarang membawa makanan dan minuman. 3. Maksimal usia 12 tahun.', 75, '11:30:00'),
+('Zona Akuatik', '1. Wajib menggunakan alas kaki anti-slip. 2. Dilarang berenang. 3. Dilarang memberi makan hewan.', 150, '09:00:00'),
+('Kandang Reptil', '1. Dilarang menggunakan flash kamera. 2. Dilarang mengetuk kaca. 3. Jaga jarak aman.', 80, '13:00:00'),
+('Taman Kupu-kupu', '1. Jangan menyentuh kupu-kupu. 2. Dilarang membawa makanan. 3. Jaga ketenangan.', 50, '14:00:00');
+
+INSERT INTO JADWAL_PENUGASAN (username_lh, tgl_penugasan, nama_atraksi)
+VALUES 
+('andrea_trainer', '2025-05-12 10:00:00', 'Zona Akuatik'),
+('bagus_pelatih', '2025-05-13 11:00:00', 'Zona Harimau'),
+('cindy_trainer', '2025-05-14 10:00:00', 'Amphitheater Utama'),
+('david_pelatih', '2025-05-15 09:30:00', 'Area Petualangan Anak'),
+('elsa_trainer', '2025-05-16 10:30:00', 'Taman Air Mini'),
+('fahmi_pelatih', '2025-05-17 14:00:00', 'Zona Akuatik'),
+('grace_trainer', '2025-05-18 11:00:00', 'Zona Harimau'),
+('hadi_pelatih', '2025-05-19 10:00:00', 'Amphitheater Utama'),
+('irene_trainer', '2025-05-20 09:30:00', 'Area Petualangan Anak'),
+('jaya_pelatih', '2025-05-21 10:30:00', 'Taman Air Mini');
+
+INSERT INTO BERPARTISIPASI (nama_fasilitas, id_hewan)
+VALUES 
+-- Zona Akuatik berisi lumba-lumba, penyu, ikan badut
+('Zona Akuatik', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a44'),  -- Bubbles (Lumba-lumba)
+('Zona Akuatik', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a45'),  -- Nemo (Clownfish)
+('Zona Akuatik', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a46'),  -- Shelly (Penyu)
+-- Amphitheater Utama berisi burung-burung dan hewan-hewan terlatih
+('Amphitheater Utama', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a19'),  -- Rio (Cendrawasih)
+('Amphitheater Utama', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a20'),  -- Blu (Kakaktua)
+('Amphitheater Utama', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a21'),  -- Zazu (Rangkong)
+('Amphitheater Utama', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a23'),  -- Tiko (Macaw)
+-- Zona Harimau berisi harimau dan kucing besar
+('Zona Harimau', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'),  -- Raja (Harimau Sumatera)
+('Zona Harimau', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a14'),  -- Simba (Singa)
+('Zona Harimau', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a15'),  -- Bolt (Cheetah)
+('Zona Harimau', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a32'),  -- Felix (Jaguar)
+-- Area Petualangan Anak berisi hewan-hewan kecil dan jinak
+('Area Petualangan Anak', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a35'),  -- Spiky (Landak)
+('Area Petualangan Anak', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a41'),  -- Poky (Echidna)
+('Area Petualangan Anak', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a47'),  -- Fleecy (Kambing)
+-- Taman Air Mini berisi kura-kura dan reptil air
+('Taman Air Mini', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a27'),  -- Crush (Penyu Hijau)
+('Taman Air Mini', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a26');  -- Spike (Buaya)
+
+INSERT INTO PELATIH_HEWAN (username_lh, id_staf)
+VALUES 
+('andrea_trainer', '550e8400-e29b-41d4-a716-446655440010'),
+('bagus_pelatih', '550e8400-e29b-41d4-a716-446655440011'),
+('cindy_trainer', '550e8400-e29b-41d4-a716-446655440012'),
+('david_pelatih', '550e8400-e29b-41d4-a716-446655440013'),
+('elsa_trainer', '550e8400-e29b-41d4-a716-446655440014'),
+('fahmi_pelatih', '550e8400-e29b-41d4-a716-446655440015'),
+('grace_trainer', '550e8400-e29b-41d4-a716-446655440016'),
+('hadi_pelatih', '550e8400-e29b-41d4-a716-446655440017'),
+('irene_trainer', '550e8400-e29b-41d4-a716-446655440018'),
+('jaya_pelatih', '550e8400-e29b-41d4-a716-446655440019');
