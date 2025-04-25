@@ -334,26 +334,19 @@ VALUES
 ('putri_maharani', 'STR-DH-2020-01456789'),
 ('rizky_pratama', 'STR-DH-2022-01567890');
 
--- Insert 10 datas for 4. SPESIALISASI table
+-- Insert 10 datas for 4. SPESIALISASI table (jumlah dikurangi dari 17 menjadi 10)
 INSERT INTO SPESIALISASI (username_SH, nama_spesialisasi)
 VALUES 
 ('ajeng_pratiwi', 'Bedah Hewan Kecil'),
-('ajeng_pratiwi', 'Dermatologi Veteriner'),
 ('budi_santoso', 'Kedokteran Hewan Kucing'),
 ('dewi_anggraini', 'Dokter Hewan Satwa Liar'),
-('dewi_anggraini', 'Konservasi Satwa Langka'),
 ('eko_prasetyo', 'Reproduksi Veteriner'),
 ('fitri_wulandari', 'Kedokteran Hewan Eksotik'),
 ('gilang_ramadhan', 'Radiologi Veteriner'),
 ('hendra_wijaya', 'Oftalmologi Hewan'),
 ('intan_permata', 'Onkologi Veteriner'),
 ('joko_susilo', 'Neurologi Hewan'),
-('kartika_sari', 'Bedah Ortopedi Hewan'),
-('luhur_prabowo', 'Kedokteran Hewan Reptil'),
-('mawar_indah', 'Kardiologi Veteriner'),
-('nugroho_santoso', 'Kedokteran Hewan Unggas'),
-('putri_maharani', 'Nutrisi Hewan'),
-('rizky_pratama', 'Parasitologi Veteriner');
+('kartika_sari', 'Bedah Ortopedi Hewan');
 
 -- Insert 10 datas for 4. PENJAGA_HEWAN table
 INSERT INTO PENJAGA_HEWAN (username_jh, id_staf)
