@@ -100,7 +100,7 @@ CREATE TABLE CATATAN_MEDIS (
 -- 11. PAKAN table
 CREATE TABLE PAKAN (
     id_hewan UUID,
-    jadwal DATETIME,
+    jadwal TIMESTAMP,
     jenis VARCHAR(50) NOT NULL,
     jumlah INT NOT NULL,
     status VARCHAR(50) NOT NULL,
@@ -111,7 +111,7 @@ CREATE TABLE PAKAN (
 -- 12. MEMBERI table
 CREATE TABLE MEMBERI (
     id_hewan UUID PRIMARY KEY,
-    jadwal DATETIME NOT NULL,
+    jadwal TIMESTAMP NOT NULL,
     username_jh VARCHAR(50),
     FOREIGN KEY (id_hewan) REFERENCES HEWAN(id),
     FOREIGN KEY (username_jh) REFERENCES PENJAGA_HEWAN(username_jh)
@@ -120,7 +120,7 @@ CREATE TABLE MEMBERI (
 -- 13. FASILITAS table
 CREATE TABLE FASILITAS (
     nama VARCHAR(50) PRIMARY KEY,
-    jadwal DATETIME NOT NULL,
+    jadwal TIMESTAMP NOT NULL,
     kapasitas_max INT NOT NULL
 );
 
@@ -134,7 +134,7 @@ CREATE TABLE ATRAKSI (
 -- 15. JADWAL_PENUGASAN table
 CREATE TABLE JADWAL_PENUGASAN (
     username_lh VARCHAR(50),
-    tgl_penugasan DATETIME,
+    tgl_penugasan TIMESTAMP,
     nama_atraksi VARCHAR(50),
     PRIMARY KEY (username_lh, tgl_penugasan),
     FOREIGN KEY (username_lh) REFERENCES PELATIH_HEWAN(username_lh),
@@ -203,13 +203,13 @@ CREATE TABLE ADOPSI (
     FOREIGN KEY (id_hewan) REFERENCES HEWAN(id)
 );
 
--- Insert datas for 1. PENGGUNA table,
+-- Insert datas for 1. PENGGUNA table
+-- 50 PENGUNJUNG
 INSERT INTO PENGGUNA (username, email, password, nama_depan, nama_tengah, nama_belakang, no_telepon)
 VALUES 
--- 50 PENGUNJUNG
 ('ahmad_fauzi', 'ahmad.fauzi@gmail.com', 'F4uz1Ahmad!', 'Ahmad', NULL, 'Fauzi', '081234567891'),
 ('bayu_setiawan', 'bayu.setiawan@yahoo.com', 'B4yuS3t1aw4n', 'Bayu', 'Adi', 'Setiawan', '081234567892'),
-('citra_lestari', 'citra.lestari@gmail.com', 'C1tr4L3st4r1', 'Citra', 'Ayu', 'Lestari', '081234567893'),
+('citra_sakila', 'citra.lestari@gmail.com', 'C1tr454k1l4', 'Citra', NULL, 'Sakila', '081234567893'),
 ('dian_sastro', 'dian.sastro@hotmail.com', 'D14nS4str0!', 'Dian', NULL, 'Sastrowardoyo', '081234567894'),
 ('eko_patrio', 'eko.patrio@gmail.com', 'Ek0P4tr10', 'Eko', NULL, 'Patrio', '081234567895'),
 ('fanny_fadillah', 'fanny.fadillah@yahoo.co.id', 'F4nnyF4d1ll4h', 'Fanny', 'Nur', 'Fadillah', '081234567896'),
@@ -258,6 +258,8 @@ VALUES
 ('widika_sidmore', 'widika.sidmore@gmail.com', 'W1d1k4S1dm0r3', 'Widika', NULL, 'Sidmore', '081234567849'),
 ('zacky_zimah', 'zacky.zimah@yahoo.co.id', 'Z4ckyZ1m4h', 'Zacky', NULL, 'Zimah', '081234567850');
 -- 15 DOKTER_HEWAN
+INSERT INTO PENGGUNA (username, email, password, nama_depan, nama_tengah, nama_belakang, no_telepon)
+VALUES 
 ('ajeng_pratiwi', 'ajeng.pratiwi@gmail.com', 'Pas$w0rd123', 'Ajeng', 'Kusuma', 'Pratiwi', '081234567890'),
 ('budi_santoso', 'budi.santoso@gmail.com', 'Bud1S4nt0s0!', 'Budi', 'Dharma', 'Santoso', '081298765432'),
 ('dewi_anggraini', 'dewi.anggraini@yahoo.com', 'D3w1Anggrn', 'Dewi', NULL, 'Anggraini', '085678901234'),
@@ -274,6 +276,8 @@ VALUES
 ('putri_maharani', 'putri.maharani@gmail.com', 'Putr1M4h4r4n1', 'Putri', 'Ayu', 'Maharani', '082109876543'),
 ('rizky_pratama', 'rizky.pratama@gmail.com', 'R1zkyPr4t4m4', 'Rizky', 'Aditya', 'Pratama', '087891234567');
 -- 10 PENJAGA_HEWAN
+INSERT INTO PENGGUNA (username, email, password, nama_depan, nama_tengah, nama_belakang, no_telepon)
+VALUES 
 ('arya_wijaya', 'arya.wijaya@gmail.com', 'Ary4W1j4y4!', 'Arya', 'Dharma', 'Wijaya', '081234567891'),
 ('bayu_pradana', 'bayu.pradana@gmail.com', 'B4yuPr4d4n4', 'Bayu', NULL, 'Pradana', '082345678912'),
 ('citra_lestari', 'citra.lestari@yahoo.com', 'C1tr4L3st4r1', 'Citra', 'Ayu', 'Lestari', '083456789123'),
@@ -285,6 +289,8 @@ VALUES
 ('indra_maulana', 'indra.maulana@yahoo.com', '1ndr4M4ul4n4', 'Indra', 'Bima', 'Maulana', '089123456789'),
 ('jasmine_putri', 'jasmine.putri@gmail.com', 'J4sm1n3Putr1', 'Jasmine', 'Ayu', 'Putri', '081234567890');
 -- 10 PELATIH_HEWAN
+INSERT INTO PENGGUNA (username, email, password, nama_depan, nama_tengah, nama_belakang, no_telepon)
+VALUES 
 ('andrea_trainer', 'andrea.trainer@hewan.com', 'Tr41n3rAndr34', 'Andrea', NULL, 'Hirata', '083234567861'),
 ('bagus_pelatih', 'bagus.pelatih@hewan.com', 'B4gusP3l4t1h', 'Bagus', 'Satria', 'Wirawan', '083234567862'),
 ('cindy_trainer', 'cindy.trainer@hewan.com', 'C1ndyTr41n3r', 'Cindy', 'Ayu', 'Larasati', '083234567863'),
@@ -296,6 +302,8 @@ VALUES
 ('irene_trainer', 'irene.trainer@hewan.com', '1r3n3Tr41n3r', 'Irene', NULL, 'Setiawati', '083234567869'),
 ('jaya_pelatih', 'jaya.pelatih@hewan.com', 'J4y4P3l4t1h', 'Jaya', 'Putra', 'Perdana', '083234567870');
 -- 10 STAF_ADMIN
+INSERT INTO PENGGUNA (username, email, password, nama_depan, nama_tengah, nama_belakang, no_telepon)
+VALUES 
 ('amir_admin', 'amir.admin@hewan.com', 'Am1rAdm1n!', 'Amir', NULL, 'Mahmud', '084234567871'),
 ('bunga_staff', 'bunga.staff@hewan.com', 'Bung4St4ff', 'Bunga', 'Citra', 'Lestari', '084234567872'),
 ('candra_admin', 'candra.admin@hewan.com', 'C4ndr4Adm1n', 'Candra', 'Arif', 'Gunawan', '084234567873'),
@@ -361,6 +369,18 @@ VALUES
 ('indra_maulana', '550e8400-e29b-41d4-a716-446655440008'),
 ('jasmine_putri', '550e8400-e29b-41d4-a716-446655440009');
 
+-- Insert 8 datas for 10. HABITAT table
+INSERT INTO HABITAT (nama, luas_area, kapasitas, status)
+VALUES 
+('Hutan Hujan Tropis', 5000.75, 120, 'Aktif'),
+('Padang Rumput', 3200.50, 80, 'Aktif'),
+('Pegunungan', 4500.25, 60, 'Aktif'),
+('Rawa', 2800.00, 45, 'Pemeliharaan'),
+('Gurun', 3800.50, 30, 'Aktif'),
+('Savana', 4200.75, 90, 'Aktif'),
+('Terumbu Karang', 1500.25, 200, 'Aktif'),
+('Hutan Bakau', 2100.50, 50, 'Renovasi');
+
 -- Insert 40 datas into 8. HEWAN table 
 INSERT INTO HEWAN (id, nama, spesies, asal_hewan, tanggal_lahir, status_kesehatan, nama_habitat, url_foto)
 VALUES 
@@ -419,18 +439,6 @@ VALUES
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a44', 'joko_susilo', '2024-03-25', 'Lesi kulit', 'Pengobatan antibiotik dan terapi air', 'Pemulihan', 'Evaluasi kondisi kulit setiap 3 hari'),
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a46', 'kartika_sari', '2024-04-12', 'Retak pada cangkang', 'Penutupan retak dengan resin khusus', 'Pemulihan', 'Pemantauan kesembuhan cangkang selama 4 minggu');
 
--- Insert 8 datas for 10. HABITAT table
-INSERT INTO HABITAT (nama, luas_area, kapasitas, status)
-VALUES 
-('Hutan Hujan Tropis', 5000.75, 120, 'Aktif'),
-('Padang Rumput', 3200.50, 80, 'Aktif'),
-('Pegunungan', 4500.25, 60, 'Aktif'),
-('Rawa', 2800.00, 45, 'Pemeliharaan'),
-('Gurun', 3800.50, 30, 'Aktif'),
-('Savana', 4200.75, 90, 'Aktif'),
-('Terumbu Karang', 1500.25, 200, 'Aktif'),
-('Hutan Bakau', 2100.50, 50, 'Renovasi');
-
 -- Insert 5 datas for 11. PAKAN table
 INSERT INTO PAKAN (id_hewan, jadwal, jenis, jumlah, status)
 VALUES 
@@ -440,7 +448,7 @@ VALUES
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a43', '2024-04-25 13:45:00', 'Daun Eucalyptus', 3, 'Terjadwal'),
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a44', '2024-04-25 15:30:00', 'Ikan Segar', 12, 'Terjadwal');
 
--- Insert 10 datas for 12. MEMBERI table
+-- Insert 5 datas for 12. MEMBERI table
 INSERT INTO MEMBERI (id_hewan, jadwal, username_jh)
 VALUES 
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', '2024-04-25 08:00:00', 'arya_wijaya'),
