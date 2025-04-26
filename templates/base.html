@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sizopi{% endblock %}</title>
+    
+</head>
+<body>
+    <nav class="navbar">
+        <a href="{% url 'main:index' %}">Beranda</a>
+        <a href="{% url 'kesehatan_perawatan_satwa:index' %}">Kesehatan & Perawatan Satwa</a>
+    </nav>
+    
+    {% block content %}{% endblock %}
+</body>
+</html>
