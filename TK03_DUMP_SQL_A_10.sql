@@ -614,4 +614,85 @@ VALUES
 ('widika_sidmore', 'Jl. Kersen No.49, Jakarta', '1990-01-10'),
 ('zacky_zimah', 'Jl. Kepel No.50, Bandung', '1991-02-15');
 
+INSERT INTO ADOPTER (username_adopter, id_adopter, total_kontribusi) 
+VALUES
+('ahmad_fauzi', '9615570b-634a-4192-bae8-22ab2a72ef0f', 4263724),
+('bayu_setiawan', '66ab2efa-57cd-4a47-844f-9b18d1f59ef1', 2950053),
+('citra_sakila', '3f303430-8089-44d7-9be7-b2e7a72f1632', 3398926),
+('dian_sastro', 'b1c2fbb7-8d99-4198-bf6a-5ee898e92f84', 2291985),
+('eko_patrio', '418220fd-d6e6-41af-b261-4337c8b55144', 1028098),
+('fanny_fadillah', '4fdd70a6-f789-44a8-a114-36086a3de76a', 605185),
+('galih_ginanjar', 'd850ebe0-1504-4d57-b0f7-83ac23cfa6d9', 4128326),
+('hani_soraya', '82079cc0-e4a0-4376-9518-943e7f20cc3d', 3064237),
+('irfan_bachdim', '4f75b2d7-8de0-43a4-b39b-89d9b26006b5', 2967502),
+('jessica_mila', '7113489a-1a79-4bf8-9256-fcda4dd39bbb', 4396555),
+('kevin_julio', 'f9e8bb2a-4836-4757-89f8-cf05f7375186', 3426632),
+('luna_maya', '35cbae69-1ad8-4820-a187-10dc2d45b32d', 612327),
+('maudy_ayunda', '066a17a8-70e2-4c46-aad5-c6a62c6c2156', 4350505),
+('nicholas_saputra', 'b282b76d-3a79-479a-bc57-ea5fdd1de096', 1403519),
+('olivia_jensen', 'bf1522a5-c3d8-4b98-bc42-b6079d57077c', 1010594),
+('prilly_latuconsina', '24c5a411-1737-4f16-a088-cac10d9f3f10', 999900),
+('quinn_avrilia', '4cfe101d-ef97-4c48-bea4-f4a0d075cb36', 4817541),
+('raisa_andriana', '7a90554f-6697-4a97-9f3a-ef34428a1e47', 845271),
+('surya_saputra', 'e3fd5dc7-460d-45a5-8d06-3f6c213054ca', 1295648),
+('titi_kamal', '558ea90b-afd7-4dc1-bad0-bb80a764ea00', 915910);
 
+
+INSERT INTO INDIVIDU (nik, nama, id_adopter)
+VALUES
+('3300000000000001', 'Individu Ahmad Fauzi', '9615570b-634a-4192-bae8-22ab2a72ef0f'),
+('3300000000000002', 'Individu Bayu Setiawan', '66ab2efa-57cd-4a47-844f-9b18d1f59ef1'),
+('3300000000000003', 'Individu Citra Sakila', '3f303430-8089-44d7-9be7-b2e7a72f1632'),
+('3300000000000004', 'Individu Dian Sastro', 'b1c2fbb7-8d99-4198-bf6a-5ee898e92f84'),
+('3300000000000005', 'Individu Eko Patrio', '418220fd-d6e6-41af-b261-4337c8b55144'),
+('3300000000000006', 'Individu Fanny Fadillah', '4fdd70a6-f789-44a8-a114-36086a3de76a'),
+('3300000000000007', 'Individu Galih Ginanjar', 'd850ebe0-1504-4d57-b0f7-83ac23cfa6d9'),
+('3300000000000008', 'Individu Hani Soraya', '82079cc0-e4a0-4376-9518-943e7f20cc3d'),
+('3300000000000009', 'Individu Irfan Bachdim', '4f75b2d7-8de0-43a4-b39b-89d9b26006b5'),
+('3300000000000010', 'Individu Jessica Mila', '7113489a-1a79-4bf8-9256-fcda4dd39bbb');
+
+INSERT INTO ORGANISASI (npp, nama_organisasi, id_adopter)
+VALUES
+('22000000', 'Organisasi Kevin Merdeka', 'f9e8bb2a-4836-4757-89f8-cf05f7375186'),
+('22000001', 'Organisasi Luna Merdeka', '35cbae69-1ad8-4820-a187-10dc2d45b32d'),
+('22000002', 'Organisasi Maudy Merdeka', '066a17a8-70e2-4c46-aad5-c6a62c6c2156'),
+('22000003', 'Organisasi Nicholas Merdeka', 'b282b76d-3a79-479a-bc57-ea5fdd1de096'),
+('22000004', 'Organisasi Olivia Merdeka', 'bf1522a5-c3d8-4b98-bc42-b6079d57077c'),
+('22000005', 'Organisasi Prilly Merdeka', '24c5a411-1737-4f16-a088-cac10d9f3f10'),
+('22000006', 'Organisasi Quinn Merdeka', '4cfe101d-ef97-4c48-bea4-f4a0d075cb36'),
+('22000007', 'Organisasi Raisa Merdeka', '7a90554f-6697-4a97-9f3a-ef34428a1e47'),
+('22000008', 'Organisasi Surya Merdeka', 'e3fd5dc7-460d-45a5-8d06-3f6c213054ca'),
+('22000009', 'Organisasi Titi Merdeka', '558ea90b-afd7-4dc1-bad0-bb80a764ea00');
+
+INSERT INTO ADOPSI (id_adopter, id_hewan, status_pembayaran, tgl_mulai_adopsi, tgl_berhenti_adopsi, kontribusi_finansial)
+VALUES
+('9615570b-634a-4192-bae8-22ab2a72ef0f', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'Lunas', '2024-01-10', '2025-01-10', 1500000),
+('9615570b-634a-4192-bae8-22ab2a72ef0f', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12', 'Belum', '2024-03-05', '2025-03-05', 1000000),
+('66ab2efa-57cd-4a47-844f-9b18d1f59ef1', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13', 'Lunas', '2023-11-15', '2024-11-15', 2000000),
+('3f303430-8089-44d7-9be7-b2e7a72f1632', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a14', 'Belum', '2024-02-01', '2025-02-01', 1800000),
+('b1c2fbb7-8d99-4198-bf6a-5ee898e92f84', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a15', 'Lunas', '2024-04-12', '2025-04-12', 1600000),
+('418220fd-d6e6-41af-b261-4337c8b55144', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a16', 'Lunas', '2024-03-21', '2025-03-21', 1700000),
+('4fdd70a6-f789-44a8-a114-36086a3de76a', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a17', 'Belum', '2024-01-29', '2025-01-29', 1400000),
+('d850ebe0-1504-4d57-b0f7-83ac23cfa6d9', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a18', 'Lunas', '2023-12-18', '2024-12-18', 2100000),
+('82079cc0-e4a0-4376-9518-943e7f20cc3d', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a19', 'Lunas', '2024-05-01', '2025-05-01', 1900000),
+('4f75b2d7-8de0-43a4-b39b-89d9b26006b5', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a20', 'Belum', '2024-02-22', '2025-02-22', 1700000),
+('7113489a-1a79-4bf8-9256-fcda4dd39bbb', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a21', 'Lunas', '2024-01-15', '2025-01-15', 2200000),
+('f9e8bb2a-4836-4757-89f8-cf05f7375186', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', 'Belum', '2023-10-10', '2024-10-10', 1300000),
+('35cbae69-1ad8-4820-a187-10dc2d45b32d', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a23', 'Lunas', '2023-09-01', '2024-09-01', 1500000),
+('066a17a8-70e2-4c46-aad5-c6a62c6c2156', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a24', 'Belum', '2024-01-01', '2025-01-01', 1800000),
+('b282b76d-3a79-479a-bc57-ea5fdd1de096', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a25', 'Lunas', '2023-12-12', '2024-12-12', 1900000),
+('bf1522a5-c3d8-4b98-bc42-b6079d57077c', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a26', 'Belum', '2024-04-22', '2025-04-22', 1600000),
+('24c5a411-1737-4f16-a088-cac10d9f3f10', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a27', 'Lunas', '2024-03-05', '2025-03-05', 1200000),
+('4cfe101d-ef97-4c48-bea4-f4a0d075cb36', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a28', 'Belum', '2023-08-28', '2024-08-28', 2000000),
+('7a90554f-6697-4a97-9f3a-ef34428a1e47', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a29', 'Lunas', '2024-02-10', '2025-02-10', 1700000),
+('e3fd5dc7-460d-45a5-8d06-3f6c213054ca', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a30', 'Lunas', '2024-04-11', '2025-04-11', 1400000),
+('558ea90b-afd7-4dc1-bad0-bb80a764ea00', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a31', 'Belum', '2024-01-21', '2025-01-21', 1100000),
+('9615570b-634a-4192-bae8-22ab2a72ef0f', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a32', 'Lunas', '2023-11-30', '2024-11-30', 1600000),
+('66ab2efa-57cd-4a47-844f-9b18d1f59ef1', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a33', 'Belum', '2024-03-01', '2025-03-01', 1200000),
+('3f303430-8089-44d7-9be7-b2e7a72f1632', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a34', 'Lunas', '2024-05-11', '2025-05-11', 1750000),
+('b1c2fbb7-8d99-4198-bf6a-5ee898e92f84', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a35', 'Belum', '2024-06-06', '2025-06-06', 1350000),
+('418220fd-d6e6-41af-b261-4337c8b55144', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a36', 'Lunas', '2024-04-15', '2025-04-15', 1450000),
+('4fdd70a6-f789-44a8-a114-36086a3de76a', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a37', 'Belum', '2024-01-08', '2025-01-08', 1250000),
+('d850ebe0-1504-4d57-b0f7-83ac23cfa6d9', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a38', 'Lunas', '2023-12-25', '2024-12-25', 2100000),
+('82079cc0-e4a0-4376-9518-943e7f20cc3d', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a39', 'Lunas', '2024-03-19', '2025-03-19', 1900000),
+('4f75b2d7-8de0-43a4-b39b-89d9b26006b5', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a40', 'Belum', '2024-05-01', '2025-05-01', 1500000);
