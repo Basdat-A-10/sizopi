@@ -488,28 +488,36 @@ VALUES
 ('Amphitheater Utama', 'Area Tengah Safari'),
 ('Zona Harimau', 'Area Utara Safari'),
 ('Area Petualangan Anak', 'Area Selatan Safari'),
-('Taman Air Mini', 'Area Barat Safari');
+('Taman Air Mini', 'Area Barat Safari'),
+('Kandang Reptil', 'Area Ekshibisi Reptil, Zona Barat'),
+('Rumah Burung', 'Taman Aviarium, Area Tenggara'),
+('Savana Afrika', 'Zona Safari Timur, Area Terbuka'),
+('Hutan Hujan', 'Zona Konservasi Tropis, Area Barat Daya'),
+('Taman Kupu-kupu', 'Taman Serangga, Dekat Entrance Selatan');
 
-INSERT INTO WAHANA (nama_wahana, peraturan, kapasitas, jadwal)
-VALUES 
-('Taman Air Mini', '1. Dilarang Berenang. 2. Dilarang membawa makanan. 3. Anak-anak harus didampingi orang dewasa.', 100, '10:00:00'),
-('Area Petualangan Anak', '1. Dilarang memanjat pagar. 2. Dilarang membawa makanan dan minuman. 3. Maksimal usia 12 tahun.', 75, '11:30:00'),
-('Zona Akuatik', '1. Wajib menggunakan alas kaki anti-slip. 2. Dilarang berenang. 3. Dilarang memberi makan hewan.', 150, '09:00:00'),
-('Kandang Reptil', '1. Dilarang menggunakan flash kamera. 2. Dilarang mengetuk kaca. 3. Jaga jarak aman.', 80, '13:00:00'),
-('Taman Kupu-kupu', '1. Jangan menyentuh kupu-kupu. 2. Dilarang membawa makanan. 3. Jaga ketenangan.', 50, '14:00:00');
+INSERT INTO WAHANA (nama_wahana, peraturan) VALUES
+('Zona Akuatik', 'Dilarang membawa makanan dan minuman. Anak-anak harus didampingi orang dewasa.'),
+('Amphitheater Utama', 'Dilarang merokok. Harap matikan ponsel selama pertunjukan.'),
+('Zona Harimau', 'Dilarang memberi makan hewan. Jaga jarak aman.'),
+('Area Petualangan Anak', 'Hanya untuk anak usia 4-12 tahun. Wajib menggunakan alas kaki.'),
+('Taman Air Mini', 'Wajib menggunakan pakaian renang. Anak-anak harus didampingi orang dewasa.'),
+('Kandang Reptil', 'Dilarang menggunakan flash kamera. Jaga ketenangan.'),
+('Rumah Burung', 'Dilarang membuat kebisingan. Tidak menyentuh burung.'),
+('Savana Afrika', 'Tetap di dalam kendaraan safari. Jendela harus tertutup.'),
+('Hutan Hujan', 'Tetap di jalur yang ditentukan. Dilarang memetik tanaman.'),
+('Taman Kupu-kupu', 'Tidak menangkap kupu-kupu. Dilarang menggunakan losion serangga.');
 
-INSERT INTO JADWAL_PENUGASAN (username_lh, tgl_penugasan, nama_atraksi)
-VALUES 
-('andrea_trainer', '2025-05-12 10:00:00', 'Zona Akuatik'),
-('bagus_pelatih', '2025-05-13 11:00:00', 'Zona Harimau'),
-('cindy_trainer', '2025-05-14 10:00:00', 'Amphitheater Utama'),
-('david_pelatih', '2025-05-15 09:30:00', 'Area Petualangan Anak'),
-('elsa_trainer', '2025-05-16 10:30:00', 'Taman Air Mini'),
-('fahmi_pelatih', '2025-05-17 14:00:00', 'Zona Akuatik'),
-('grace_trainer', '2025-05-18 11:00:00', 'Zona Harimau'),
-('hadi_pelatih', '2025-05-19 10:00:00', 'Amphitheater Utama'),
-('irene_trainer', '2025-05-20 09:30:00', 'Area Petualangan Anak'),
-('jaya_pelatih', '2025-05-21 10:30:00', 'Taman Air Mini');
+INSERT INTO JADWAL_PENUGASAN (username_lh, tgl_penugasan, nama_atraksi) VALUES
+('andrea_trainer', '2025-05-01 09:00:00', 'Zona Akuatik'),
+('bagus_pelatih', '2025-05-01 10:00:00', 'Amphitheater Utama'),
+('cindy_trainer', '2025-05-01 11:00:00', 'Zona Harimau'),
+('david_pelatih', '2025-05-01 09:30:00', 'Area Petualangan Anak'),
+('elsa_trainer', '2025-05-01 10:30:00', 'Taman Air Mini'),
+('fahmi_pelatih', '2025-05-01 11:30:00', 'Kandang Reptil'),
+('grace_trainer', '2025-05-01 13:00:00', 'Rumah Burung'),
+('hadi_pelatih', '2025-05-01 14:00:00', 'Savana Afrika'),
+('irene_trainer', '2025-05-01 15:00:00', 'Hutan Hujan'),
+('jaya_pelatih', '2025-05-01 16:00:00', 'Taman Kupu-kupu');
 
 INSERT INTO BERPARTISIPASI (nama_fasilitas, id_hewan)
 VALUES 
