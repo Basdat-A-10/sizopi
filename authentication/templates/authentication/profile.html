@@ -176,20 +176,6 @@
 </style>
 
 <div class="profile-container">
-  {% if messages %}
-    {% for message in messages %}
-      <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% else %}alert-info{% endif %} alert-dismissible fade show mb-4" role="alert">
-        {% if message.tags == 'success' %}
-          <i class="fas fa-check-circle me-2"></i>
-        {% elif message.tags == 'error' %}
-          <i class="fas fa-exclamation-circle me-2"></i>
-        {% else %}
-          <i class="fas fa-info-circle me-2"></i>
-        {% endif %} {{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-      </div>
-    {% endfor %}
-  {% endif %}
 
   <div class="profile-card">
     <div class="profile-header">
