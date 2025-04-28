@@ -3,8 +3,9 @@
 {% block content %}
 <style>
   .rekam-medis-container {
-    max-width: 1200px;
-    margin: 40px auto;
+    max-width: 1600px; 
+    margin: 20px auto;
+    padding: 0 15px; 
   }
   
   .rekam-medis-header {
@@ -39,35 +40,62 @@
     padding: 25px;
     margin-bottom: 20px;
     overflow-x: auto;
+    width: 100%; 
   }
   
   .table {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
+    table-layout: fixed; 
   }
   
   .table th {
     background-color: var(--charcoal);
     color: white;
-    padding: 12px;
+    padding: 14px 18px; 
     font-weight: 500;
     text-align: left;
   }
   
   .table th:first-child {
     border-top-left-radius: 8px;
+    width: 9%; 
+  }
+  
+  .table th:nth-child(2) {
+    width: 11%; 
+  }
+  
+  .table th:nth-child(3) {
+    width: 11%; 
+  }
+  
+  .table th:nth-child(4) {
+    width: 8%; 
+  }
+  
+  .table th:nth-child(5),
+  .table th:nth-child(6),
+  .table th:nth-child(7) {
+    width: 14%; 
+  }
+  
+  .table th:nth-child(8) {
+    width: 10%; 
   }
   
   .table th:last-child {
     border-top-right-radius: 8px;
     text-align: center;
+    width: 10%; 
   }
   
   .table td {
-    padding: 12px;
+    padding: 14px 18px; 
     border-bottom: 1px solid #f0f0f0;
     color: var(--charcoal);
+    vertical-align: middle; 
   }
   
   .table tr:last-child td {
@@ -84,6 +112,9 @@
     border-radius: 20px;
     font-size: 0.75rem;
     font-weight: 500;
+    text-align: center;
+    width: 100%;
+    max-width: 100px;
   }
   
   .status-sehat {
@@ -106,16 +137,22 @@
     color: #004085;
   }
   
+  .action-btn-container {
+    display: flex;
+    justify-content: center;
+    gap: 8px; 
+  }
+  
   .action-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 5px 10px;
+    padding: 5px 12px;
     border-radius: 5px;
     font-size: 0.85rem;
     transition: all 0.2s;
-    margin-right: 5px;
     text-decoration: none;
+    min-width: 70px; 
   }
   
   .btn-edit {
@@ -150,6 +187,17 @@
     font-size: 4rem;
     margin-bottom: 20px;
     opacity: 0.5;
+  }
+
+  @media (max-width: 992px) {
+    .table {
+      table-layout: auto;
+    }
+    
+    .table th, 
+    .table td {
+      white-space: nowrap;
+    }
   }
 </style>
 
@@ -199,15 +247,17 @@
               <td>{% if rekam_medis.pengobatan %}{{ rekam_medis.pengobatan }}{% else %}-{% endif %}</td>
               <td>{% if rekam_medis.catatan_tindak_lanjut %}{{ rekam_medis.catatan_tindak_lanjut }}{% else %}-{% endif %}</td>
               <td>{{ rekam_medis.nama_dokter }}</td>
-              <td style="text-align: center;">
+              <td>
+                <div class="action-btn-container">
                 {% if rekam_medis.id_hewan and rekam_medis.tanggal_str %}
                 <a href="{% url 'kesehatan_perawatan_satwa:edit_rekam_medis' id=rekam_medis.id_hewan|add:'_'|add:rekam_medis.tanggal_str %}" class="action-btn btn-edit">
                   <i class="fas fa-edit me-1"></i>Edit
                 </a>
-                <a href="{% url 'kesehatan_perawatan_satwa:hapus_rekam_medis' id=rekam_medis.id_hewan|add:'_'|add:rekam_medis.tanggal_str %}" class="action-btn btn-delete">
+                <a href="/kesehatan-perawatan/rekam-medis/hapus/{{ rekam_medis.id_hewan }}_{{ rekam_medis.tanggal_str }}/" class="action-btn btn-delete">
                   <i class="fas fa-trash-alt me-1"></i>Hapus
                 </a>
                 {% endif %}
+                </div>
               </td>
             </tr>
           {% endfor %}

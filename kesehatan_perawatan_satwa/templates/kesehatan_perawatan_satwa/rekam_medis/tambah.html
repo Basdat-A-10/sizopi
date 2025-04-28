@@ -1,121 +1,289 @@
 {% extends 'base.html' %} 
-{% block title %}Tambah Rekam Medis{% endblock %} 
+{% block title %}Tambah Rekam Medis | Sizopi{% endblock %} 
 {% block content %}
-<div class="container mx-auto p-6">
-  <h1 class="text-2xl font-bold mb-6">Form Pencatatan Rekam Medis</h1>
+<style>
+  .form-container {
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 0 15px;
+  }
+  
+  .form-header {
+    background: linear-gradient(135deg, var(--charcoal) 0%, var(--paynes-gray) 100%);
+    color: white;
+    border-radius: 10px 10px 0 0;
+    padding: 20px 25px;
+    margin-bottom: 0;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+  }
+  
+  .form-header h1 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+  }
+  
+  .form-header h1 i {
+    margin-right: 12px;
+    font-size: 1.9rem;
+  }
+  
+  .form-body {
+    background-color: white;
+    border-radius: 0 0 10px 10px;
+    padding: 30px 25px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  }
+  
+  .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .form-label {
+    font-weight: 500;
+    margin-bottom: 10px;
+    color: var(--charcoal);
+    display: block;
+  }
+  
+  .form-control {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 1rem;
+  }
+  
+  .form-control:focus {
+    outline: none;
+    border-color: var(--paynes-gray);
+    box-shadow: 0 0 0 3px rgba(88, 111, 124, 0.15);
+  }
+  
+  .form-select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23546E7A'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E");
+    background-position: right 15px center;
+    background-repeat: no-repeat;
+    background-size: 16px;
+  }
+  
+  .form-footer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+  }
+  
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .btn-light {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    color: var(--charcoal);
+  }
+  
+  .btn-light:hover {
+    background-color: #e9ecef;
+  }
+  
+  .btn-primary {
+    background-color: var(--charcoal);
+    border: 1px solid var(--charcoal);
+    color: white;
+  }
+  
+  .btn-primary:hover {
+    background-color: var(--paynes-gray);
+    border-color: var(--paynes-gray);
+    color: white;
+  }
+  
+  .status-options {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+  
+  .status-option {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .status-radio {
+    display: none;
+  }
+  
+  .status-label {
+    padding: 10px;
+    border-radius: 6px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 2px solid transparent;
+  }
+  
+  .status-label.sehat {
+    background-color: #d4edda;
+    color: #155724;
+  }
+  
+  .status-label.sakit {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+  
+  .status-label.observasi {
+    background-color: #fff3cd;
+    color: #856404;
+  }
+  
+  .status-label.pemulihan {
+    background-color: #cce5ff;
+    color: #004085;
+  }
+  
+  .status-radio:checked + .status-label {
+    border-color: #343a40;
+    box-shadow: 0 0 0 2px rgba(52, 58, 64, 0.3);
+    font-weight: 500;
+  }
+  
+  .conditional-fields {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px dashed #dee2e6;
+  }
 
-  <div class="border rounded-lg p-6 max-w-2xl mx-auto">
-    <form method="post" action="">
+  @media (max-width: 768px) {
+    .status-options {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+</style>
+
+<div class="form-container">
+  <div class="form-header">
+    <h1>
+      <i class="fas fa-plus-circle"></i>
+      Tambah Rekam Medis
+    </h1>
+  </div>
+  
+  <div class="form-body">
+    <form method="post" action="{% url 'kesehatan_perawatan_satwa:tambah_rekam_medis' %}">
       {% csrf_token %}
-
-      <div class="mb-4">
-        <label for="hewan" class="block mb-2">Pilih Hewan:</label>
-        <select
-          id="hewan"
-          name="hewan"
-          class="w-full border p-2 rounded"
-          required
-        >
-          <option value="">-- Pilih Hewan --</option>
+      
+      <div class="form-group">
+        <label class="form-label" for="id_hewan">Pilih Hewan:</label>
+        <select class="form-select" id="id_hewan" name="id_hewan" required>
+          <option value="" selected disabled>-- Pilih Hewan --</option>
           {% for hewan in hewan_data %}
-          <option value="{{ hewan.id }}">
-            {{ hewan.nama }} ({{ hewan.spesies }})
-          </option>
+            <option value="{{ hewan.id }}">{{ hewan.nama }} ({{ hewan.spesies }})</option>
           {% endfor %}
         </select>
       </div>
-
-      <div class="mb-4">
-        <label for="tanggal_pemeriksaan" class="block mb-2"
-          >Tanggal Pemeriksaan:</label
-        >
-        <input
-          type="date"
-          id="tanggal_pemeriksaan"
-          name="tanggal_pemeriksaan"
-          class="w-full border p-2 rounded"
-          required
-        />
+      
+      <div class="form-group">
+        <label class="form-label" for="tanggal_pemeriksaan">Tanggal Pemeriksaan:</label>
+        <input type="date" class="form-control" id="tanggal_pemeriksaan" name="tanggal_pemeriksaan" value="{{ today }}" required>
       </div>
-
-      <div class="mb-4">
-        <label for="nama_dokter" class="block mb-2">Nama Dokter:</label>
-        <select
-          id="nama_dokter"
-          name="nama_dokter"
-          class="w-full border p-2 rounded"
-          required
-        >
-          <option value="">-- Pilih Dokter --</option>
-          {% for dokter in dokter_hewan %}
-          <option value="{{ dokter }}">{{ dokter }}</option>
-          {% endfor %}
-        </select>
+      
+      <div class="form-group">
+        <label class="form-label">Status Kesehatan:</label>
+        <div class="status-options">
+          <div class="status-option">
+            <input type="radio" id="status-sehat" name="status_kesehatan" value="Sehat" class="status-radio" required>
+            <label for="status-sehat" class="status-label sehat">Sehat</label>
+          </div>
+          <div class="status-option">
+            <input type="radio" id="status-sakit" name="status_kesehatan" value="Sakit" class="status-radio">
+            <label for="status-sakit" class="status-label sakit">Sakit</label>
+          </div>
+          <div class="status-option">
+            <input type="radio" id="status-observasi" name="status_kesehatan" value="Observasi" class="status-radio">
+            <label for="status-observasi" class="status-label observasi">Observasi</label>
+          </div>
+          <div class="status-option">
+            <input type="radio" id="status-pemulihan" name="status_kesehatan" value="Pemulihan" class="status-radio">
+            <label for="status-pemulihan" class="status-label pemulihan">Pemulihan</label>
+          </div>
+        </div>
       </div>
-
-      <div class="mb-4">
-        <label for="status_kesehatan" class="block mb-2"
-          >Status Kesehatan:</label
-        >
-        <select
-          id="status_kesehatan"
-          name="status_kesehatan"
-          class="w-full border p-2 rounded"
-          required
-        >
-          <option value="Sehat">Sehat</option>
-          <option value="Sakit">Sakit</option>
-          <option value="Pemulihan">Pemulihan</option>
-          <option value="Observasi">Observasi</option>
-        </select>
+      
+      <div class="conditional-fields" id="diagnosis-fields">
+        <div class="form-group">
+          <label class="form-label" for="diagnosis">Diagnosis:</label>
+          <textarea class="form-control" id="diagnosis" name="diagnosis" rows="3" placeholder="Masukkan diagnosis hewan"></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="pengobatan">Pengobatan:</label>
+          <textarea class="form-control" id="pengobatan" name="pengobatan" rows="3" placeholder="Masukkan pengobatan yang diberikan"></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="catatan_tindak_lanjut">Catatan Tindak Lanjut:</label>
+          <textarea class="form-control" id="catatan_tindak_lanjut" name="catatan_tindak_lanjut" rows="3" placeholder="Masukkan catatan tindak lanjut untuk hewan ini"></textarea>
+        </div>
       </div>
-
-      <div class="mb-4">
-        <label for="diagnosis" class="block mb-2">Diagnosis:</label>
-        <input
-          type="text"
-          id="diagnosis"
-          name="diagnosis"
-          class="w-full border p-2 rounded"
-        />
-      </div>
-
-      <div class="mb-4">
-        <label for="pengobatan" class="block mb-2">Pengobatan:</label>
-        <input
-          type="text"
-          id="pengobatan"
-          name="pengobatan"
-          class="w-full border p-2 rounded"
-        />
-      </div>
-
-      <div class="mb-4">
-        <label for="catatan_tindak_lanjut" class="block mb-2"
-          >Catatan Tindak Lanjut:</label
-        >
-        <textarea
-          id="catatan_tindak_lanjut"
-          name="catatan_tindak_lanjut"
-          class="w-full border p-2 rounded h-20"
-        ></textarea>
-      </div>
-
-      <div class="flex justify-end gap-2">
-        <button
-          type="submit"
-          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Simpan
-        </button>
-        <a
-          href="{% url 'kesehatan_perawatan_satwa:rekam_medis' %}"
-          class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Batal
+      
+      <div class="form-footer">
+        <a href="{% url 'kesehatan_perawatan_satwa:rekam_medis' %}" class="btn btn-light">
+          <i class="fas fa-arrow-left me-2"></i> Kembali
         </a>
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-save me-2"></i> Simpan Rekam Medis
+        </button>
       </div>
     </form>
   </div>
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Set default status untuk diagnosis fields
+    function toggleDiagnosisFields() {
+      const selectedStatus = document.querySelector('input[name="status_kesehatan"]:checked');
+      if (selectedStatus) {
+        if (selectedStatus.value === 'Sakit') {
+          document.getElementById('diagnosis').setAttribute('required', true);
+          document.getElementById('pengobatan').setAttribute('required', true);
+        } else {
+          document.getElementById('diagnosis').removeAttribute('required');
+          document.getElementById('pengobatan').removeAttribute('required');
+        }
+      }
+    }
+    
+    // Listen for status changes
+    const statusRadios = document.querySelectorAll('input[name="status_kesehatan"]');
+    statusRadios.forEach(radio => {
+      radio.addEventListener('change', toggleDiagnosisFields);
+    });
+    
+    // Initial setup
+    toggleDiagnosisFields();
+  });
+</script>
 {% endblock %}

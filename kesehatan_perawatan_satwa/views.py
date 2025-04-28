@@ -105,7 +105,6 @@ def tambah_rekam_medis(request):
             catatan_tindak_lanjut = request.POST.get('catatan_tindak_lanjut')
             
             with connection.cursor() as cursor:
-                # Cek apakah sudah ada rekam medis pada tanggal yang sama untuk hewan tersebut
                 cursor.execute("""
                     SELECT 1
                     FROM SIZOPI.CATATAN_MEDIS
@@ -134,7 +133,7 @@ def tambah_rekam_medis(request):
         except Exception as e:
             return redirect('kesehatan_perawatan_satwa:tambah_rekam_medis')
     
-    # Ambil data hewan untuk dropdown
+    # data hewan untuk dropdown
     hewan_data = []
     try:
         with connection.cursor() as cursor:
@@ -257,10 +256,13 @@ def hapus_rekam_medis(request, id):
         # Format ID: id_hewan_tanggal_pemeriksaan
         id_parts = id.split('_')
         if len(id_parts) < 2:
+            print(f"ID tidak valid: {id}, parts: {id_parts}")
             raise Http404("Rekam medis tidak ditemukan")
         
         id_hewan = id_parts[0]
-        tanggal_pemeriksaan = '_'.join(id_parts[1:])
+        tanggal_pemeriksaan = '-'.join(id_parts[1:4])  
+        
+        print(f"ID Hewan: {id_hewan}, Tanggal: {tanggal_pemeriksaan}")
         
         with connection.cursor() as cursor:
             cursor.execute("""
@@ -282,6 +284,7 @@ def hapus_rekam_medis(request, id):
             
             result = cursor.fetchone()
             if not result:
+                print(f"Data tidak ditemukan untuk ID: {id_hewan}, Tanggal: {tanggal_pemeriksaan}")
                 raise Http404("Rekam medis tidak ditemukan")
             
             rekam_medis = {
@@ -305,6 +308,7 @@ def hapus_rekam_medis(request, id):
             return redirect('kesehatan_perawatan_satwa:rekam_medis')
     
     except Exception as e:
+        print(f"Error pada hapus_rekam_medis: {str(e)}")
         return redirect('kesehatan_perawatan_satwa:rekam_medis')
     
     context = {
@@ -313,6 +317,7 @@ def hapus_rekam_medis(request, id):
         'user_role': request.COOKIES.get('user_role'),
         'rekam_medis': rekam_medis,
     }
+    
     return render(request, 'kesehatan_perawatan_satwa/rekam_medis/hapus.html', context)
 
 # ===== JADWAL PEMERIKSAAN =====
@@ -431,7 +436,7 @@ def tambah_pemberian_pakan(request):
 def edit_pemberian_pakan(request, id):
     if 'user_role' not in request.COOKIES or request.COOKIES.get('user_role') != 'penjaga_hewan':
         return redirect('login')
-    return render(request, 'kesehatan_perawatan_satwa/pemberian_pakan/edit.html')
+    return render(request, 'kesehatan_perawatan_satwa/pemberian_pakan/edit.html', context)
 
 def hapus_pemberian_pakan(request, id):
     if 'user_role' not in request.COOKIES or request.COOKIES.get('user_role') != 'penjaga_hewan':
