@@ -1,347 +1,183 @@
 {% extends 'base.html' %} 
-{% block title %}Pemberian Pakan | Sizopi{% endblock %} 
+{% block title %}Tambah Jadwal Pemberian Pakan | Sizopi{% endblock %} 
 {% block content %}
 <style>
-  .pakan-container {
-    max-width: 1600px;
+  .form-container {
+    max-width: 900px;
     margin: 20px auto;
     padding: 0 15px;
   }
-
-  .pakan-header {
-    background: linear-gradient(
-      135deg,
-      var(--charcoal) 0%,
-      var(--paynes-gray) 100%
-    );
+  
+  .form-header {
+    background: linear-gradient(135deg, var(--charcoal) 0%, var(--paynes-gray) 100%);
     color: white;
-    border-radius: 10px;
-    padding: 25px;
-    margin-bottom: 30px;
+    border-radius: 10px 10px 0 0;
+    padding: 20px 25px;
+    margin-bottom: 0;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap;
-    gap: 15px;
   }
-
-  .pakan-title {
+  
+  .form-header h1 {
     font-size: 1.8rem;
     font-weight: 600;
     margin: 0;
     display: flex;
     align-items: center;
   }
-
-  .pakan-title i {
+  
+  .form-header h1 i {
     margin-right: 12px;
     font-size: 1.9rem;
   }
-
-  .header-buttons {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    flex-wrap: wrap;
+  
+  .form-body {
+    background-color: white;
+    border-radius: 0 0 10px 10px;
+    padding: 30px 25px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
   }
-
+  
+  .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .form-label {
+    font-weight: 500;
+    margin-bottom: 10px;
+    color: var(--charcoal);
+    display: block;
+  }
+  
+  .form-control {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 1rem;
+  }
+  
+  .form-control:focus {
+    outline: none;
+    border-color: var(--paynes-gray);
+    box-shadow: 0 0 0 3px rgba(88, 111, 124, 0.15);
+  }
+  
+  .form-select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23546E7A'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E");
+    background-position: right 15px center;
+    background-repeat: no-repeat;
+    background-size: 16px;
+  }
+  
+  .form-select:focus {
+    border-color: var(--paynes-gray);
+    outline: none;
+  }
+  
+  .form-footer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+  }
+  
   .btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     padding: 10px 20px;
-    border-radius: 5px;
-    font-size: 0.9rem;
+    border-radius: 6px;
+    font-size: 1rem;
     font-weight: 500;
     text-decoration: none;
     cursor: pointer;
     transition: all 0.2s;
   }
-
+  
+  .btn-light {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    color: var(--charcoal);
+  }
+  
+  .btn-light:hover {
+    background-color: #e9ecef;
+  }
+  
   .btn-primary {
     background-color: var(--charcoal);
     border: 1px solid var(--charcoal);
     color: white;
   }
-
+  
   .btn-primary:hover {
     background-color: var(--paynes-gray);
     border-color: var(--paynes-gray);
     color: white;
-    text-decoration: none;
   }
-
-  .btn-light {
-    background-color: white;
-    border: 1px solid #dee2e6;
-    color: var(--charcoal);
-  }
-
-  .btn-light:hover {
-    background-color: #f8f9fa;
-    color: var(--charcoal);
-    text-decoration: none;
-  }
-
+  
   .btn i {
     margin-right: 8px;
   }
-
-  .table-container {
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-    padding: 0;
-    margin-bottom: 20px;
-    overflow-x: auto;
-  }
-
-  .table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-  }
-
-  .table th {
-    background-color: var(--charcoal);
-    color: white;
-    padding: 14px 18px;
-    font-weight: 500;
-    text-align: left;
-    font-size: 0.85rem;
-    white-space: nowrap;
-  }
-
-  .table th:first-child {
-    border-top-left-radius: 8px;
-  }
-
-  .table th:last-child {
-    border-top-right-radius: 8px;
-  }
-
-  .table td {
-    padding: 14px 18px;
-    border-bottom: 1px solid #f0f0f0;
-    color: var(--charcoal);
-    vertical-align: middle;
-    font-size: 0.9rem;
-  }
-
-  .table tr:last-child td {
-    border-bottom: none;
-  }
-
-  .table tr:hover td {
-    background-color: #f9f9f9;
-  }
-
-  /* Mengatur lebar kolom */
-  .col-nama {
-    width: 15%;
-  }
-
-  .col-spesies {
-    width: 18%;
-  }
-
-  .col-jenis {
-    width: 15%;
-  }
-
-  .col-jumlah {
-    width: 15%;
-  }
-
-  .col-status {
-    width: 17%;
-  }
-
-  .col-aksi {
-    width: 20%;
-  }
-
-  .status-badge {
-    display: inline-block;
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 500;
-    text-align: center;
-    min-width: 140px;
-    white-space: nowrap;
-  }
-
-  .status-terjadwal {
-    background-color: #fff3cd;
-    color: #856404;
-  }
-
-  .status-diberikan {
-    background-color: #d4edda;
-    color: #155724;
-  }
-
-  .action-btn-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-
-  .action-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 6px 10px;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    font-weight: 500;
-    text-decoration: none;
-    cursor: pointer;
-    transition: all 0.2s;
-    white-space: nowrap;
-  }
-
-  .btn-pakan {
-    background-color: #28a745;
-    border: 1px solid #28a745;
-    color: white;
-  }
-
-  .btn-pakan:hover {
-    background-color: #218838;
-    border-color: #1e7e34;
-    color: white;
-    text-decoration: none;
-  }
-
-  .btn-edit {
-    background-color: #6c757d;
-    border: 1px solid #6c757d;
-    color: white;
-  }
-
-  .btn-edit:hover {
-    background-color: #5a6268;
-    border-color: #545b62;
-    color: white;
-    text-decoration: none;
-  }
-
-  .btn-delete {
-    background-color: #dc3545;
-    border: 1px solid #dc3545;
-    color: white;
-  }
-
-  .btn-delete:hover {
-    background-color: #c82333;
-    border-color: #bd2130;
-    color: white;
-    text-decoration: none;
-  }
-
-  .empty-state {
-    text-align: center;
-    padding: 50px 0;
-    color: var(--paynes-gray);
-  }
-
-  .empty-state i {
-    font-size: 4rem;
-    margin-bottom: 20px;
-    opacity: 0.5;
-  }
-
-  @media (max-width: 992px) {
-    .table {
-      min-width: 800px;
-    }
-  }
 </style>
 
-<div class="pakan-container">
-  <div class="pakan-header">
-    <h1 class="pakan-title">
-      <i class="fas fa-drumstick-bite"></i>
-      Pemberian Pakan
+<div class="form-container">
+  <div class="form-header">
+    <h1>
+      <i class="fas fa-plus-circle"></i>
+      Tambah Jadwal Pemberian Pakan
     </h1>
-    <div class="header-buttons">
-      <a href="{% url 'kesehatan_perawatan_satwa:riwayat_pakan' %}" class="btn btn-light">
-        <i class="fas fa-history"></i> Riwayat Pemberian
-      </a>
-      <a href="{% url 'kesehatan_perawatan_satwa:tambah_pemberian_pakan' %}" class="btn btn-primary">
-        <i class="fas fa-plus-circle"></i> Tambah Jadwal Pemberian Pakan
-      </a>
-    </div>
   </div>
-
-  <div class="table-container">
-    {% if pakan_data %}
-    <table class="table">
-      <thead>
-        <tr>
-          <th class="col-nama">Nama Hewan</th>
-          <th class="col-spesies">Spesies</th>
-          <th class="col-jenis">Jenis Pakan</th>
-          <th class="col-jumlah">Jumlah Pakan (gram)</th>
-          <th class="col-status">Status</th>
-          <th class="col-aksi">Aksi</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for pakan in pakan_data %}
-        <tr>
-          <td>{{ pakan.nama_hewan }}</td>
-          <td>{{ pakan.spesies }}</td>
-          <td>{{ pakan.jenis_pakan }}</td>
-          <td>{{ pakan.jumlah_pakan }}</td>
-          <td>
-            <span class="status-badge {% if pakan.status == 'Terjadwal' %}status-terjadwal{% else %}status-diberikan{% endif %}">
-              {{ pakan.status }}
-            </span>
-          </td>
-          <td>
-            <div class="action-btn-container">
-              {% if pakan.status == 'Terjadwal' %}
-              <a
-                href="{% url 'kesehatan_perawatan_satwa:beri_pakan' pakan.jadwal_str %}"
-                class="action-btn btn-pakan"
-              >
-                <i class="fas fa-check-circle me-1"></i>Beri Pakan
-              </a>
-              {% endif %}
-              <a
-                href="{% url 'kesehatan_perawatan_satwa:edit_pemberian_pakan' pakan.jadwal_str %}"
-                class="action-btn btn-edit"
-              >
-                <i class="fas fa-edit me-1"></i>Edit
-              </a>
-              <a 
-                href="{% url 'kesehatan_perawatan_satwa:hapus_pemberian_pakan' pakan.jadwal_str %}" 
-                class="action-btn btn-delete"
-              >
-                <i class="fas fa-trash-alt me-1"></i>Hapus
-              </a>
-            </div>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    {% else %}
-    <div class="empty-state">
-      <i class="fas fa-drumstick-bite"></i>
-      <p>Belum ada jadwal pemberian pakan.</p>
-      <a
-        href="{% url 'kesehatan_perawatan_satwa:tambah_pemberian_pakan' %}"
-        class="btn btn-primary mt-3"
-      >
-        <i class="fas fa-plus-circle"></i>Tambah Jadwal Pemberian Pakan
-      </a>
-    </div>
-    {% endif %}
+  
+  <div class="form-body">
+    <form method="post" action="{% url 'kesehatan_perawatan_satwa:tambah_pemberian_pakan' %}">
+      {% csrf_token %}
+      
+      <div class="form-group">
+        <label class="form-label" for="id_hewan">Hewan:</label>
+        <select class="form-select" id="id_hewan" name="id_hewan" required>
+          <option value="" selected disabled>-- Pilih Hewan --</option>
+          {% for hewan in hewan_data %}
+            <option value="{{ hewan.id }}">{{ hewan.nama }} ({{ hewan.spesies }})</option>
+          {% endfor %}
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" for="jenis_pakan">Jenis Pakan:</label>
+        <input type="text" class="form-control" id="jenis_pakan" name="jenis_pakan" 
+               placeholder="Contoh: Daging Sapi, Sayuran, Buah-buahan" required>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" for="jumlah_pakan">Jumlah Pakan (gram):</label>
+        <input type="number" class="form-control" id="jumlah_pakan" name="jumlah_pakan" 
+               min="1" placeholder="Masukkan jumlah dalam gram" required>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" for="jadwal">Jadwal Pemberian:</label>
+        <input type="datetime-local" class="form-control" id="jadwal" name="jadwal" 
+               value="{{ default_datetime }}" required>
+      </div>
+      
+      <div class="form-footer">
+        <a href="{% url 'kesehatan_perawatan_satwa:pemberian_pakan' %}" class="btn btn-light">
+          <i class="fas fa-times"></i> Batal
+        </a>
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-save"></i> Simpan
+        </button>
+      </div>
+    </form>
   </div>
 </div>
 {% endblock %}
