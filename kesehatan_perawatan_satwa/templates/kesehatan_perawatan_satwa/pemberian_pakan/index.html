@@ -1,58 +1,321 @@
 {% extends 'base.html' %} 
-{% block title %}Pemberian Pakan{% endblock %} 
+{% block title %}Pemberian Pakan | Sizopi{% endblock %} 
 {% block content %}
-<div class="container mx-auto p-6">
-  <div class="flex justify-between items-center mb-6">
-    <h1 class="text-2xl font-bold">Pemberian Pakan</h1>
-    <a
-      href="{% url 'kesehatan_perawatan_satwa:tambah_pemberian_pakan' %}"
-      class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-    >
-      + Tambah Jadwal Pemberian Pakan
-    </a>
+<style>
+  .pakan-container {
+    max-width: 1600px;
+    margin: 20px auto;
+    padding: 0 15px;
+  }
+
+  .pakan-header {
+    background: linear-gradient(
+      135deg,
+      var(--charcoal) 0%,
+      var(--paynes-gray) 100%
+    );
+    color: white;
+    border-radius: 10px;
+    padding: 25px;
+    margin-bottom: 30px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .pakan-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .pakan-title i {
+    margin-right: 12px;
+    font-size: 1.9rem;
+  }
+
+  .table-container {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    padding: 25px;
+    margin-bottom: 20px;
+    overflow-x: auto;
+    width: 100%;
+  }
+
+  .table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: fixed;
+  }
+
+  .table th {
+    background-color: var(--charcoal);
+    color: white;
+    padding: 14px 18px;
+    font-weight: 500;
+    text-align: left;
+  }
+
+  .table th:first-child {
+    border-top-left-radius: 8px;
+    width: 17%; 
+  }
+
+  .table th:nth-child(2) {
+    width: 15%; 
+  }
+
+  .table th:nth-child(3) {
+    width: 15%; 
+  }
+
+  .table th:nth-child(4) {
+    width: 12%; 
+  }
+
+  .table th:nth-child(5) {
+    width: 10%; 
+  }
+
+  .table th:last-child {
+    border-top-right-radius: 8px;
+    text-align: center;
+    width: 31%; 
+  }
+
+  .table td {
+    padding: 14px 18px;
+    border-bottom: 1px solid #f0f0f0;
+    color: var(--charcoal);
+    vertical-align: middle;
+  }
+
+  .table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .table tr:hover td {
+    background-color: #f9f9f9;
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-align: center;
+    width: 100%;
+    max-width: 110px;
+  }
+
+  .status-terjadwal {
+    background-color: #fff3cd;
+    color: #856404;
+  }
+
+  .status-selesai-diberikan {
+    background-color: #d4edda;
+    color: #155724;
+  }
+
+  .action-btn-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px; 
+  }
+
+  .action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 12px;
+    border-radius: 5px;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+    text-decoration: none;
+    min-width: 80px; 
+    white-space: nowrap; 
+  }
+
+  .btn-edit {
+    background-color: var(--paynes-gray);
+    color: white;
+  }
+
+  .btn-edit:hover {
+    background-color: #455a67;
+    color: white;
+    text-decoration: none;
+  }
+
+  .btn-delete {
+    background-color: #dc3545;
+    color: white;
+  }
+
+  .btn-delete:hover {
+    background-color: #c82333;
+    color: white;
+    text-decoration: none;
+  }
+
+  .btn-pakan {
+    background-color: #28a745;
+    color: white;
+  }
+
+  .btn-pakan:hover {
+    background-color: #218838;
+    color: white;
+    text-decoration: none;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 50px 0;
+    color: var(--paynes-gray);
+  }
+
+  .empty-state i {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    opacity: 0.5;
+  }
+
+  .riwayat-link {
+    margin-right: 15px; 
+    margin-left: 10px;
+    font-size: 0.9rem;
+    color: white;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 5px 12px;
+    border-radius: 5px;
+    transition: all 0.2s;
+  }
+
+  .riwayat-link:hover {
+    background: rgba(255, 255, 255, 0.3);
+    color: white;
+    text-decoration: none;
+  }
+
+  .riwayat-link i {
+    margin-right: 5px;
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 992px) {
+    .table {
+      table-layout: auto;
+    }
+
+    .table th,
+    .table td {
+      white-space: nowrap;
+    }
+  }
+</style>
+
+<div class="pakan-container">
+  <div class="pakan-header">
+    <h1 class="pakan-title">
+      <i class="fas fa-drumstick-bite"></i>
+      Pemberian Pakan
+    </h1>
+    <div>
+      <a
+        href="{% url 'kesehatan_perawatan_satwa:riwayat_pakan' %}"
+        class="riwayat-link"
+      >
+        <i class="fas fa-history"></i> Riwayat Pemberian
+      </a>
+      <a
+        href="{% url 'kesehatan_perawatan_satwa:tambah_pemberian_pakan' %}"
+        class="btn btn-light"
+      >
+        <i class="fas fa-plus-circle me-2"></i>Tambah Jadwal Pemberian Pakan
+      </a>
+    </div>
   </div>
 
-  <div class="overflow-x-auto">
-    <table class="min-w-full bg-white border">
+  <div class="table-container">
+    {% if pakan_data %}
+    <table class="table">
       <thead>
         <tr>
-          <th class="py-2 px-4 border text-center">Jenis Pakan</th>
-          <th class="py-2 px-4 border text-center">Jumlah Pakan (gram)</th>
-          <th class="py-2 px-4 border text-center">Jadwal</th>
-          <th class="py-2 px-4 border text-center">Status</th>
-          <th class="py-2 px-4 border text-center">Aksi</th>
+          <th>Nama Hewan</th>
+          <th>Spesies</th>
+          <th>Jenis Pakan</th>
+          <th>Jumlah Pakan (gram)</th>
+          <th>Status</th>
+          <th>Aksi</th>
         </tr>
       </thead>
       <tbody>
-        {% for pakan in pemberian_pakan_data %}
+        {% for pakan in pakan_data %}
         <tr>
-          <td class="py-2 px-4 border text-center">{{ pakan.jenis_pakan }}</td>
-          <td class="py-2 px-4 border text-center">{{ pakan.jumlah_pakan }}</td>
-          <td class="py-2 px-4 border text-center">{{ pakan.jadwal }}</td>
-          <td class="py-2 px-4 border text-center">{{ pakan.status }}</td>
-          <td class="py-2 px-4 border text-center">
-            {% if pakan.status == 'Menunggu Pemberian' %}
-            <a
-              href="{% url 'kesehatan_perawatan_satwa:beri_pakan' pakan.id %}"
-              class="text-green-500 hover:underline mr-2"
-              >[Beri Pakan]</a
+          <td>{{ pakan.nama_hewan }}</td>
+          <td>{{ pakan.spesies }}</td>
+          <td>{{ pakan.jenis_pakan }}</td>
+          <td>{{ pakan.jumlah_pakan }}</td>
+          <td>
+            <span
+              class="status-badge {% if pakan.status == 'Terjadwal' %}status-terjadwal {% elif pakan.status == 'Selesai Diberikan' %}status-selesai-diberikan{% endif %}"
             >
-            {% endif %}
-            <a
-              href="{% url 'kesehatan_perawatan_satwa:edit_pemberian_pakan' pakan.id %}"
-              class="text-blue-500 hover:underline mr-2"
-              >[Edit]</a
-            >
-            <a
-              href="{% url 'kesehatan_perawatan_satwa:hapus_pemberian_pakan' pakan.id %}"
-              class="text-red-500 hover:underline"
-              >[Hapus]</a
-            >
+              {{ pakan.status }}
+            </span>
+          </td>
+          <td>
+            <div class="action-btn-container">
+              {% if pakan.status == 'Terjadwal' %}
+              <a
+                href="{% url 'kesehatan_perawatan_satwa:beri_pakan' pakan.id_hewan|add:'_'|add:pakan.jadwal_str %}"
+                class="action-btn btn-pakan"
+              >
+                <i class="fas fa-check-circle me-1"></i>Beri Pakan
+              </a>
+              {% endif %}
+              <a
+                href="{% url 'kesehatan_perawatan_satwa:edit_pemberian_pakan' pakan.id_hewan|add:'_'|add:pakan.jadwal_str %}"
+                class="action-btn btn-edit"
+              >
+                <i class="fas fa-edit me-1"></i>Edit
+              </a>
+              <a
+                href="{% url 'kesehatan_perawatan_satwa:hapus_pemberian_pakan' pakan.id_hewan|add:'_'|add:pakan.jadwal_str %}"
+                class="action-btn btn-delete"
+              >
+                <i class="fas fa-trash-alt me-1"></i>Hapus
+              </a>
+            </div>
           </td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
+    {% else %}
+    <div class="empty-state">
+      <i class="fas fa-drumstick-bite"></i>
+      <p>Belum ada jadwal pemberian pakan.</p>
+      <a
+        href="{% url 'kesehatan_perawatan_satwa:tambah_pemberian_pakan' %}"
+        class="btn btn-primary mt-3"
+      >
+        <i class="fas fa-plus-circle me-2"></i>Tambah Jadwal Pemberian Pakan
+        Pertama
+      </a>
+    </div>
+    {% endif %}
   </div>
 </div>
 {% endblock %}
