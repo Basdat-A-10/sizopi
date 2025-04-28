@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'wahana_atraksi',
     'authentication',
     'satwa_habitat',
+    'dashboard',
 ]
 
 MIDDLEWARE = [
