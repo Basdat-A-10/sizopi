@@ -1,0 +1,37 @@
+{% extends 'base.html' %} 
+{% block title %}Hapus Pemberian Pakan{% endblock %}
+{% block content %}
+<div class="container mx-auto p-6">
+  <h1 class="text-2xl font-bold mb-6">Hapus Pemberian Pakan</h1>
+
+  <div class="border rounded-lg p-6 max-w-xl mx-auto bg-red-50">
+    <p class="mb-6 text-center font-semibold">
+      Apakah anda yakin ingin menghapus data pemberian pakan ini?
+    </p>
+
+    <div class="mb-4">
+      <p><strong>Jenis Pakan:</strong> {{ pemberian_pakan.jenis_pakan }}</p>
+      <p><strong>Jumlah:</strong> {{ pemberian_pakan.jumlah_pakan }} gram</p>
+      <p><strong>Jadwal:</strong> {{ pemberian_pakan.jadwal }}</p>
+    </div>
+
+    <form method="post" action="">
+      {% csrf_token %}
+      <div class="flex justify-center gap-4">
+        <button
+          type="submit"
+          class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+        >
+          Ya
+        </button>
+        <a
+          href="{% url 'kesehatan_perawatan_satwa:pemberian_pakan' %}"
+          class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+        >
+          Tidak
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

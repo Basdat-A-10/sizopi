@@ -1,0 +1,44 @@
+{% extends 'base.html' %} 
+{% block title %}Jadwal Pemeriksaan Kesehatan{% endblock %} 
+{% block content %}
+<div class="container mx-auto p-6">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">Jadwal Pemeriksaan Kesehatan</h1>
+    <a
+      href="{% url 'kesehatan_perawatan_satwa:tambah_jadwal_pemeriksaan' %}"
+      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+    >
+      + Tambah Jadwal Pemeriksaan
+    </a>
+  </div>
+
+  {% for jadwal in jadwal_pemeriksaan_data %}
+  <div class="mb-8 border rounded-lg p-4">
+    <h2 class="text-xl font-bold mb-2">{{ jadwal.nama_hewan }}</h2>
+    <p class="mb-2">
+      Frekuensi Pemeriksaan Rutin: {{ jadwal.freq_pemeriksaan_rutin }} bulan
+      sekali
+    </p>
+
+    <div class="overflow-x-auto mt-4">
+      <table class="min-w-full bg-white border">
+        <thead>
+          <tr>
+            <th class="py-2 px-4 border text-center">
+              Tanggal Pemeriksaan Selanjutnya
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="py-2 px-4 border text-center">
+              {{ jadwal.tgl_pemeriksaan_selanjutnya }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

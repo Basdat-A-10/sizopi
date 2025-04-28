@@ -1,0 +1,121 @@
+{% extends 'base.html' %} 
+{% block title %}Tambah Rekam Medis{% endblock %} 
+{% block content %}
+<div class="container mx-auto p-6">
+  <h1 class="text-2xl font-bold mb-6">Form Pencatatan Rekam Medis</h1>
+
+  <div class="border rounded-lg p-6 max-w-2xl mx-auto">
+    <form method="post" action="">
+      {% csrf_token %}
+
+      <div class="mb-4">
+        <label for="hewan" class="block mb-2">Pilih Hewan:</label>
+        <select
+          id="hewan"
+          name="hewan"
+          class="w-full border p-2 rounded"
+          required
+        >
+          <option value="">-- Pilih Hewan --</option>
+          {% for hewan in hewan_data %}
+          <option value="{{ hewan.id }}">
+            {{ hewan.nama }} ({{ hewan.spesies }})
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="mb-4">
+        <label for="tanggal_pemeriksaan" class="block mb-2"
+          >Tanggal Pemeriksaan:</label
+        >
+        <input
+          type="date"
+          id="tanggal_pemeriksaan"
+          name="tanggal_pemeriksaan"
+          class="w-full border p-2 rounded"
+          required
+        />
+      </div>
+
+      <div class="mb-4">
+        <label for="nama_dokter" class="block mb-2">Nama Dokter:</label>
+        <select
+          id="nama_dokter"
+          name="nama_dokter"
+          class="w-full border p-2 rounded"
+          required
+        >
+          <option value="">-- Pilih Dokter --</option>
+          {% for dokter in dokter_hewan %}
+          <option value="{{ dokter }}">{{ dokter }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="mb-4">
+        <label for="status_kesehatan" class="block mb-2"
+          >Status Kesehatan:</label
+        >
+        <select
+          id="status_kesehatan"
+          name="status_kesehatan"
+          class="w-full border p-2 rounded"
+          required
+        >
+          <option value="Sehat">Sehat</option>
+          <option value="Sakit">Sakit</option>
+          <option value="Pemulihan">Pemulihan</option>
+          <option value="Observasi">Observasi</option>
+        </select>
+      </div>
+
+      <div class="mb-4">
+        <label for="diagnosis" class="block mb-2">Diagnosis:</label>
+        <input
+          type="text"
+          id="diagnosis"
+          name="diagnosis"
+          class="w-full border p-2 rounded"
+        />
+      </div>
+
+      <div class="mb-4">
+        <label for="pengobatan" class="block mb-2">Pengobatan:</label>
+        <input
+          type="text"
+          id="pengobatan"
+          name="pengobatan"
+          class="w-full border p-2 rounded"
+        />
+      </div>
+
+      <div class="mb-4">
+        <label for="catatan_tindak_lanjut" class="block mb-2"
+          >Catatan Tindak Lanjut:</label
+        >
+        <textarea
+          id="catatan_tindak_lanjut"
+          name="catatan_tindak_lanjut"
+          class="w-full border p-2 rounded h-20"
+        ></textarea>
+      </div>
+
+      <div class="flex justify-end gap-2">
+        <button
+          type="submit"
+          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        >
+          Simpan
+        </button>
+        <a
+          href="{% url 'kesehatan_perawatan_satwa:rekam_medis' %}"
+          class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+        >
+          Batal
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends 'base.html' %} 
+{% block title %}Pemberian Pakan{% endblock %} 
+{% block content %}
+<div class="container mx-auto p-6">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">Pemberian Pakan</h1>
+    <a
+      href="{% url 'kesehatan_perawatan_satwa:tambah_pemberian_pakan' %}"
+      class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+    >
+      + Tambah Jadwal Pemberian Pakan
+    </a>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="min-w-full bg-white border">
+      <thead>
+        <tr>
+          <th class="py-2 px-4 border text-center">Jenis Pakan</th>
+          <th class="py-2 px-4 border text-center">Jumlah Pakan (gram)</th>
+          <th class="py-2 px-4 border text-center">Jadwal</th>
+          <th class="py-2 px-4 border text-center">Status</th>
+          <th class="py-2 px-4 border text-center">Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for pakan in pemberian_pakan_data %}
+        <tr>
+          <td class="py-2 px-4 border text-center">{{ pakan.jenis_pakan }}</td>
+          <td class="py-2 px-4 border text-center">{{ pakan.jumlah_pakan }}</td>
+          <td class="py-2 px-4 border text-center">{{ pakan.jadwal }}</td>
+          <td class="py-2 px-4 border text-center">{{ pakan.status }}</td>
+          <td class="py-2 px-4 border text-center">
+            {% if pakan.status == 'Menunggu Pemberian' %}
+            <a
+              href="{% url 'kesehatan_perawatan_satwa:beri_pakan' pakan.id %}"
+              class="text-green-500 hover:underline mr-2"
+              >[Beri Pakan]</a
+            >
+            {% endif %}
+            <a
+              href="{% url 'kesehatan_perawatan_satwa:edit_pemberian_pakan' pakan.id %}"
+              class="text-blue-500 hover:underline mr-2"
+              >[Edit]</a
+            >
+            <a
+              href="{% url 'kesehatan_perawatan_satwa:hapus_pemberian_pakan' pakan.id %}"
+              class="text-red-500 hover:underline"
+              >[Hapus]</a
+            >
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

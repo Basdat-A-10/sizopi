@@ -1,0 +1,48 @@
+{% extends 'base.html' %} 
+{% block title %}Riwayat Pemberian Pakan{% endblock %}
+{% block content %}
+<div class="container mx-auto p-6">
+  <h1 class="text-2xl font-bold mb-6">Riwayat Pemberian Pakan</h1>
+
+  <div class="overflow-x-auto">
+    <table class="min-w-full bg-white border">
+      <thead>
+        <tr>
+          <th class="py-2 px-4 border text-center">Nama Individu (hewan)</th>
+          <th class="py-2 px-4 border text-center">Spesies</th>
+          <th class="py-2 px-4 border text-center">Asal Hewan</th>
+          <th class="py-2 px-4 border text-center">Tanggal Lahir</th>
+          <th class="py-2 px-4 border text-center">Habitat</th>
+          <th class="py-2 px-4 border text-center">Status Kesehatan</th>
+          <th class="py-2 px-4 border text-center">Jenis Pakan</th>
+          <th class="py-2 px-4 border text-center">Jumlah Pakan (gram)</th>
+          <th class="py-2 px-4 border text-center">Jadwal</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for riwayat in riwayat_pakan_data %}
+        <tr>
+          <td class="py-2 px-4 border text-center">{{ riwayat.nama_hewan }}</td>
+          <td class="py-2 px-4 border text-center">{{ riwayat.spesies }}</td>
+          <td class="py-2 px-4 border text-center">{{ riwayat.asal_hewan }}</td>
+          <td class="py-2 px-4 border text-center">
+            {{ riwayat.tanggal_lahir }}
+          </td>
+          <td class="py-2 px-4 border text-center">{{ riwayat.habitat }}</td>
+          <td class="py-2 px-4 border text-center">
+            {{ riwayat.status_kesehatan }}
+          </td>
+          <td class="py-2 px-4 border text-center">
+            {{ riwayat.jenis_pakan }}
+          </td>
+          <td class="py-2 px-4 border text-center">
+            {{ riwayat.jumlah_pakan }}
+          </td>
+          <td class="py-2 px-4 border text-center">{{ riwayat.jadwal }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

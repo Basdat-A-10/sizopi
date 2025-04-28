@@ -334,7 +334,7 @@ VALUES
 ('putri_maharani', 'STR-DH-2020-01456789'),
 ('rizky_pratama', 'STR-DH-2022-01567890');
 
--- Insert 10 datas for 4. SPESIALISASI table (jumlah dikurangi dari 17 menjadi 10)
+-- Insert 10 datas for 4. SPESIALISASI table 
 INSERT INTO SPESIALISASI (username_SH, nama_spesialisasi)
 VALUES 
 ('ajeng_pratiwi', 'Bedah Hewan Kecil'),

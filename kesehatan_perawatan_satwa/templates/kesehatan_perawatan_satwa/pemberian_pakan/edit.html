@@ -1,0 +1,66 @@
+{% extends 'base.html' %} 
+{% block title %}Edit Pemberian Pakan{% endblock %} 
+{% block content %}
+<div class="container mx-auto p-6">
+  <h1 class="text-2xl font-bold mb-6">Edit Pemberian Pakan</h1>
+
+  <div class="border rounded-lg p-6 max-w-xl mx-auto">
+    <form method="post" action="">
+      {% csrf_token %}
+
+      <div class="mb-4">
+        <label for="jenis_pakan" class="block mb-2">Jenis Pakan Baru:</label>
+        <input
+          type="text"
+          id="jenis_pakan"
+          name="jenis_pakan"
+          value="{{ pemberian_pakan.jenis_pakan }}"
+          class="w-full border p-2 rounded"
+          required
+        />
+      </div>
+
+      <div class="mb-4">
+        <label for="jumlah_pakan" class="block mb-2"
+          >Jumlah Pakan Baru (gram):</label
+        >
+        <input
+          type="number"
+          id="jumlah_pakan"
+          name="jumlah_pakan"
+          value="{{ pemberian_pakan.jumlah_pakan }}"
+          class="w-full border p-2 rounded"
+          required
+        />
+      </div>
+
+      <div class="mb-4">
+        <label for="jadwal" class="block mb-2">Jadwal Baru:</label>
+        <input
+          type="datetime-local"
+          id="jadwal"
+          name="jadwal"
+          value="{{ pemberian_pakan.jadwal|date:'Y-m-d\TH:i' }}"
+          class="w-full border p-2 rounded"
+          required
+        />
+      </div>
+
+      <div class="flex justify-end gap-2">
+        <button
+          type="submit"
+          class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+        >
+          Simpan
+        </button>
+        <a
+          href="{% url 'kesehatan_perawatan_satwa:pemberian_pakan' %}"
+          class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+        >
+          Batal
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends 'base.html' %} 
+{% block title %}Hapus Rekam Medis{% endblock %} 
+{% block content %}
+<div class="container mx-auto p-6">
+  <h1 class="text-2xl font-bold mb-6">Hapus Rekam Medis</h1>
+
+  <div class="border rounded-lg p-6 max-w-xl mx-auto bg-red-50">
+    <p class="mb-6 text-center font-semibold">
+      Apakah anda yakin ingin menghapus rekam medis ini?
+    </p>
+
+    <div class="mb-4 space-y-2">
+      {% if rekam_medis.tanggal_pemeriksaan %}
+      <p>
+        <strong>Tanggal Pemeriksaan:</strong> {{ rekam_medis.tanggal_pemeriksaan
+        }}
+      </p>
+      {% endif %} {% if rekam_medis.nama_dokter %}
+      <p><strong>Nama Dokter:</strong> {{ rekam_medis.nama_dokter }}</p>
+      {% endif %} {% if rekam_medis.diagnosis %}
+      <p><strong>Diagnosis:</strong> {{ rekam_medis.diagnosis }}</p>
+      {% endif %}
+    </div>
+
+    <form method="post" action="">
+      {% csrf_token %}
+      <div class="flex justify-center gap-4">
+        <button
+          type="submit"
+          class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+        >
+          Ya
+        </button>
+        <a
+          href="{% url 'kesehatan_perawatan_satwa:rekam_medis' %}"
+          class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+        >
+          Tidak
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

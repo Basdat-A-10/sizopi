@@ -1,0 +1,61 @@
+{% extends 'base.html' %} 
+{% block title %}Rekam Medis Hewan{% endblock %} 
+{% block content %}
+<div class="container mx-auto p-6">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">Rekam Medis Hewan</h1>
+    <a
+      href="{% url 'kesehatan_perawatan_satwa:tambah_rekam_medis' %}"
+      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+    >
+      + Tambah Rekam Medis
+    </a>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="min-w-full bg-white border">
+      <thead>
+        <tr>
+          <th class="py-2 px-4 border text-center">Tanggal Pemeriksaan</th>
+          <th class="py-2 px-4 border text-center">Nama Dokter</th>
+          <th class="py-2 px-4 border text-center">Status Kesehatan</th>
+          <th class="py-2 px-4 border text-center">Diagnosis</th>
+          <th class="py-2 px-4 border text-center">Pengobatan</th>
+          <th class="py-2 px-4 border text-center">Catatan Tindak Lanjut</th>
+          <th class="py-2 px-4 border text-center">Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for rekam in rekam_medis_data %}
+        <tr>
+          <td class="py-2 px-4 border text-center">
+            {{ rekam.tanggal_pemeriksaan }}
+          </td>
+          <td class="py-2 px-4 border text-center">{{ rekam.nama_dokter }}</td>
+          <td class="py-2 px-4 border text-center">
+            {{ rekam.status_kesehatan }}
+          </td>
+          <td class="py-2 px-4 border text-center">{{ rekam.diagnosis }}</td>
+          <td class="py-2 px-4 border text-center">{{ rekam.pengobatan }}</td>
+          <td class="py-2 px-4 border text-center">
+            {{ rekam.catatan_tindak_lanjut }}
+          </td>
+          <td class="py-2 px-4 border text-center">
+            <a
+              href="{% url 'kesehatan_perawatan_satwa:edit_rekam_medis' rekam.id %}"
+              class="text-blue-500 hover:underline mr-2"
+              >[Edit]</a
+            >
+            <a
+              href="{% url 'kesehatan_perawatan_satwa:hapus_rekam_medis' rekam.id %}"
+              class="text-red-500 hover:underline"
+              >[Hapus]</a
+            >
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Tambah Jadwal Pemeriksaan{% endblock %}
+
+{% block content %}
+<div class="container mx-auto p-6">
+    <h1 class="text-2xl font-bold mb-6">Tambah Jadwal Pemeriksaan</h1>
+    
+    <div class="border rounded-lg p-6 max-w-xl mx-auto">
+        <form method="post" action="">
+            {% csrf_token %}
+            
+            <div class="mb-4">
+                <label for="hewan" class="block mb-2">Pilih Hewan:</label>
+                <select id="hewan" name="hewan" class="w-full border p-2 rounded" required>
+                    <option value="">-- Pilih Hewan --</option>
+                    {% for hewan in hewan_data %}
+                    <option value="{{ hewan.id }}">{{ hewan.nama }} ({{ hewan.spesies }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="mb-4">
+                <label for="tgl_pemeriksaan_selanjutnya" class="block mb-2">Tanggal Pemeriksaan Selanjutnya:</label>
+                <input type="date" id="tgl_pemeriksaan_selanjutnya" name="tgl_pemeriksaan_selanjutnya" class="w-full border p-2 rounded" required>
+            </div>
+            
+            <div class="flex justify-end gap-2">
+                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Simpan
+                </button>
+                <a href="{% url 'kesehatan_perawatan_satwa:jadwal_pemeriksaan' %}" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                    Batal
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
