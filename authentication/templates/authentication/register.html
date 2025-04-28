@@ -64,10 +64,6 @@
         margin-top: 20px;
     }
     
-    .messages-container {
-        margin-bottom: 20px;
-    }
-    
     .alert {
         border-radius: 8px;
         padding: 15px;
@@ -75,16 +71,6 @@
 </style>
 
 <div class="register-container">
-    <div class="messages-container">
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            {% endfor %}
-        {% endif %}
-    </div>
     
     <div class="register-card">
         <div class="register-header">

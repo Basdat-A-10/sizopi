@@ -1,0 +1,248 @@
+<nav class="navbar navbar-expand-lg" style="background-color: var(--charcoal)">
+  <div class="container-fluid px-4">
+    <!-- Logo dan nama aplikasi -->
+    <a class="navbar-brand d-flex align-items-center" href="/">
+      <i class="fas fa-paw me-2" style="color: var(--light-blue)"></i>
+      Sizopi
+    </a>
+
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarNav"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+      {% if user_id %}
+      <!-- Menu untuk user yang sudah login -->
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="/">
+            <i class="fas fa-home me-1"></i> Beranda
+          </a>
+        </li>
+
+        {% if user_role == 'dokter_hewan' %}
+        <!-- Menu untuk Dokter Hewan -->
+        <li class="nav-item dropdown">
+          <a
+            class="nav-link dropdown-toggle"
+            href="#"
+            role="button"
+            data-bs-toggle="dropdown"
+          >
+            <i class="fas fa-stethoscope me-1"></i> Kesehatan Hewan
+          </a>
+          <ul class="dropdown-menu">
+            <li>
+              <a class="dropdown-item" href="/kesehatan-perawatan/rekam-medis/">
+                <i class="fas fa-notes-medical me-1"></i> Rekam Medis Hewan
+              </a>
+            </li>
+            <li>
+              <a
+                class="dropdown-item"
+                href="/kesehatan-perawatan/jadwal-pemeriksaan/"
+              >
+                <i class="fas fa-calendar-check me-1"></i> Jadwal Pemeriksaan
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        {% elif user_role == 'penjaga_hewan' %}
+        <!-- Menu untuk Penjaga Hewan -->
+        <li class="nav-item dropdown">
+          <a
+            class="nav-link dropdown-toggle"
+            href="#"
+            role="button"
+            data-bs-toggle="dropdown"
+          >
+            <i class="fas fa-shield-alt me-1"></i> Perawatan Hewan
+          </a>
+          <ul class="dropdown-menu">
+            <li>
+              <a
+                class="dropdown-item"
+                href="/kesehatan-perawatan/pemberian-pakan/"
+              >
+                <i class="fas fa-drumstick-bite me-1"></i> Pemberian Pakan
+              </a>
+            </li>
+            <li>
+              <a
+                class="dropdown-item"
+                href="/kesehatan-perawatan/catatan-perawatan/"
+              >
+                <i class="fas fa-paw me-1"></i> Catatan Perawatan
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        {% elif user_role == 'pelatih_hewan' %}
+        <!-- Menu untuk Pelatih Hewan -->
+        <li class="nav-item">
+          <a class="nav-link" href="#">
+            <i class="fas fa-tasks me-1"></i> Jadwal Pertunjukan
+          </a>
+        </li>
+
+        {% elif user_role == 'staf_admin' %}
+        <!-- Menu untuk Staff Admin -->
+        <li class="nav-item dropdown">
+          <a
+            class="nav-link dropdown-toggle"
+            href="#"
+            role="button"
+            data-bs-toggle="dropdown"
+          >
+            <i class="fas fa-user-cog me-1"></i> Administrasi
+          </a>
+          <ul class="dropdown-menu">
+            <li>
+              <a class="dropdown-item" href="#">
+                <i class="fas fa-users me-1"></i> Kelola Pengunjung
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="#">
+                <i class="fas fa-hands-helping me-1"></i> Kelola Adopsi
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="#">
+                <i class="fas fa-user-friends me-1"></i> Kelola Adopter
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        {% elif user_role == 'pengunjung' %}
+        <!-- Menu untuk Pengunjung -->
+        <li class="nav-item">
+          <a class="nav-link" href="#">
+            <i class="fas fa-info-circle me-1"></i> Informasi Kebun Binatang
+          </a>
+        </li>
+
+        {% elif user_role == 'pengunjung_adopter' %}
+        <!-- Menu untuk Pengunjung Adopter -->
+        <li class="nav-item">
+          <a class="nav-link" href="#">
+            <i class="fas fa-info-circle me-1"></i> Informasi Kebun Binatang
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">
+            <i class="fas fa-heart me-1"></i> Hewan Adopsi Saya
+          </a>
+        </li>
+        {% endif %}
+      </ul>
+
+      <!-- User profile dan logout button di sebelah kanan -->
+      <div class="d-flex align-items-center ms-auto">
+        <!-- Pengaturan Profil -->
+        <div class="me-3">
+          <a class="nav-link" href="#" style="color: var(--light-blue)">
+            <i class="fas fa-user-cog"></i>
+            <span class="d-none d-lg-inline ms-1">Profil</span>
+          </a>
+        </div>
+
+        <!-- User info -->
+        <div class="dropdown">
+          <div
+            class="d-flex align-items-center"
+            style="cursor: pointer"
+            data-bs-toggle="dropdown"
+          >
+            <!-- Avatar -->
+            <div class="user-avatar">
+              {% if user_fullname %}
+                <span>{{ user_fullname|first|upper }}</span>
+              {% else %}
+                <span>U</span>
+              {% endif %}
+            </div>
+            <div class="d-none d-lg-block">
+              <div
+                style="
+                  color: var(--ghost-white);
+                  font-weight: 500;
+                  white-space: nowrap;
+                "
+              >
+                {{ user_fullname }}
+              </div>
+              <div class="role-badge">
+                {% if user_role == 'dokter_hewan' %} 
+                  Dokter Hewan 
+                {% elif user_role == 'penjaga_hewan' %} 
+                  Penjaga Hewan 
+                {% elif user_role == 'pelatih_hewan' %} 
+                  Pelatih Hewan 
+                {% elif user_role == 'staf_admin' %} 
+                  Staff Admin 
+                {% elif user_role == 'pengunjung' %} 
+                  Pengunjung 
+                {% elif user_role == 'pengunjung_adopter' %} 
+                  Pengunjung Adopter 
+                {% endif %}
+              </div>
+            </div>
+            <i
+              class="fas fa-chevron-down ms-2"
+              style="color: var(--light-blue); font-size: 0.8rem"
+            ></i>
+          </div>
+
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li>
+              <a class="dropdown-item" href="{% url 'dashboard' %}">
+                <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="#">
+                <i class="fas fa-user-cog me-2"></i> Pengaturan Profil
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="#">
+                <i class="fas fa-lock me-2"></i> Ubah Password
+              </a>
+            </li>
+            <li><hr class="dropdown-divider" /></li>
+            <li>
+              <a class="dropdown-item" href="{% url 'logout' %}">
+                <i class="fas fa-sign-out-alt me-2"></i> Logout
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      {% else %}
+      <!-- Menu navbar ketika user belum login -->
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'login' %}">
+            <i class="fas fa-sign-in-alt me-1"></i> Login
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'register' %}">
+            <i class="fas fa-user-plus me-1"></i> Register
+          </a>
+        </li>
+      </ul>
+      {% endif %}
+    </div>
+  </div>
+</nav>
