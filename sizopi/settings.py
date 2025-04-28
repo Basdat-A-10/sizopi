@@ -41,7 +41,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # A-10 APPS
     'main',
-    'kesehatan_perawatan_satwa'
+    'kesehatan_perawatan_satwa',
+    'wahana_atraksi',
+    'authentication',
 ]
 
 MIDDLEWARE = [

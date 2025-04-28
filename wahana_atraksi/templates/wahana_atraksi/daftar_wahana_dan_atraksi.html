@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- DATA WAHANA -->
+    <div class="card mb-5">
+        <div class="card-header bg-primary text-white text-center">
+            <h2>DATA WAHANA</h2>
+        </div>
+        <div class="card-body">
+            <div class="text-end mb-3">
+                <a href="{% url 'tambah_wahana' %}" class="btn btn-success">
+                    <i class="fas fa-plus"></i> Tambah Wahana
+                </a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Nama Wahana</th>
+                            <th>Kapasitas</th>
+                            <th>Jadwal</th>
+                            <th>Peraturan</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for wahana in wahana_list %}
+                        <tr>
+                            <td>{{ wahana.nama_wahana }}</td>
+                            <td>{{ wahana.kapasitas_max }} orang</td>
+                            <td>{{ wahana.jadwal }}</td>
+                            <td>{{ wahana.peraturan|linebreaks }}</td>
+                            <td>
+                                <a href="{% url 'edit_wahana' wahana.nama_wahana %}" class="btn btn-sm btn-warning">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                                <a href="{% url 'delete_wahana' wahana.nama_wahana %}" class="btn btn-sm btn-danger"
+                                   onclick="return confirm('Apakah Anda yakin ingin menghapus wahana ini?')">
+                                    <i class="fas fa-trash"></i> Hapus
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center">Tidak ada data wahana</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- DATA ATRAKSI -->
+    <div class="card">
+        <div class="card-header bg-success text-white text-center">
+            <h2>DATA ATRAKSI</h2>
+        </div>
+        <div class="card-body">
+            <div class="text-end mb-3">
+                <a href="{% url 'tambah_atraksi' %}" class="btn btn-success">
+                    <i class="fas fa-plus"></i> Tambah Atraksi
+                </a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Nama Atraksi</th>
+                            <th>Lokasi</th>
+                            <th>Kapasitas</th>
+                            <th>Jadwal</th>
+                            <th>Hewan yang terlibat</th>
+                            <th>Pelatih</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for atraksi in atraksi_list %}
+                        <tr>
+                            <td>{{ atraksi.nama_atraksi }}</td>
+                            <td>{{ atraksi.lokasi }}</td>
+                            <td>{{ atraksi.kapasitas_max }} orang</td>
+                            <td>{{ atraksi.jadwal }}</td>
+                            <td>{{ atraksi.hewan_terlibat }}</td>
+                            <td>{{ atraksi.pelatih }}</td>
+                            <td>
+                                <a href="{% url 'edit_atraksi' atraksi.nama_atraksi %}" class="btn btn-sm btn-warning">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                                <a href="{% url 'delete_atraksi' atraksi.nama_atraksi %}" class="btn btn-sm btn-danger"
+                                   onclick="return confirm('Apakah Anda yakin ingin menghapus atraksi ini?')">
+                                    <i class="fas fa-trash"></i> Hapus
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">Tidak ada data atraksi</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
