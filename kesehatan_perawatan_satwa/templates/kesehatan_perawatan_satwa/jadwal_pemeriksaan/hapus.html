@@ -1,0 +1,227 @@
+{% extends 'base.html' %} 
+{% block title %}Hapus Jadwal Pemeriksaan | Sizopi{% endblock %} 
+{% block content %}
+<style>
+  .form-container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 0 15px;
+  }
+
+  .form-header {
+    background: linear-gradient(
+      135deg,
+      var(--charcoal) 0%,
+      var(--paynes-gray) 100%
+    );
+    color: white;
+    border-radius: 10px 10px 0 0;
+    padding: 20px 25px;
+    margin-bottom: 0;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+  }
+
+  .form-header h1 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .form-header h1 i {
+    margin-right: 12px;
+    font-size: 1.9rem;
+    color: #f8d7da;
+  }
+
+  .form-body {
+    background-color: white;
+    border-radius: 0 0 10px 10px;
+    padding: 30px 25px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  }
+
+  .detail-card {
+    background-color: #fff9f9;
+    border: 1px solid #f5c6cb;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .warning-text {
+    color: #721c24;
+    text-align: center;
+    font-weight: 500;
+    margin-bottom: 20px;
+    padding: 10px;
+    border-radius: 6px;
+    background-color: #f8d7da;
+  }
+
+  .detail-item {
+    margin-bottom: 12px;
+    display: flex;
+    border-bottom: 1px dashed #eee;
+    padding-bottom: 8px;
+  }
+
+  .detail-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+  }
+
+  .detail-label {
+    font-weight: 500;
+    width: 180px;
+    color: #495057;
+  }
+
+  .detail-value {
+    flex-grow: 1;
+    color: #212529;
+  }
+
+  .form-footer {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 30px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-light {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    color: var(--charcoal);
+  }
+
+  .btn-light:hover {
+    background-color: #e9ecef;
+  }
+
+  .btn-danger {
+    background-color: #dc3545;
+    border: 1px solid #dc3545;
+    color: white;
+  }
+
+  .btn-danger:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-align: center;
+    width: fit-content;
+  }
+
+  .status-sehat {
+    background-color: #d4edda;
+    color: #155724;
+  }
+
+  .status-sakit {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+
+  .status-observasi {
+    background-color: #fff3cd;
+    color: #856404;
+  }
+
+  .status-pemulihan {
+    background-color: #cce5ff;
+    color: #004085;
+  }
+</style>
+
+<div class="form-container">
+  <div class="form-header">
+    <h1>
+      <i class="fas fa-calendar-times"></i>
+      Hapus Jadwal Pemeriksaan
+    </h1>
+  </div>
+
+  <div class="form-body">
+    <div class="warning-text">
+      Apakah Anda yakin ingin menghapus jadwal pemeriksaan ini?<br />
+      <small>Tindakan ini tidak dapat dibatalkan.</small>
+    </div>
+
+    <div class="detail-card">
+      <div class="detail-item">
+        <div class="detail-label">Nama Hewan:</div>
+        <div class="detail-value">{{ jadwal.nama_hewan }}</div>
+      </div>
+
+      <div class="detail-item">
+        <div class="detail-label">Spesies:</div>
+        <div class="detail-value">{{ jadwal.spesies }}</div>
+      </div>
+
+      <div class="detail-item">
+        <div class="detail-label">Tanggal Pemeriksaan:</div>
+        <div class="detail-value">
+          {{ jadwal.tgl_pemeriksaan_selanjutnya|date:"d M Y" }}
+        </div>
+      </div>
+
+      <div class="detail-item">
+        <div class="detail-label">Frekuensi Pemeriksaan:</div>
+        <div class="detail-value">
+          {{ jadwal.freq_pemeriksaan_rutin }} bulan sekali
+        </div>
+      </div>
+
+      <div class="detail-item">
+        <div class="detail-label">Status Kesehatan:</div>
+        <div class="detail-value">
+          <span
+            class="status-badge {% if jadwal.status_kesehatan == 'Sehat' %}status-sehat {% elif jadwal.status_kesehatan == 'Sakit' %}status-sakit {% elif jadwal.status_kesehatan == 'Observasi' %}status-observasi {% elif jadwal.status_kesehatan == 'Pemulihan' %}status-pemulihan{% endif %}"
+          >
+            {{ jadwal.status_kesehatan }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-footer">
+        <a
+          href="{% url 'kesehatan_perawatan_satwa:jadwal_pemeriksaan' %}"
+          class="btn btn-light"
+        >
+          <i class="fas fa-arrow-left me-2"></i> Kembali
+        </a>
+        <button type="submit" class="btn btn-danger">
+          <i class="fas fa-trash-alt me-2"></i> Hapus Jadwal Pemeriksaan
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

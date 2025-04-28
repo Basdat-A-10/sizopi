@@ -1,44 +1,350 @@
 {% extends 'base.html' %} 
-{% block title %}Jadwal Pemeriksaan Kesehatan{% endblock %} 
+{% block title %}Jadwal Pemeriksaan Kesehatan | Sizopi{% endblock %} 
 {% block content %}
-<div class="container mx-auto p-6">
-  <div class="flex justify-between items-center mb-6">
-    <h1 class="text-2xl font-bold">Jadwal Pemeriksaan Kesehatan</h1>
+<style>
+  .jadwal-container {
+    max-width: 1600px; 
+    margin: 20px auto;
+    padding: 0 15px;
+  }
+
+  .jadwal-header {
+    background: linear-gradient(
+      135deg,
+      var(--charcoal) 0%,
+      var(--paynes-gray) 100%
+    );
+    color: white;
+    border-radius: 10px;
+    padding: 25px;
+    margin-bottom: 30px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .jadwal-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .jadwal-title i {
+    margin-right: 12px;
+    font-size: 1.9rem;
+  }
+
+  .table-container {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    padding: 25px;
+    margin-bottom: 20px;
+    overflow-x: auto;
+    width: 100%;
+  }
+
+  .table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: fixed;
+  }
+
+  .table th {
+    background-color: var(--charcoal);
+    color: white;
+    padding: 14px 18px;
+    font-weight: 500;
+    text-align: left;
+  }
+
+  .table th:first-child {
+    border-top-left-radius: 8px;
+    width: 15%; 
+  }
+
+  .table th:nth-child(2) {
+    width: 18%; 
+  }
+
+  .table th:nth-child(3) {
+    width: 15%; 
+  }
+
+  .table th:nth-child(4) {
+    width: 22%; 
+  }
+
+  .table th:nth-child(5) {
+    width: 10%; 
+  }
+
+  .table th:last-child {
+    border-top-right-radius: 8px;
+    text-align: center;
+    width: 20%; 
+  }
+
+  .table td {
+    padding: 14px 18px;
+    border-bottom: 1px solid #f0f0f0;
+    color: var(--charcoal);
+    vertical-align: middle;
+  }
+
+  .table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .table tr:hover td {
+    background-color: #f9f9f9;
+  }
+
+  .freq-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-align: center;
+    background-color: #e2e3e5;
+    color: #383d41;
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-align: center;
+    width: 100%;
+    max-width: 100px;
+  }
+
+  .status-sehat {
+    background-color: #d4edda;
+    color: #155724;
+  }
+
+  .status-sakit {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+
+  .status-observasi {
+    background-color: #fff3cd;
+    color: #856404;
+  }
+
+  .status-pemulihan {
+    background-color: #cce5ff;
+    color: #004085;
+  }
+
+  .action-btn-container {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 12px;
+    border-radius: 5px;
+    font-size: 0.8rem;
+    transition: all 0.2s;
+    text-decoration: none;
+    margin-bottom: 5px;
+    white-space: nowrap;
+  }
+
+  .btn-edit {
+    background-color: var(--paynes-gray);
+    color: white;
+  }
+
+  .btn-edit:hover {
+    background-color: #455a67;
+    color: white;
+    text-decoration: none;
+  }
+
+  .btn-edit-freq {
+    background-color: #17a2b8;
+    color: white;
+  }
+
+  .btn-edit-freq:hover {
+    background-color: #138496;
+    color: white;
+    text-decoration: none;
+  }
+
+  .btn-delete {
+    background-color: #dc3545;
+    color: white;
+  }
+
+  .btn-delete:hover {
+    background-color: #c82333;
+    color: white;
+    text-decoration: none;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 50px 0;
+    color: var(--paynes-gray);
+  }
+
+  .empty-state i {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    opacity: 0.5;
+  }
+
+  @media (max-width: 992px) {
+    .table {
+      table-layout: auto;
+    }
+
+    .table th,
+    .table td {
+      white-space: nowrap;
+    }
+
+    .action-btn-container {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+
+  .freq-edit-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 6px;
+    border-radius: 4px;
+    color: #495057;
+    text-decoration: none;
+    font-size: 0.75rem;
+    margin-left: 8px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    transition: all 0.2s;
+  }
+
+  .freq-edit-link:hover {
+    background-color: var(--paynes-gray);
+    color: white;
+    border-color: var(--paynes-gray);
+    text-decoration: none;
+  }
+
+  .freq-edit-link i {
+    margin-right: 3px;
+    font-size: 0.8rem;
+  }
+
+  .freq-container {
+    display: flex;
+    align-items: center;
+  }
+</style>
+
+<div class="jadwal-container">
+  <div class="jadwal-header">
+    <h1 class="jadwal-title">
+      <i class="fas fa-calendar-alt"></i>
+      Jadwal Pemeriksaan Kesehatan
+    </h1>
     <a
       href="{% url 'kesehatan_perawatan_satwa:tambah_jadwal_pemeriksaan' %}"
-      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+      class="btn btn-light"
     >
-      + Tambah Jadwal Pemeriksaan
+      <i class="fas fa-plus-circle me-2"></i>Tambah Jadwal Pemeriksaan
     </a>
   </div>
 
-  {% for jadwal in jadwal_pemeriksaan_data %}
-  <div class="mb-8 border rounded-lg p-4">
-    <h2 class="text-xl font-bold mb-2">{{ jadwal.nama_hewan }}</h2>
-    <p class="mb-2">
-      Frekuensi Pemeriksaan Rutin: {{ jadwal.freq_pemeriksaan_rutin }} bulan
-      sekali
-    </p>
-
-    <div class="overflow-x-auto mt-4">
-      <table class="min-w-full bg-white border">
-        <thead>
-          <tr>
-            <th class="py-2 px-4 border text-center">
-              Tanggal Pemeriksaan Selanjutnya
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td class="py-2 px-4 border text-center">
-              {{ jadwal.tgl_pemeriksaan_selanjutnya }}
-            </td>
-          </tr>
-        </tbody>
-      </table>
+  <div class="table-container">
+    {% if jadwal_pemeriksaan_data %}
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Tanggal Pemeriksaan</th>
+          <th>Nama Hewan</th>
+          <th>Spesies</th>
+          <th>Frekuensi Pemeriksaan</th>
+          <th>Status</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for jadwal in jadwal_pemeriksaan_data %}
+        <tr>
+          <td>{{ jadwal.tgl_pemeriksaan_selanjutnya|date:"d M Y" }}</td>
+          <td>{{ jadwal.nama_hewan }}</td>
+          <td>{{ jadwal.spesies }}</td>
+          <td>
+            <div class="freq-container">
+              <span class="freq-badge">
+                {{ jadwal.freq_pemeriksaan_rutin }} bulan sekali
+              </span>
+              <a
+                href="{% url 'kesehatan_perawatan_satwa:edit_frekuensi_pemeriksaan' id=jadwal.id_hewan %}"
+                class="freq-edit-link"
+                title="Edit Frekuensi Pemeriksaan"
+              >
+                <i class="fas fa-sync-alt"></i> Edit
+              </a>
+            </div>
+          </td>
+          <td>
+            <span
+              class="status-badge {% if jadwal.status_kesehatan == 'Sehat' %}status-sehat {% elif jadwal.status_kesehatan == 'Sakit' %}status-sakit {% elif jadwal.status_kesehatan == 'Observasi' %}status-observasi {% elif jadwal.status_kesehatan == 'Pemulihan' %}status-pemulihan{% endif %}"
+            >
+              {{ jadwal.status_kesehatan }}
+            </span>
+          </td>
+          <td>
+            <div class="action-btn-container">
+              <a
+                href="{% url 'kesehatan_perawatan_satwa:edit_jadwal_pemeriksaan' id=jadwal.id_hewan %}"
+                class="action-btn btn-edit"
+              >
+                <i class="fas fa-calendar-day me-1"></i>Edit Jadwal
+              </a>
+              <a
+                href="{% url 'kesehatan_perawatan_satwa:hapus_jadwal_pemeriksaan' id=jadwal.id_hewan %}"
+                class="action-btn btn-delete"
+              >
+                <i class="fas fa-trash-alt me-1"></i>Hapus
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+      <i class="fas fa-calendar-times"></i>
+      <p>Belum ada jadwal pemeriksaan kesehatan.</p>
+      <a
+        href="{% url 'kesehatan_perawatan_satwa:tambah_jadwal_pemeriksaan' %}"
+        class="btn btn-primary mt-3"
+      >
+        <i class="fas fa-plus-circle me-2"></i>Tambah Jadwal Pemeriksaan Pertama
+      </a>
     </div>
+    {% endif %}
   </div>
-  {% endfor %}
 </div>
 {% endblock %}

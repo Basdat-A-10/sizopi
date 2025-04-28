@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Tambah Jadwal Pemeriksaan | Sizopi{% endblock %}
+{% block title %}Edit Frekuensi Pemeriksaan | Sizopi{% endblock %}
 {% block content %}
 <style>
   .form-container {
@@ -39,6 +39,67 @@
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
   }
   
+  .detail-card {
+    background-color: #f9f9f9;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .detail-item {
+    margin-bottom: 12px;
+    display: flex;
+    border-bottom: 1px dashed #eee;
+    padding-bottom: 8px;
+  }
+  
+  .detail-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+  }
+  
+  .detail-label {
+    font-weight: 500;
+    width: 180px;
+    color: #495057;
+  }
+  
+  .detail-value {
+    flex-grow: 1;
+    color: #212529;
+  }
+  
+  .status-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-align: center;
+    width: fit-content;
+  }
+  
+  .status-sehat {
+    background-color: #d4edda;
+    color: #155724;
+  }
+  
+  .status-sakit {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+  
+  .status-observasi {
+    background-color: #fff3cd;
+    color: #856404;
+  }
+  
+  .status-pemulihan {
+    background-color: #cce5ff;
+    color: #004085;
+  }
+  
   .form-group {
     margin-bottom: 20px;
   }
@@ -48,20 +109,6 @@
     margin-bottom: 10px;
     color: var(--charcoal);
     display: block;
-  }
-  
-  .form-control {
-    width: 100%;
-    padding: 12px 15px;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    font-size: 1rem;
-  }
-  
-  .form-control:focus {
-    outline: none;
-    border-color: var(--paynes-gray);
-    box-shadow: 0 0 0 3px rgba(88, 111, 124, 0.15);
   }
   
   .form-select {
@@ -74,6 +121,7 @@
     background-position: right 15px center;
     background-repeat: no-repeat;
     background-size: 16px;
+    font-size: 1rem;
   }
   
   .form-footer {
@@ -123,39 +171,51 @@
 <div class="form-container">
   <div class="form-header">
     <h1>
-      <i class="fas fa-calendar-plus"></i>
-      Tambah Jadwal Pemeriksaan
+      <i class="fas fa-sync"></i>
+      Edit Frekuensi Pemeriksaan
     </h1>
   </div>
   
   <div class="form-body">
-    <form method="post" action="{% url 'kesehatan_perawatan_satwa:tambah_jadwal_pemeriksaan' %}">
+    <!-- Informasi Hewan -->
+    <div class="detail-card">
+      <div class="detail-item">
+        <div class="detail-label">Nama Hewan:</div>
+        <div class="detail-value">{{ jadwal.nama_hewan }}</div>
+      </div>
+      
+      <div class="detail-item">
+        <div class="detail-label">Spesies:</div>
+        <div class="detail-value">{{ jadwal.spesies }}</div>
+      </div>
+      
+      <div class="detail-item">
+        <div class="detail-label">Status Kesehatan:</div>
+        <div class="detail-value">
+          <span class="status-badge 
+              {% if jadwal.status_kesehatan == 'Sehat' %}status-sehat
+              {% elif jadwal.status_kesehatan == 'Sakit' %}status-sakit
+              {% elif jadwal.status_kesehatan == 'Observasi' %}status-observasi
+              {% elif jadwal.status_kesehatan == 'Pemulihan' %}status-pemulihan{% endif %}">
+              {{ jadwal.status_kesehatan }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Edit -->
+    <form method="post">
       {% csrf_token %}
       
       <div class="form-group">
-        <label class="form-label" for="id_hewan">Pilih Hewan:</label>
-        <select class="form-select" id="id_hewan" name="id_hewan" required>
-          <option value="" selected disabled>-- Pilih Hewan --</option>
-          {% for hewan in hewan_data %}
-            <option value="{{ hewan.id }}">{{ hewan.nama }} ({{ hewan.spesies }})</option>
-          {% endfor %}
-        </select>
-      </div>
-      
-      <div class="form-group">
-        <label class="form-label" for="tgl_pemeriksaan_selanjutnya">Tanggal Pemeriksaan Selanjutnya:</label>
-        <input type="date" class="form-control" id="tgl_pemeriksaan_selanjutnya" name="tgl_pemeriksaan_selanjutnya" value="{{ default_date }}" required>
-      </div>
-      
-      <div class="form-group">
-        <label class="form-label" for="freq_pemeriksaan_rutin">Frekuensi Pemeriksaan (dalam bulan):</label>
+        <label class="form-label" for="freq_pemeriksaan_rutin">Frekuensi Pemeriksaan Rutin:</label>
         <select class="form-select" id="freq_pemeriksaan_rutin" name="freq_pemeriksaan_rutin" required>
-          <option value="1">1 bulan sekali</option>
-          <option value="2">2 bulan sekali</option>
-          <option value="3" selected>3 bulan sekali</option>
-          <option value="4">4 bulan sekali</option>
-          <option value="6">6 bulan sekali</option>
-          <option value="12">12 bulan sekali</option>
+          <option value="1" {% if jadwal.freq_pemeriksaan_rutin == 1 %}selected{% endif %}>1 bulan sekali</option>
+          <option value="2" {% if jadwal.freq_pemeriksaan_rutin == 2 %}selected{% endif %}>2 bulan sekali</option>
+          <option value="3" {% if jadwal.freq_pemeriksaan_rutin == 3 %}selected{% endif %}>3 bulan sekali</option>
+          <option value="4" {% if jadwal.freq_pemeriksaan_rutin == 4 %}selected{% endif %}>4 bulan sekali</option>
+          <option value="6" {% if jadwal.freq_pemeriksaan_rutin == 6 %}selected{% endif %}>6 bulan sekali</option>
+          <option value="12" {% if jadwal.freq_pemeriksaan_rutin == 12 %}selected{% endif %}>12 bulan sekali</option>
         </select>
       </div>
       
@@ -164,7 +224,7 @@
           <i class="fas fa-arrow-left me-2"></i> Kembali
         </a>
         <button type="submit" class="btn btn-primary">
-          <i class="fas fa-save me-2"></i> Simpan Jadwal Pemeriksaan
+          <i class="fas fa-save me-2"></i> Simpan Perubahan
         </button>
       </div>
     </form>

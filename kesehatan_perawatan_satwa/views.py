@@ -381,45 +381,59 @@ def tambah_jadwal_pemeriksaan(request):
             freq_pemeriksaan_rutin = request.POST.get('freq_pemeriksaan_rutin')
             
             with connection.cursor() as cursor:
+                # Cek apakah sudah ada jadwal untuk hewan ini
                 cursor.execute("""
                     SELECT 1
                     FROM SIZOPI.JADWAL_PEMERIKSAAN_KESEHATAN
-                    WHERE id_hewan = %s AND tgl_pemeriksaan_selanjutnya = %s
-                """, [id_hewan, tgl_pemeriksaan_selanjutnya])
+                    WHERE id_hewan = %s
+                """, [id_hewan])
                 
                 if cursor.fetchone():
-                    return redirect('kesehatan_perawatan_satwa:tambah_jadwal_pemeriksaan')
-                
-                # Tambahkan jadwal baru
-                cursor.execute("""
-                    INSERT INTO SIZOPI.JADWAL_PEMERIKSAAN_KESEHATAN
-                    (id_hewan, tgl_pemeriksaan_selanjutnya, freq_pemeriksaan_rutin)
-                    VALUES (%s, %s, %s)
-                """, [id_hewan, tgl_pemeriksaan_selanjutnya, freq_pemeriksaan_rutin])
+                    # Update jadwal yang sudah ada
+                    cursor.execute("""
+                        UPDATE SIZOPI.JADWAL_PEMERIKSAAN_KESEHATAN
+                        SET tgl_pemeriksaan_selanjutnya = %s, freq_pemeriksaan_rutin = %s
+                        WHERE id_hewan = %s
+                    """, [tgl_pemeriksaan_selanjutnya, freq_pemeriksaan_rutin, id_hewan])
+                else:
+                    # Tambahkan jadwal baru
+                    cursor.execute("""
+                        INSERT INTO SIZOPI.JADWAL_PEMERIKSAAN_KESEHATAN
+                        (id_hewan, tgl_pemeriksaan_selanjutnya, freq_pemeriksaan_rutin)
+                        VALUES (%s, %s, %s)
+                    """, [id_hewan, tgl_pemeriksaan_selanjutnya, freq_pemeriksaan_rutin])
             
             return redirect('kesehatan_perawatan_satwa:jadwal_pemeriksaan')
             
         except Exception as e:
+            print(f"Error: {str(e)}")
             return redirect('kesehatan_perawatan_satwa:tambah_jadwal_pemeriksaan')
     
-    with connection.cursor() as cursor:
-        cursor.execute("""
-            SELECT 
-                id, nama, spesies, status_kesehatan
-            FROM 
-                SIZOPI.HEWAN
-            ORDER BY 
-                nama
-        """)
-        
-        hewan_data = []
-        for row in cursor.fetchall():
-            hewan_data.append({
-                'id': row[0],
-                'nama': row[1],
-                'spesies': row[2],
-                'status_kesehatan': row[3],
-            })
+    # data hewan untuk dropdown
+    hewan_data = []
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT 
+                    h.id, h.nama, h.spesies, h.status_kesehatan
+                FROM 
+                    SIZOPI.HEWAN h
+                    LEFT JOIN SIZOPI.JADWAL_PEMERIKSAAN_KESEHATAN jpk ON h.id = jpk.id_hewan
+                WHERE 
+                    jpk.id_hewan IS NULL
+                ORDER BY 
+                    h.nama
+            """)
+            
+            for row in cursor.fetchall():
+                hewan_data.append({
+                    'id': row[0],
+                    'nama': row[1],
+                    'spesies': row[2],
+                    'status_kesehatan': row[3],
+                })
+    except Exception as e:
+        print(f"Error: {str(e)}")
     
     context = {
         'user_id': request.COOKIES.get('user_id'),
@@ -429,6 +443,178 @@ def tambah_jadwal_pemeriksaan(request):
         'default_date': (datetime.now()).strftime('%Y-%m-%d')
     }
     return render(request, 'kesehatan_perawatan_satwa/jadwal_pemeriksaan/tambah.html', context)
+
+# Tambahkan fungsi edit jadwal pemeriksaan
+def edit_jadwal_pemeriksaan(request, id):
+    if 'user_id' not in request.COOKIES or request.COOKIES.get('user_role') != 'dokter_hewan':
+        return redirect('login')
+    
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT 
+                    h.id,
+                    h.nama,
+                    h.spesies,
+                    jpk.freq_pemeriksaan_rutin,
+                    jpk.tgl_pemeriksaan_selanjutnya,
+                    h.status_kesehatan
+                FROM 
+                    SIZOPI.JADWAL_PEMERIKSAAN_KESEHATAN jpk
+                    JOIN SIZOPI.HEWAN h ON jpk.id_hewan = h.id
+                WHERE 
+                    jpk.id_hewan = %s
+            """, [id])
+            
+            result = cursor.fetchone()
+            if not result:
+                raise Http404("Jadwal pemeriksaan tidak ditemukan")
+            
+            jadwal = {
+                'id_hewan': result[0],
+                'nama_hewan': result[1],
+                'spesies': result[2],
+                'freq_pemeriksaan_rutin': result[3],
+                'tgl_pemeriksaan_selanjutnya': result[4],
+                'status_kesehatan': result[5],
+            }
+    
+        if request.method == 'POST':
+            tgl_pemeriksaan_selanjutnya = request.POST.get('tgl_pemeriksaan_selanjutnya')
+            
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    UPDATE SIZOPI.JADWAL_PEMERIKSAAN_KESEHATAN
+                    SET tgl_pemeriksaan_selanjutnya = %s
+                    WHERE id_hewan = %s
+                """, [tgl_pemeriksaan_selanjutnya, id])
+            
+            return redirect('kesehatan_perawatan_satwa:jadwal_pemeriksaan')
+            
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return redirect('kesehatan_perawatan_satwa:jadwal_pemeriksaan')
+    
+    context = {
+        'user_id': request.COOKIES.get('user_id'),
+        'user_fullname': request.COOKIES.get('user_fullname'),
+        'user_role': request.COOKIES.get('user_role'),
+        'jadwal': jadwal,
+    }
+    return render(request, 'kesehatan_perawatan_satwa/jadwal_pemeriksaan/edit.html', context)
+
+# Tambahkan fungsi edit frekuensi
+def edit_frekuensi_pemeriksaan(request, id):
+    if 'user_id' not in request.COOKIES or request.COOKIES.get('user_role') != 'dokter_hewan':
+        return redirect('login')
+    
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT 
+                    h.id,
+                    h.nama,
+                    h.spesies,
+                    jpk.freq_pemeriksaan_rutin,
+                    h.status_kesehatan
+                FROM 
+                    SIZOPI.JADWAL_PEMERIKSAAN_KESEHATAN jpk
+                    JOIN SIZOPI.HEWAN h ON jpk.id_hewan = h.id
+                WHERE 
+                    jpk.id_hewan = %s
+            """, [id])
+            
+            result = cursor.fetchone()
+            if not result:
+                raise Http404("Jadwal pemeriksaan tidak ditemukan")
+            
+            jadwal = {
+                'id_hewan': result[0],
+                'nama_hewan': result[1],
+                'spesies': result[2],
+                'freq_pemeriksaan_rutin': result[3],
+                'status_kesehatan': result[4],
+            }
+    
+        if request.method == 'POST':
+            freq_pemeriksaan_rutin = request.POST.get('freq_pemeriksaan_rutin')
+            
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    UPDATE SIZOPI.JADWAL_PEMERIKSAAN_KESEHATAN
+                    SET freq_pemeriksaan_rutin = %s
+                    WHERE id_hewan = %s
+                """, [freq_pemeriksaan_rutin, id])
+            
+            return redirect('kesehatan_perawatan_satwa:jadwal_pemeriksaan')
+            
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return redirect('kesehatan_perawatan_satwa:jadwal_pemeriksaan')
+    
+    context = {
+        'user_id': request.COOKIES.get('user_id'),
+        'user_fullname': request.COOKIES.get('user_fullname'),
+        'user_role': request.COOKIES.get('user_role'),
+        'jadwal': jadwal,
+    }
+    return render(request, 'kesehatan_perawatan_satwa/jadwal_pemeriksaan/edit_frekuensi.html', context)
+
+# Tambahkan fungsi hapus jadwal
+def hapus_jadwal_pemeriksaan(request, id):
+    if 'user_id' not in request.COOKIES or request.COOKIES.get('user_role') != 'dokter_hewan':
+        return redirect('login')
+    
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT 
+                    h.id,
+                    h.nama,
+                    h.spesies,
+                    jpk.freq_pemeriksaan_rutin,
+                    jpk.tgl_pemeriksaan_selanjutnya,
+                    h.status_kesehatan
+                FROM 
+                    SIZOPI.JADWAL_PEMERIKSAAN_KESEHATAN jpk
+                    JOIN SIZOPI.HEWAN h ON jpk.id_hewan = h.id
+                WHERE 
+                    jpk.id_hewan = %s
+            """, [id])
+            
+            result = cursor.fetchone()
+            if not result:
+                raise Http404("Jadwal pemeriksaan tidak ditemukan")
+            
+            jadwal = {
+                'id_hewan': result[0],
+                'nama_hewan': result[1],
+                'spesies': result[2],
+                'freq_pemeriksaan_rutin': result[3],
+                'tgl_pemeriksaan_selanjutnya': result[4],
+                'status_kesehatan': result[5],
+            }
+    
+        if request.method == 'POST':
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    DELETE FROM SIZOPI.JADWAL_PEMERIKSAAN_KESEHATAN
+                    WHERE id_hewan = %s
+                """, [id])
+            
+            return redirect('kesehatan_perawatan_satwa:jadwal_pemeriksaan')
+            
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return redirect('kesehatan_perawatan_satwa:jadwal_pemeriksaan')
+    
+    context = {
+        'user_id': request.COOKIES.get('user_id'),
+        'user_fullname': request.COOKIES.get('user_fullname'),
+        'user_role': request.COOKIES.get('user_role'),
+        'jadwal': jadwal,
+    }
+    return render(request, 'kesehatan_perawatan_satwa/jadwal_pemeriksaan/hapus.html', context)
 
 # ===== PEMBERIAN PAKAN (hanya stub functions untuk kompabilitas) =====
 
