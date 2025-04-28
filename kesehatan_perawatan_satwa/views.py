@@ -169,14 +169,20 @@ def edit_rekam_medis(request, id):
     if 'user_id' not in request.COOKIES or request.COOKIES.get('user_role') != 'dokter_hewan':
         return redirect('login')
     
+    print(f"ID yang diterima di edit: {id}")  # Debug log
+    
     try:
         # Format ID: id_hewan_tanggal_pemeriksaan
         id_parts = id.split('_')
         if len(id_parts) < 2:
+            print(f"ID tidak valid di edit: {id}, parts: {id_parts}")
             raise Http404("Rekam medis tidak ditemukan")
         
         id_hewan = id_parts[0]
-        tanggal_pemeriksaan = '_'.join(id_parts[1:])
+        # Gunakan format yang sama seperti di hapus_rekam_medis
+        tanggal_pemeriksaan = '-'.join(id_parts[1:4])
+        
+        print(f"ID Hewan di edit: {id_hewan}, Tanggal: {tanggal_pemeriksaan}")
         
         with connection.cursor() as cursor:
             cursor.execute("""
@@ -198,6 +204,7 @@ def edit_rekam_medis(request, id):
             
             result = cursor.fetchone()
             if not result:
+                print(f"Data tidak ditemukan di edit untuk ID: {id_hewan}, Tanggal: {tanggal_pemeriksaan}")
                 raise Http404("Rekam medis tidak ditemukan")
             
             rekam_medis = {
@@ -212,6 +219,7 @@ def edit_rekam_medis(request, id):
             }
     
     except Exception as e:
+        print(f"Error pada edit_rekam_medis: {str(e)}")
         return redirect('kesehatan_perawatan_satwa:rekam_medis')
     
     if request.method == 'POST':
@@ -238,6 +246,7 @@ def edit_rekam_medis(request, id):
             return redirect('kesehatan_perawatan_satwa:rekam_medis')
             
         except Exception as e:
+            print(f"Error saat update: {str(e)}")
             pass
     
     context = {

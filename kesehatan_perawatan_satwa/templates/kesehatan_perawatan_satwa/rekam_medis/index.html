@@ -250,7 +250,7 @@
               <td>
                 <div class="action-btn-container">
                 {% if rekam_medis.id_hewan and rekam_medis.tanggal_str %}
-                <a href="{% url 'kesehatan_perawatan_satwa:edit_rekam_medis' id=rekam_medis.id_hewan|add:'_'|add:rekam_medis.tanggal_str %}" class="action-btn btn-edit">
+                <a href="/kesehatan-perawatan/rekam-medis/edit/{{ rekam_medis.id_hewan }}_{{ rekam_medis.tanggal_str }}/" class="action-btn btn-edit">
                   <i class="fas fa-edit me-1"></i>Edit
                 </a>
                 <a href="/kesehatan-perawatan/rekam-medis/hapus/{{ rekam_medis.id_hewan }}_{{ rekam_medis.tanggal_str }}/" class="action-btn btn-delete">
