@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'kesehatan_perawatan_satwa',
     'wahana_atraksi',
     'authentication',
+    'satwa_habitat',
 ]
 
 MIDDLEWARE = [

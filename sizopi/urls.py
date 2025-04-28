@@ -23,4 +23,5 @@ urlpatterns = [
     path('kesehatan-perawatan/', include('kesehatan_perawatan_satwa.urls')),
     path('wahana-atraksi/', include('wahana_atraksi.urls')),
     path('', include('authentication.urls')),
+    path('satwa-habitat/', include('satwa_habitat.urls')),
 ]
