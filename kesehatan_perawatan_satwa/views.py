@@ -671,12 +671,13 @@ def tambah_pemberian_pakan(request):
                     (id_hewan, jadwal, jenis, jumlah, status)
                     VALUES (%s, %s, %s, %s, 'Terjadwal')
                 """, [id_hewan, jadwal, jenis_pakan, jumlah_pakan])
+                
+                print(f"Jadwal pemberian pakan berhasil ditambahkan: id_hewan={id_hewan}, jadwal={jadwal}")
             
             return redirect('kesehatan_perawatan_satwa:pemberian_pakan')
             
         except Exception as e:
-            print(f"Error: {str(e)}")
-            return redirect('kesehatan_perawatan_satwa:tambah_pemberian_pakan')
+            print(f"Error saat tambah pemberian pakan: {str(e)}")
     
     # Data hewan untuk dropdown
     hewan_data = []
@@ -698,14 +699,16 @@ def tambah_pemberian_pakan(request):
                     'spesies': row[2]
                 })
     except Exception as e:
-        print(f"Error: {str(e)}")
+        print(f"Error saat mengambil data hewan: {str(e)}")
+    
+    from datetime import datetime, timedelta
     
     context = {
         'user_id': request.COOKIES.get('user_id'),
         'user_fullname': request.COOKIES.get('user_fullname'),
         'user_role': request.COOKIES.get('user_role'),
         'hewan_data': hewan_data,
-        'default_datetime': (datetime.now() + datetime.timedelta(hours=1)).strftime('%Y-%m-%dT%H:%M')
+        'default_datetime': (datetime.now() + timedelta(hours=1)).strftime('%Y-%m-%dT%H:%M')
     }
     return render(request, 'kesehatan_perawatan_satwa/pemberian_pakan/tambah.html', context)
 
@@ -836,7 +839,6 @@ def hapus_pemberian_pakan(request, id):
     username_jh = request.COOKIES.get('user_id')
     
     try:
-        # Cek apakah ID hanya berisi tanggal (format 2024-04-25-08-00-00)
         if id.startswith('20'):
             jadwal_timestamp = id
             jadwal = datetime.strptime(jadwal_timestamp, '%Y-%m-%d-%H-%M-%S')
