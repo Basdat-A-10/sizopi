@@ -1,8 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, Http404
-from datetime import datetime
 from django.db import connection
-import uuid
+from datetime import datetime
 
 def index(request):
     if 'user_id' not in request.COOKIES or request.COOKIES.get('user_role') != 'dokter_hewan':
@@ -120,7 +119,6 @@ def tambah_rekam_medis(request):
                     VALUES (%s, %s, %s, %s, %s, %s, %s)
                 """, [id_hewan, username_dh, tanggal_pemeriksaan, diagnosis, pengobatan, status_kesehatan, catatan_tindak_lanjut])
                 
-                # Update status kesehatan hewan
                 cursor.execute("""
                     UPDATE SIZOPI.HEWAN
                     SET status_kesehatan = %s
@@ -386,14 +384,12 @@ def tambah_jadwal_pemeriksaan(request):
                 """, [id_hewan])
                 
                 if cursor.fetchone():
-                    # Update jadwal yang sudah ada
                     cursor.execute("""
                         UPDATE SIZOPI.JADWAL_PEMERIKSAAN_KESEHATAN
                         SET tgl_pemeriksaan_selanjutnya = %s, freq_pemeriksaan_rutin = %s
                         WHERE id_hewan = %s
                     """, [tgl_pemeriksaan_selanjutnya, freq_pemeriksaan_rutin, id_hewan])
                 else:
-                    # Tambahkan jadwal baru
                     cursor.execute("""
                         INSERT INTO SIZOPI.JADWAL_PEMERIKSAAN_KESEHATAN
                         (id_hewan, tgl_pemeriksaan_selanjutnya, freq_pemeriksaan_rutin)
@@ -720,48 +716,79 @@ def edit_pemberian_pakan(request, id):
     username_jh = request.COOKIES.get('user_id')
     
     try:
-        # Format ID: id_hewan_jadwal_timestamp
-        id_parts = id.split('_')
-        if len(id_parts) < 2:
-            raise Http404("Data pemberian pakan tidak ditemukan")
-        
-        id_hewan = id_parts[0]
-        jadwal_timestamp = '_'.join(id_parts[1:]) # Menggabungkan bagian timestamp jika ada '_' dalam timestamp
-        
-        # Konversi format timestamp dari URL ke format datetime
-        jadwal = datetime.strptime(jadwal_timestamp, '%Y-%m-%d-%H-%M-%S')
-        
-        with connection.cursor() as cursor:
-            cursor.execute("""
-                SELECT 
-                    p.id_hewan,
-                    h.nama,
-                    h.spesies,
-                    p.jenis,
-                    p.jumlah,
-                    p.jadwal,
-                    p.status
-                FROM 
-                    SIZOPI.PAKAN p
-                    JOIN SIZOPI.HEWAN h ON p.id_hewan = h.id
-                WHERE 
-                    p.id_hewan = %s AND p.jadwal = %s
-            """, [id_hewan, jadwal])
+        if id.startswith('20'):
+            jadwal_timestamp = id
+            jadwal = datetime.strptime(jadwal_timestamp, '%Y-%m-%d-%H-%M-%S')
             
-            result = cursor.fetchone()
-            if not result:
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    SELECT p.id_hewan, h.nama, h.spesies, p.jenis, p.jumlah, p.jadwal, p.status
+                    FROM SIZOPI.PAKAN p
+                    JOIN SIZOPI.HEWAN h ON p.id_hewan = h.id
+                    WHERE p.jadwal = %s
+                """, [jadwal])
+                
+                result = cursor.fetchone()
+                if not result:
+                    print(f"Error: Data tidak ditemukan untuk jadwal: {jadwal}")
+                    raise Http404("Data pemberian pakan tidak ditemukan")
+                
+                id_hewan = result[0]
+                
+                pakan = {
+                    'id_hewan': result[0],
+                    'nama_hewan': result[1],
+                    'spesies': result[2],
+                    'jenis_pakan': result[3],
+                    'jumlah_pakan': result[4],
+                    'jadwal': result[5],
+                    'status': result[6],
+                    'jadwal_str': result[5].strftime('%Y-%m-%dT%H:%M') if result[5] else ''
+                }
+        else:
+            # Format ID: id_hewan_jadwal_timestamp
+            id_parts = id.split('_')
+            if len(id_parts) < 2:
+                print(f"Error: ID tidak valid: {id}")
                 raise Http404("Data pemberian pakan tidak ditemukan")
             
-            pakan = {
-                'id_hewan': result[0],
-                'nama_hewan': result[1],
-                'spesies': result[2],
-                'jenis_pakan': result[3],
-                'jumlah_pakan': result[4],
-                'jadwal': result[5],
-                'status': result[6],
-                'jadwal_str': result[5].strftime('%Y-%m-%dT%H:%M') if result[5] else ''
-            }
+            id_hewan = id_parts[0]
+            jadwal_timestamp = '_'.join(id_parts[1:])
+            
+            jadwal = datetime.strptime(jadwal_timestamp, '%Y-%m-%d-%H-%M-%S')
+            
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    SELECT 
+                        p.id_hewan,
+                        h.nama,
+                        h.spesies,
+                        p.jenis,
+                        p.jumlah,
+                        p.jadwal,
+                        p.status
+                    FROM 
+                        SIZOPI.PAKAN p
+                        JOIN SIZOPI.HEWAN h ON p.id_hewan = h.id
+                    WHERE 
+                        p.id_hewan = %s AND p.jadwal = %s
+                """, [id_hewan, jadwal])
+                
+                result = cursor.fetchone()
+                if not result:
+                    print(f"Error: Data tidak ditemukan untuk ID: {id_hewan}, Jadwal: {jadwal}")
+                    raise Http404("Data pemberian pakan tidak ditemukan")
+                
+                pakan = {
+                    'id_hewan': result[0],
+                    'nama_hewan': result[1],
+                    'spesies': result[2],
+                    'jenis_pakan': result[3],
+                    'jumlah_pakan': result[4],
+                    'jadwal': result[5],
+                    'status': result[6],
+                    'jadwal_str': result[5].strftime('%Y-%m-%dT%H:%M') if result[5] else ''
+                }
     
         if request.method == 'POST':
             jenis_pakan_baru = request.POST.get('jenis_pakan')
@@ -780,11 +807,18 @@ def edit_pemberian_pakan(request, id):
                     id_hewan,
                     jadwal
                 ])
+                
+                if pakan['status'] == 'Selesai Diberikan':
+                    cursor.execute("""
+                        UPDATE SIZOPI.MEMBERI
+                        SET jadwal = %s
+                        WHERE id_hewan = %s AND jadwal = %s
+                    """, [jadwal_baru, id_hewan, jadwal])
             
             return redirect('kesehatan_perawatan_satwa:pemberian_pakan')
             
     except Exception as e:
-        print(f"Error: {str(e)}")
+        print(f"Error saat edit pemberian pakan: {str(e)}")
         return redirect('kesehatan_perawatan_satwa:pemberian_pakan')
     
     context = {
@@ -802,50 +836,83 @@ def hapus_pemberian_pakan(request, id):
     username_jh = request.COOKIES.get('user_id')
     
     try:
-        # Format ID: id_hewan_jadwal_timestamp
-        id_parts = id.split('_')
-        if len(id_parts) < 2:
-            raise Http404("Data pemberian pakan tidak ditemukan")
-        
-        id_hewan = id_parts[0]
-        jadwal_timestamp = '_'.join(id_parts[1:])
-        
-        jadwal = datetime.strptime(jadwal_timestamp, '%Y-%m-%d-%H-%M-%S')
-        
-        with connection.cursor() as cursor:
-            cursor.execute("""
-                SELECT 
-                    p.id_hewan,
-                    h.nama,
-                    h.spesies,
-                    p.jenis,
-                    p.jumlah,
-                    p.jadwal,
-                    p.status
-                FROM 
-                    SIZOPI.PAKAN p
-                    JOIN SIZOPI.HEWAN h ON p.id_hewan = h.id
-                WHERE 
-                    p.id_hewan = %s AND p.jadwal = %s
-            """, [id_hewan, jadwal])
+        # Cek apakah ID hanya berisi tanggal (format 2024-04-25-08-00-00)
+        if id.startswith('20'):
+            jadwal_timestamp = id
+            jadwal = datetime.strptime(jadwal_timestamp, '%Y-%m-%d-%H-%M-%S')
             
-            result = cursor.fetchone()
-            if not result:
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    SELECT p.id_hewan, h.nama, h.spesies, p.jenis, p.jumlah, p.jadwal, p.status
+                    FROM SIZOPI.PAKAN p
+                    JOIN SIZOPI.HEWAN h ON p.id_hewan = h.id
+                    WHERE p.jadwal = %s
+                """, [jadwal])
+                
+                result = cursor.fetchone()
+                if not result:
+                    print(f"Error: Data tidak ditemukan untuk jadwal: {jadwal}")
+                    raise Http404("Data pemberian pakan tidak ditemukan")
+                
+                id_hewan = result[0]
+                
+                pakan = {
+                    'id_hewan': result[0],
+                    'nama_hewan': result[1],
+                    'spesies': result[2],
+                    'jenis_pakan': result[3],
+                    'jumlah_pakan': result[4],
+                    'jadwal': result[5],
+                    'status': result[6],
+                    'jadwal_str': result[5].strftime('%d %b %Y %H:%M') if result[5] else ''
+                }
+        else:
+            # Format ID: id_hewan_jadwal_timestamp
+            id_parts = id.split('_')
+            if len(id_parts) < 2:
+                print(f"Error: ID tidak valid: {id}")
                 raise Http404("Data pemberian pakan tidak ditemukan")
             
-            pakan = {
-                'id_hewan': result[0],
-                'nama_hewan': result[1],
-                'spesies': result[2],
-                'jenis_pakan': result[3],
-                'jumlah_pakan': result[4],
-                'jadwal': result[5],
-                'status': result[6]
-            }
+            id_hewan = id_parts[0]
+            jadwal_timestamp = '_'.join(id_parts[1:])
+            
+            jadwal = datetime.strptime(jadwal_timestamp, '%Y-%m-%d-%H-%M-%S')
+            
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    SELECT 
+                        p.id_hewan,
+                        h.nama,
+                        h.spesies,
+                        p.jenis,
+                        p.jumlah,
+                        p.jadwal,
+                        p.status
+                    FROM 
+                        SIZOPI.PAKAN p
+                        JOIN SIZOPI.HEWAN h ON p.id_hewan = h.id
+                    WHERE 
+                        p.id_hewan = %s AND p.jadwal = %s
+                """, [id_hewan, jadwal])
+                
+                result = cursor.fetchone()
+                if not result:
+                    print(f"Error: Data tidak ditemukan untuk ID: {id_hewan}, Jadwal: {jadwal}")
+                    raise Http404("Data pemberian pakan tidak ditemukan")
+                
+                pakan = {
+                    'id_hewan': result[0],
+                    'nama_hewan': result[1],
+                    'spesies': result[2],
+                    'jenis_pakan': result[3],
+                    'jumlah_pakan': result[4],
+                    'jadwal': result[5],
+                    'status': result[6],
+                    'jadwal_str': result[5].strftime('%d %b %Y %H:%M') if result[5] else ''
+                }
     
         if request.method == 'POST':
             with connection.cursor() as cursor:
-                # Cek jika sudah ada di tabel MEMBERI
                 cursor.execute("""
                     DELETE FROM SIZOPI.MEMBERI
                     WHERE id_hewan = %s AND jadwal = %s
@@ -860,7 +927,7 @@ def hapus_pemberian_pakan(request, id):
             return redirect('kesehatan_perawatan_satwa:pemberian_pakan')
             
     except Exception as e:
-        print(f"Error: {str(e)}")
+        print(f"Error saat hapus pemberian pakan: {str(e)}")
         return redirect('kesehatan_perawatan_satwa:pemberian_pakan')
     
     context = {
@@ -880,7 +947,6 @@ def beri_pakan(request, id):
     try:
         if id.startswith('20'):  
             jadwal_timestamp = id
-            
             jadwal = datetime.strptime(jadwal_timestamp, '%Y-%m-%d-%H-%M-%S')
             
             with connection.cursor() as cursor:
@@ -912,60 +978,24 @@ def beri_pakan(request, id):
                     WHERE id_hewan = %s AND jadwal = %s
                 """, [id_hewan, jadwal])
                 
-                if not cursor.fetchone():
-                    cursor.execute("""
-                        INSERT INTO SIZOPI.MEMBERI
-                        (id_hewan, jadwal, username_jh)
-                        VALUES (%s, %s, %s)
-                    """, [id_hewan, jadwal, username_jh])
-        else:
-            # Format: id_hewan_jadwal_timestamp
-            id_parts = id.split('_')
-            if len(id_parts) < 2:
-                raise Http404("Data pemberian pakan tidak ditemukan")
-            
-            id_hewan = id_parts[0]
-            jadwal_timestamp = '_'.join(id_parts[1:])
-            
-            jadwal = datetime.strptime(jadwal_timestamp, '%Y-%m-%d-%H-%M-%S')
-            
-            with connection.cursor() as cursor:
-                cursor.execute("""
-                    SELECT status FROM SIZOPI.PAKAN
-                    WHERE id_hewan = %s AND jadwal = %s
-                """, [id_hewan, jadwal])
-                
-                result = cursor.fetchone()
-                if not result or result[0] != 'Terjadwal':
-                    print(f"Error: Status pakan tidak Terjadwal atau data tidak ditemukan")
-                    return redirect('kesehatan_perawatan_satwa:pemberian_pakan')
-    
-                # Update status di tabel PAKAN menjadi "Selesai Diberikan"
-                cursor.execute("""
-                    UPDATE SIZOPI.PAKAN
-                    SET status = 'Selesai Diberikan'
-                    WHERE id_hewan = %s AND jadwal = %s
-                """, [id_hewan, jadwal])
-                
-                cursor.execute("""
-                    SELECT 1 FROM SIZOPI.MEMBERI
-                    WHERE id_hewan = %s AND jadwal = %s
-                """, [id_hewan, jadwal])
-                
-                if not cursor.fetchone():
-                    cursor.execute("""
-                        INSERT INTO SIZOPI.MEMBERI
-                        (id_hewan, jadwal, username_jh)
-                        VALUES (%s, %s, %s)
-                    """, [id_hewan, jadwal, username_jh])
-                else:
+                if cursor.fetchone():
                     cursor.execute("""
                         UPDATE SIZOPI.MEMBERI
                         SET username_jh = %s
                         WHERE id_hewan = %s AND jadwal = %s
                     """, [username_jh, id_hewan, jadwal])
+                    print(f"Data MEMBERI diupdate: id_hewan={id_hewan}, jadwal={jadwal}")
+                else:
+                    cursor.execute("""
+                        INSERT INTO SIZOPI.MEMBERI (id_hewan, jadwal, username_jh)
+                        VALUES (%s, %s, %s)
+                    """, [id_hewan, jadwal, username_jh])
+                    print(f"Data MEMBERI baru dibuat: id_hewan={id_hewan}, jadwal={jadwal}")
+        else:
+            print(f"Format ID tidak didukung: {id}")
+            
     except Exception as e:
-        print(f"Error: {str(e)}")
+        print(f"Error saat beri pakan: {str(e)}")
     
     return redirect('kesehatan_perawatan_satwa:pemberian_pakan')
 
@@ -974,7 +1004,7 @@ def riwayat_pakan(request):
         return redirect('login')
     
     username_jh = request.COOKIES.get('user_id')
-    riwayat_data = []
+    riwayat_pakan_data = []
     
     try:
         with connection.cursor() as cursor:
@@ -990,40 +1020,43 @@ def riwayat_pakan(request):
                     p.jenis,
                     p.jumlah,
                     p.jadwal,
-                    pg.nama_depan || ' ' || COALESCE(pg.nama_tengah || ' ', '') || pg.nama_belakang as nama_penjaga
+                    m.username_jh
                 FROM 
                     SIZOPI.MEMBERI m
-                    JOIN SIZOPI.PAKAN p ON m.id_hewan = p.id_hewan AND m.jadwal = p.jadwal
-                    JOIN SIZOPI.HEWAN h ON m.id_hewan = h.id
-                    JOIN SIZOPI.PENJAGA_HEWAN ph ON m.username_jh = ph.username_jh
-                    JOIN SIZOPI.PENGGUNA pg ON ph.username_jh = pg.username
+                JOIN SIZOPI.HEWAN h ON m.id_hewan = h.id
+                JOIN SIZOPI.PAKAN p ON m.id_hewan = p.id_hewan AND m.jadwal = p.jadwal
                 WHERE 
-                    m.username_jh = %s
+                    m.username_jh = %s AND p.status = 'Selesai Diberikan'
                 ORDER BY 
                     p.jadwal DESC
-            """)
+            """, [username_jh])
             
             for row in cursor.fetchall():
-                riwayat_data.append({
+                jadwal_obj = row[9]
+                jadwal_formatted = jadwal_obj.strftime('%d %b %Y %H:%M') if jadwal_obj else ''
+                
+                riwayat_pakan_data.append({
                     'id_hewan': row[0],
                     'nama_hewan': row[1],
                     'spesies': row[2],
                     'asal_hewan': row[3],
-                    'tanggal_lahir': row[4],
-                    'habitat': row[5],
+                    'tanggal_lahir': row[4].strftime('%d %b %Y') if row[4] else '',
+                    'habitat': row[5] if row[5] else 'Tidak ada',
                     'status_kesehatan': row[6],
                     'jenis_pakan': row[7],
                     'jumlah_pakan': row[8],
-                    'jadwal': row[9],
-                    'nama_penjaga': row[10]
+                    'jadwal': jadwal_formatted,
+                    'pemberi': row[10]
                 })
+                
+            print(f"Jumlah data riwayat pakan: {len(riwayat_pakan_data)}")
     except Exception as e:
-        print(f"Error: {str(e)}")
+        print(f"Error saat mengambil riwayat pakan: {str(e)}")
     
     context = {
         'user_id': request.COOKIES.get('user_id'),
         'user_fullname': request.COOKIES.get('user_fullname'),
         'user_role': request.COOKIES.get('user_role'),
-        'riwayat_data': riwayat_data
+        'riwayat_pakan_data': riwayat_pakan_data
     }
     return render(request, 'kesehatan_perawatan_satwa/pemberian_pakan/riwayat.html', context)
