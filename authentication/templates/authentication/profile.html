@@ -1,0 +1,362 @@
+{% extends "base.html" %}
+{% block title %}Pengaturan Profil | Sizopi{% endblock %}
+{% block content %}
+
+<style>
+  .profile-container {
+    max-width: 750px;
+    margin: 40px auto;
+  }
+  
+  .profile-card {
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    background-color: var(--ghost-white);
+    overflow: hidden;
+  }
+  
+  .profile-header {
+    background-color: var(--charcoal);
+    color: var(--ghost-white);
+    padding: 0;
+    text-align: center;
+    border-bottom: 3px solid var(--light-blue);
+    height: 80px; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .profile-header-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 15px;
+    width: 100%;
+  }
+  
+  .profile-header h1 {
+    font-size: 1.5rem;
+    margin: 0;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .profile-header p {
+    margin-top: 5px; 
+    font-size: 0.85rem;
+    opacity: 0.9;
+    width: 100%;
+    text-align: center;
+  }
+  
+  .profile-body {
+    padding: 30px;
+    background-color: white;
+  }
+  
+  .form-label {
+    font-weight: 500;
+    color: var(--charcoal);
+    font-size: 0.9rem;
+  }
+  
+  .form-control {
+    border-radius: 6px;
+    border: 1px solid #e1e5eb;
+    padding: 10px 15px;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+  }
+  
+  .form-control:focus {
+    box-shadow: 0 0 0 3px rgba(184, 219, 217, 0.25);
+    border-color: var(--light-blue);
+  }
+  
+  .form-text {
+    font-size: 0.75rem;
+    color: var(--paynes-gray);
+  }
+  
+  .btn-save {
+    background-color: var(--charcoal);
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: all 0.2s;
+  }
+  
+  .btn-save:hover {
+    background-color: #243a43;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(47, 69, 80, 0.2);
+  }
+  
+  .btn-cancel {
+    background-color: transparent;
+    border: 1px solid var(--paynes-gray);
+    color: var(--paynes-gray);
+    padding: 10px 20px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: all 0.2s;
+  }
+  
+  .btn-cancel:hover {
+    background-color: #f1f3f5;
+  }
+  
+  .btn-change-password {
+    background-color: var(--paynes-gray);
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: all 0.2s;
+  }
+  
+  .btn-change-password:hover {
+    background-color: #4d6069;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(88, 111, 124, 0.2);
+  }
+  
+  .form-section {
+    margin-top: 25px;
+    padding-top: 15px;
+    border-top: 1px dashed #e9ecef;
+  }
+  
+  .form-section-title {
+    font-weight: 600;
+    color: var(--charcoal);
+    font-size: 0.95rem;
+    margin-bottom: 15px;
+  }
+  
+  .form-check-input:checked {
+    background-color: var(--charcoal);
+    border-color: var(--charcoal);
+  }
+  
+  .input-wrapper {
+    background-color: white;
+    padding: 20px 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    margin-bottom: 20px;
+  }
+  
+  .input-wrapper-title {
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--charcoal);
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  .specialization-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+  }
+</style>
+
+<div class="profile-container">
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% else %}alert-info{% endif %} alert-dismissible fade show mb-4" role="alert">
+        {% if message.tags == 'success' %}
+          <i class="fas fa-check-circle me-2"></i>
+        {% elif message.tags == 'error' %}
+          <i class="fas fa-exclamation-circle me-2"></i>
+        {% else %}
+          <i class="fas fa-info-circle me-2"></i>
+        {% endif %} {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="profile-card">
+    <div class="profile-header">
+      <div class="profile-header-content">
+        <h1><i class="fas fa-user-edit me-2"></i>PENGATURAN PROFIL</h1>
+        <p>Perbarui informasi profil Anda</p>
+      </div>
+    </div>
+    
+    <div class="profile-body">
+      <form method="POST" action="{% url 'profile' %}">
+        {% csrf_token %}
+        
+        <div class="input-wrapper">
+          <div class="input-wrapper-title">
+            <i class="fas fa-user-circle me-2"></i>Informasi Akun
+          </div>
+          
+          <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-user"></i></span>
+              <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}" readonly disabled />
+            </div>
+            <div class="form-text">Username tidak dapat diubah</div>
+          </div>
+          
+          <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+              <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required />
+            </div>
+          </div>
+        </div>
+        
+        <div class="input-wrapper">
+          <div class="input-wrapper-title">
+            <i class="fas fa-address-card me-2"></i>Data Personal
+          </div>
+          
+          <div class="row mb-3">
+            <div class="col-md-4">
+              <label for="nama_depan" class="form-label">Nama Depan</label>
+              <input type="text" class="form-control" id="nama_depan" name="nama_depan" value="{{ user.nama_depan }}" required />
+            </div>
+            <div class="col-md-4">
+              <label for="nama_tengah" class="form-label">Nama Tengah (Opsional)</label>
+              <input type="text" class="form-control" id="nama_tengah" name="nama_tengah" value="{{ user.nama_tengah|default:'' }}" />
+            </div>
+            <div class="col-md-4">
+              <label for="nama_belakang" class="form-label">Nama Belakang</label>
+              <input type="text" class="form-control" id="nama_belakang" name="nama_belakang" value="{{ user.nama_belakang }}" required />
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label for="no_telepon" class="form-label">Nomor Telepon</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-phone-alt"></i></span>
+              <input type="tel" class="form-control" id="no_telepon" name="no_telepon" value="{{ user.no_telepon }}" required />
+            </div>
+          </div>
+        </div>
+        
+        {% if user_role == 'pengunjung' or user_role == 'pengunjung_adopter' %}
+        <div class="input-wrapper">
+          <div class="input-wrapper-title">
+            <i class="fas fa-id-card me-2"></i>Informasi Pengunjung
+          </div>
+          
+          <div class="mb-3">
+            <label for="alamat" class="form-label">Alamat Lengkap</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+              <textarea class="form-control" id="alamat" name="alamat" rows="3">{{ user.alamat|default:'' }}</textarea>
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label for="tanggal_lahir" class="form-label">Tanggal Lahir</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+              <input type="date" class="form-control" id="tanggal_lahir" name="tanggal_lahir" value="{{ user.tanggal_lahir|default:'' }}" />
+            </div>
+          </div>
+        </div>
+        {% endif %}
+        
+        {% if user_role == 'dokter_hewan' %}
+        <div class="input-wrapper">
+          <div class="input-wrapper-title">
+            <i class="fas fa-stethoscope me-2"></i>Informasi Dokter Hewan
+          </div>
+          
+          <div class="mb-3">
+            <label for="no_sertifikasi" class="form-label">Nomor Sertifikasi Profesional</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-certificate"></i></span>
+              <input type="text" class="form-control" id="no_sertifikasi" name="no_sertifikasi" value="{{ user.nomor_sertifikasi|default:'' }}" readonly disabled />
+            </div>
+            <div class="form-text">Nomor sertifikasi tidak dapat diubah</div>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Spesialisasi</label>
+            <div class="specialization-options">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="spesialisasi_mamalia" name="spesialisasi_mamalia" {% if 'Mamalia Besar' in user.spesialisasi|default:'' %}checked{% endif %}>
+                <label class="form-check-label" for="spesialisasi_mamalia">Mamalia Besar</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="spesialisasi_reptil" name="spesialisasi_reptil" {% if 'Reptil' in user.spesialisasi|default:'' %}checked{% endif %}>
+                <label class="form-check-label" for="spesialisasi_reptil">Reptil</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="spesialisasi_burung" name="spesialisasi_burung" {% if 'Burung Eksotis' in user.spesialisasi|default:'' %}checked{% endif %}>
+                <label class="form-check-label" for="spesialisasi_burung">Burung Eksotis</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="spesialisasi_primata" name="spesialisasi_primata" {% if 'Primata' in user.spesialisasi|default:'' %}checked{% endif %}>
+                <label class="form-check-label" for="spesialisasi_primata">Primata</label>
+              </div>
+            </div>
+            <div class="form-check mt-3">
+              <input class="form-check-input" type="checkbox" id="spesialisasi_lainnya" name="spesialisasi_lainnya">
+              <label class="form-check-label" for="spesialisasi_lainnya">
+                Lainnya:
+              </label>
+              <input type="text" class="form-control mt-2" id="spesialisasi_lainnya_text" name="spesialisasi_lainnya_text">
+            </div>
+          </div>
+        </div>
+        {% endif %}
+        
+        {% if user_role == 'penjaga_hewan' or user_role == 'staf_admin' or user_role == 'pelatih_hewan' %}
+        <div class="input-wrapper">
+          <div class="input-wrapper-title">
+            <i class="fas fa-id-badge me-2"></i>Informasi Staff
+          </div>
+          
+          <div class="mb-3">
+            <label for="id_staf" class="form-label">ID Staff</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-fingerprint"></i></span>
+              <input type="text" class="form-control" id="id_staf" name="id_staf" value="{{ user.id_staf|default:'' }}" readonly disabled />
+            </div>
+            <div class="form-text">ID Staff tidak dapat diubah</div>
+          </div>
+        </div>
+        {% endif %}
+        
+        <div class="d-flex justify-content-between mt-4">
+          <a href="{% url 'change_password' %}" class="btn btn-change-password">
+            <i class="fas fa-lock me-1"></i> UBAH PASSWORD
+          </a>
+          <div>
+            <a href="{% url 'dashboard' %}" class="btn btn-cancel me-2">
+              <i class="fas fa-times me-1"></i> BATAL
+            </a>
+            <button type="submit" class="btn btn-save">
+              <i class="fas fa-save me-1"></i> SIMPAN
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
