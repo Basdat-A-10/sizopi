@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-warning text-dark text-center">
+            <h2>FORM EDIT ATRAKSI</h2>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{% url 'edit_atraksi' atraksi.nama_atraksi %}">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="nama_atraksi" class="form-label">Nama Atraksi:</label>
+                    <input type="text" class="form-control" id="nama_atraksi" value="{{ atraksi.nama_atraksi }}" readonly>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="lokasi" class="form-label">Lokasi:</label>
+                    <input type="text" class="form-control" id="lokasi" name="lokasi" value="{{ atraksi.lokasi }}" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="kapasitas_max" class="form-label">Kapasitas Maksimum:</label>
+                    <div class="input-group">
+                        <input type="number" class="form-control" id="kapasitas_max" name="kapasitas_max" min="1" value="{{ atraksi.kapasitas_max }}" required>
+                        <span class="input-group-text">orang</span>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="jadwal" class="form-label">Jadwal:</label>
+                    <input type="time" class="form-control" id="jadwal" name="jadwal" value="{{ atraksi.jadwal }}" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="pelatih" class="form-label">Pelatih:</label>
+                    <select class="form-select" id="pelatih" name="pelatih">
+                        <option value="">-- Pilih Pelatih --</option>
+                        {% for pelatih in pelatih_list %}
+                        <option value="{{ pelatih.username }}" {% if pelatih.username == atraksi.pelatih %}selected{% endif %}>
+                            {{ pelatih.nama }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Hewan yang Terlibat:</label>
+                    <div class="card">
+                        <div class="card-body">
+                            {% for hewan in hewan_list %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="hewan[]" id="hewan{{ hewan.id }}" 
+                                       value="{{ hewan.id }}" {% if hewan.id in atraksi.hewan_ids %}checked{% endif %}>
+                                <label class="form-check-label" for="hewan{{ hewan.id }}">
+                                    {{ hewan.nama }} ({{ hewan.jenis }})
+                                </label>
+                            </div>
+                            {% empty %}
+                            <p>Tidak ada data hewan</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button type="submit" class="btn btn-warning me-2">SIMPAN PERUBAHAN</button>
+                    <a href="{% url 'daftar_wahana_dan_atraksi' %}" class="btn btn-secondary">BATAL</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

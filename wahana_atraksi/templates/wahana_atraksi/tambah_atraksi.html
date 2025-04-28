@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-success text-white text-center">
+            <h2>FORM TAMBAH ATRAKSI</h2>
+        </div>
+        <div class="card-body">
+            <!-- Tampilkan pesan error jika ada -->
+            {% if error_message %}
+            <div class="alert alert-danger mb-3">
+                {{ error_message }}
+            </div>
+            {% endif %}
+            
+            <form method="POST" action="{% url 'tambah_atraksi' %}">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="nama_atraksi" class="form-label">Nama Atraksi:</label>
+                    <input type="text" class="form-control" id="nama_atraksi" name="nama_atraksi" 
+                           value="{{ form_data.nama_atraksi|default:'' }}" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="lokasi" class="form-label">Lokasi:</label>
+                    <input type="text" class="form-control" id="lokasi" name="lokasi"
+                           value="{{ form_data.lokasi|default:'' }}" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="kapasitas_max" class="form-label">Kapasitas Maksimum:</label>
+                    <div class="input-group">
+                        <input type="number" class="form-control" id="kapasitas_max" name="kapasitas_max" min="1"
+                               value="{{ form_data.kapasitas_max|default:'' }}" required>
+                        <span class="input-group-text">orang</span>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="jadwal" class="form-label">Jadwal:</label>
+                    <input type="time" class="form-control" id="jadwal" name="jadwal"
+                           value="{{ form_data.jadwal|default:'' }}" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="pelatih" class="form-label">Pelatih:</label>
+                    <select class="form-select" id="pelatih" name="pelatih">
+                        <option value="">-- Pilih Pelatih --</option>
+                        {% for pelatih in pelatih_list %}
+                        <option value="{{ pelatih.username }}" {% if form_data.pelatih == pelatih.username %}selected{% endif %}>
+                            {{ pelatih.nama }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Hewan yang Terlibat:</label>
+                    <div class="card">
+                        <div class="card-body">
+                            {% for hewan in hewan_list %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="hewan[]" id="hewan{{ hewan.id }}" 
+                                       value="{{ hewan.id }}" {% if form_data.hewan_ids and hewan.id in form_data.hewan_ids %}checked{% endif %}>
+                                <label class="form-check-label" for="hewan{{ hewan.id }}">
+                                    {{ hewan.nama }} ({{ hewan.jenis }})
+                                </label>
+                            </div>
+                            {% empty %}
+                            <p>Tidak ada data hewan</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button type="submit" class="btn btn-success me-2">SIMPAN</button>
+                    <a href="{% url 'daftar_wahana_dan_atraksi' %}" class="btn btn-secondary">BATAL</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
