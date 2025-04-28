@@ -221,8 +221,7 @@ def profile_view(request):
             cursor.execute("SELECT no_STR FROM SIZOPI.DOKTER_HEWAN WHERE username_DH = %s", [username])
             dh_data = cursor.fetchone()
             if dh_data:
-                additional_data['no_STR'] = dh_data[0]
-            
+                additional_data['nomor_sertifikasi'] = dh_data[0]  
             # Get spesialisasi
             cursor.execute("SELECT nama_spesialisasi FROM SIZOPI.SPESIALISASI WHERE username_SH = %s", [username])
             spesialisasi_list = cursor.fetchall()
@@ -241,6 +240,26 @@ def profile_view(request):
                 if adopter_data:
                     additional_data['id_adopter'] = adopter_data[0]
                     additional_data['total_kontribusi'] = adopter_data[1]
+        
+        elif user_role in ['penjaga_hewan', 'pelatih_hewan', 'staf_admin']:
+            # Tentukan kolom yang sesuai berdasarkan role
+            if user_role == 'penjaga_hewan':
+                id_column = 'username_jh'
+                table_name = 'PENJAGA_HEWAN'
+            elif user_role == 'pelatih_hewan':
+                id_column = 'username_lh'
+                table_name = 'PELATIH_HEWAN'
+            else:  # staf_admin
+                id_column = 'username_sa'
+                table_name = 'STAF_ADMIN'
+                
+            cursor.execute(f"SELECT id_staf FROM SIZOPI.{table_name} WHERE {id_column} = %s", [username])
+            staff_data = cursor.fetchone()
+            if staff_data:
+                additional_data['id_staf'] = staff_data[0]
+    
+    # Gabungkan data user dan additional_data
+    user.update(additional_data)
     
     if request.method == 'POST':
         email = request.POST.get('email')
@@ -295,8 +314,7 @@ def profile_view(request):
         'user_id': username,
         'user_fullname': request.COOKIES.get('user_fullname'),
         'user_role': user_role,
-        'user': user,
-        'additional_data': additional_data
+        'user': user
     }
     
     return render(request, 'authentication/profile.html', context)
