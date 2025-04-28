@@ -1,3 +1,38 @@
+<style>
+  .user-avatar {
+    background-color: var(--light-blue);
+    color: var(--charcoal);
+    font-size: 1rem;
+    font-weight: bold;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .user-name-role {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--ghost-white);
+    font-weight: 500;
+    white-space: nowrap;
+    margin-left: 10px;
+  }
+
+  .role-badge {
+    background-color: var(--light-blue);
+    color: var(--charcoal);
+    font-size: 0.85rem;
+    padding: 2px 8px;
+    border-radius: 12px;
+    white-space: nowrap;
+    display: inline-block;
+  }
+</style>
+
 <nav class="navbar navbar-expand-lg" style="background-color: var(--charcoal)">
   <div class="container-fluid px-4">
     <!-- Logo dan nama aplikasi -->
@@ -11,6 +46,9 @@
       type="button"
       data-bs-toggle="collapse"
       data-bs-target="#navbarNav"
+      aria-controls="navbarNav"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
     >
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -145,87 +183,69 @@
         {% endif %}
       </ul>
 
-      <!-- User profile dan logout button di sebelah kanan -->
-      <div class="d-flex align-items-center ms-auto">
-        <!-- Pengaturan Profil -->
-        <div class="me-3">
-          <a class="nav-link" href="#" style="color: var(--light-blue)">
-            <i class="fas fa-user-cog"></i>
-            <span class="d-none d-lg-inline ms-1">Profil</span>
-          </a>
-        </div>
-
-        <!-- User info -->
-        <div class="dropdown">
-          <div
-            class="d-flex align-items-center"
-            style="cursor: pointer"
-            data-bs-toggle="dropdown"
-          >
-            <!-- Avatar -->
-            <div class="user-avatar">
-              {% if user_fullname %}
-                <span>{{ user_fullname|first|upper }}</span>
-              {% else %}
-                <span>U</span>
+      <!-- User profile -->
+      <div class="d-flex align-items-center ms-auto dropdown">
+        <a
+          class="d-flex align-items-center text-decoration-none"
+          href="#"
+          role="button"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+        >
+          <!-- Ava -->
+          <div class="user-avatar">
+            {% if user_fullname %}
+            <span>{{ user_fullname|first|upper }}</span>
+            {% else %}
+            <span>U</span>
+            {% endif %}
+          </div>
+          <div class="user-name-role">
+            <span>{{ user_fullname }}</span>
+            <div class="role-badge">
+              {% if user_role == 'dokter_hewan' %}
+                Dokter Hewan
+              {% elif user_role == 'penjaga_hewan' %}
+                Penjaga Hewan
+              {% elif user_role == 'pelatih_hewan' %}
+                Pelatih Hewan
+              {% elif user_role == 'staf_admin' %}
+                Staff Admin
+              {% elif user_role == 'pengunjung' %}
+                Pengunjung
+              {% elif user_role == 'pengunjung_adopter' %}
+                Pengunjung Adopter
               {% endif %}
             </div>
-            <div class="d-none d-lg-block">
-              <div
-                style="
-                  color: var(--ghost-white);
-                  font-weight: 500;
-                  white-space: nowrap;
-                "
-              >
-                {{ user_fullname }}
-              </div>
-              <div class="role-badge">
-                {% if user_role == 'dokter_hewan' %} 
-                  Dokter Hewan 
-                {% elif user_role == 'penjaga_hewan' %} 
-                  Penjaga Hewan 
-                {% elif user_role == 'pelatih_hewan' %} 
-                  Pelatih Hewan 
-                {% elif user_role == 'staf_admin' %} 
-                  Staff Admin 
-                {% elif user_role == 'pengunjung' %} 
-                  Pengunjung 
-                {% elif user_role == 'pengunjung_adopter' %} 
-                  Pengunjung Adopter 
-                {% endif %}
-              </div>
-            </div>
-            <i
-              class="fas fa-chevron-down ms-2"
-              style="color: var(--light-blue); font-size: 0.8rem"
-            ></i>
           </div>
-
-          <ul class="dropdown-menu dropdown-menu-end">
-            <li>
-              <a class="dropdown-item" href="{% url 'dashboard' %}">
-                <i class="fas fa-tachometer-alt me-2"></i> Dashboard
-              </a>
-            </li>
-            <li>
-              <a class="dropdown-item" href="{% url 'profile' %}">
-                <i class="fas fa-user-cog me-2"></i> Pengaturan Profil
-              </a>
-            </li>
-            <li>
-              <a class="dropdown-item" href="{% url 'change_password' %}">
-                <i class="fas fa-lock me-2"></i> Ubah Password
-              </a>
-            </li>
-            <li><hr class="dropdown-divider" /></li>
-            <li>
-              <a class="dropdown-item" href="{% url 'logout' %}">
-                <i class="fas fa-sign-out-alt me-2"></i> Logout
-              </a>
-            </li>
-          </ul>
-        </div>
+          <i
+            class="fas fa-chevron-down ms-2"
+            style="color: var(--light-blue); font-size: 0.8rem"
+          ></i>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li>
+            <a class="dropdown-item" href="{% url 'dashboard' %}">
+              <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="{% url 'profile' %}">
+              <i class="fas fa-user-cog me-2"></i> Pengaturan Profil
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="{% url 'change_password' %}">
+              <i class="fas fa-lock me-2"></i> Ubah Password
+            </a>
+          </li>
+          <li><hr class="dropdown-divider" /></li>
+          <li>
+            <a class="dropdown-item" href="{% url 'logout' %}">
+              <i class="fas fa-sign-out-alt me-2"></i> Logout
+            </a>
+          </li>
+        </ul>
       </div>
 
       {% else %}
