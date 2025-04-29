@@ -437,6 +437,7 @@
                     <table class="table table-striped table-hover">
                         <thead class="table-dark">
                             <tr>
+                                <th>Nama Pengunjung</th>
                                 <th>Nama Atraksi</th>
                                 <th>Lokasi</th>
                                 <th>Tanggal Kunjungan</th>
@@ -449,6 +450,7 @@
                         <tbody>
                             {% for reservasi in reservasi_list %}
                             <tr>
+                                <td>{{ reservasi.nama_pengunjung }}</td>
                                 <td><strong>{{ reservasi.nama_atraksi }}</strong></td>
                                 <td>{{ reservasi.lokasi }}</td>
                                 <td>{{ reservasi.tanggal_kunjungan|date:"d M Y" }}</td>
