@@ -423,16 +423,16 @@ VALUES
 -- Insert 10 datas for 9. CATATAN_MEDIS table
 INSERT INTO CATATAN_MEDIS (id_hewan, username_dh, tanggal_pemeriksaan, diagnosis, pengobatan, status_kesehatan, catatan_tindak_lanjut)
 VALUES 
-('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'ajeng_pratiwi', '2023-09-15', 'Infeksi kulit ringan', 'Antibiotik dan salep antijamur', 'Pemulihan', 'Evaluasi ulang dalam 2 minggu, pantau perkembangan luka'),
+('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'ajeng_pratiwi', '2023-09-15', 'Infeksi kulit ringan', 'Antibiotik dan salep antijamur', 'Sakit', 'Evaluasi ulang dalam 2 minggu, pantau perkembangan luka'),
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12', 'budi_santoso', '2023-10-03', 'Pemeriksaan rutin', 'Vitamin dan suplemen', 'Sehat', 'Pemeriksaan berikutnya dalam 6 bulan'),
-('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a17', 'dewi_anggraini', '2023-11-21', 'Infeksi saluran pernapasan', 'Antibiotik dan terapi inhalasi', 'Observasi', 'Pemantauan harian selama seminggu'),
+('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a17', 'dewi_anggraini', '2023-11-21', 'Infeksi saluran pernapasan', 'Antibiotik dan terapi inhalasi', 'Sakit', 'Pemantauan harian selama seminggu'),
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a26', 'eko_prasetyo', '2023-12-07', 'Infeksi pada kaki', 'Antibiotik spektrum luas dan perawatan luka', 'Sakit', 'Perawatan luka harian dan evaluasi ulang dalam 5 hari'),
-('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a32', 'fitri_wulandari', '2024-01-18', 'Penurunan nafsu makan', 'Stimulan nafsu makan dan vitamin', 'Observasi', 'Pantau pola makan selama 10 hari'),
-('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a39', 'gilang_ramadhan', '2024-02-05', 'Parasit internal', 'Obat cacing dan probiotik', 'Observasi', 'Pemeriksaan feses ulang dalam 2 minggu'),
+('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a32', 'fitri_wulandari', '2024-01-18', 'Penurunan nafsu makan', 'Stimulan nafsu makan dan vitamin', 'Sakit', 'Pantau pola makan selama 10 hari'),
+('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a39', 'gilang_ramadhan', '2024-02-05', 'Parasit internal', 'Obat cacing dan probiotik', 'Sakit', 'Pemeriksaan feses ulang dalam 2 minggu'),
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13', 'hendra_wijaya', '2024-02-22', 'Masalah gigi', 'Pembersihan gigi dan pengikisan', 'Sehat', 'Pemeriksaan gigi rutin setiap 3 bulan'),
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a14', 'intan_permata', '2024-03-10', 'Vaksinasi rutin', 'Vaksin rabies dan distemper', 'Sehat', 'Vaksinasi berikutnya tahun depan'),
-('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a44', 'joko_susilo', '2024-03-25', 'Lesi kulit', 'Pengobatan antibiotik dan terapi air', 'Pemulihan', 'Evaluasi kondisi kulit setiap 3 hari'),
-('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a46', 'kartika_sari', '2024-04-12', 'Retak pada cangkang', 'Penutupan retak dengan resin khusus', 'Pemulihan', 'Pemantauan kesembuhan cangkang selama 4 minggu');
+('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a44', 'joko_susilo', '2024-03-25', 'Lesi kulit', 'Pengobatan antibiotik dan terapi air', 'Sakit', 'Evaluasi kondisi kulit setiap 3 hari'),
+('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a46', 'kartika_sari', '2024-04-12', 'Retak pada cangkang', 'Penutupan retak dengan resin khusus', 'Sakit', 'Pemantauan kesembuhan cangkang selama 4 minggu');
 
 -- Insert datas for 11. PAKAN table
 INSERT INTO PAKAN (id_hewan, jadwal, jenis, jumlah, status)
