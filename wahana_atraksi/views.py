@@ -76,6 +76,7 @@ def daftar_wahana_dan_atraksi(request):
             cursor.execute("""
                 SELECT
                     r.username_p,
+                    CONCAT(p.nama_depan, ' ', COALESCE(p.nama_tengah || ' ', ''), p.nama_belakang) AS nama_pengunjung,
                     r.nama_atraksi,
                     a.lokasi,
                     f.jadwal,
@@ -88,6 +89,10 @@ def daftar_wahana_dan_atraksi(request):
                     ATRAKSI a ON r.nama_atraksi = a.nama_atraksi
                 JOIN
                     FASILITAS f ON a.nama_atraksi = f.nama
+                JOIN
+                    PENGUNJUNG pg ON r.username_p = pg.username_P
+                JOIN
+                    PENGGUNA p ON pg.username_P = p.username
                 WHERE
                     r.username_p = %s
                 ORDER BY
