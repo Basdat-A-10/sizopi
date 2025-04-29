@@ -3,23 +3,28 @@ from django.db import connection
 from datetime import date
 
 def dashboard_view(request):
-    dokter = fetch_one("""
-        SELECT pengguna.username, pengguna.nama_depan, pengguna.nama_tengah, pengguna.nama_belakang, pengguna.email, pengguna.no_telepon
-        FROM sizopi.dokter_hewan
-        JOIN sizopi.pengguna ON dokter_hewan.username_dh = pengguna.username
-        LIMIT 1
-    """)
+    # Username masih hardcode
+    username = 'andrea_trainer'
     
-    if dokter is None:
-        return render(request, 'dashboard/dashboard.html', {'error': 'Tidak ada Dokter Hewan ditemukan.'})
+    if not username:
+        return render(request, 'dashboard/dashboard.html', {'error': 'Username tidak ditemukan.'})
     
-    role = get_role(dokter['username'])
+    user = fetch_one("""
+        SELECT username, nama_depan, nama_tengah, nama_belakang, email, no_telepon
+        FROM sizopi.pengguna
+        WHERE username = %s
+    """, [username])
+    
+    if user is None:
+        return render(request, 'dashboard/dashboard.html', {'error': 'Pengguna tidak ditemukan.'})
+    
+    role = get_role(username)
 
     dashboard_data = {
-        'nama_lengkap': get_full_name(dokter),
-        'username': dokter['username'],
-        'email': dokter['email'],
-        'no_telepon': dokter['no_telepon'],
+        'nama_lengkap': get_full_name(user),
+        'username': user['username'],
+        'email': user['email'],
+        'no_telepon': user['no_telepon'],
         'peran': role,
     }
 
@@ -28,73 +33,78 @@ def dashboard_view(request):
             SELECT alamat, tgl_lahir
             FROM sizopi.pengunjung
             WHERE username_p = %s
-        """, [dokter['username']])
+        """, [username])
 
-        dashboard_data.update({
-            'alamat': pengunjung['alamat'],
-            'tgl_lahir': pengunjung['tgl_lahir'],
-            'riwayat_kunjungan': get_riwayat_kunjungan(dokter['username']),
-            'tiket_dibeli': get_informasi_tiket(dokter['username']),
-        })
+        if pengunjung:
+            dashboard_data.update({
+                'alamat': pengunjung['alamat'],
+                'tgl_lahir': pengunjung['tgl_lahir'],
+                'riwayat_kunjungan': get_riwayat_kunjungan(username),
+                'tiket_dibeli': get_informasi_tiket(username),
+            })
 
     elif role == 'Dokter Hewan':
         dokter_info = fetch_one("""
             SELECT no_str
             FROM sizopi.dokter_hewan
             WHERE username_dh = %s
-        """, [dokter['username']])
+        """, [username])
 
-        spesialisasi = fetch_all("""
-            SELECT nama_spesialisasi
-            FROM sizopi.spesialisasi
-            WHERE username_sh = %s
-        """, [dokter['username']])
+        if dokter_info:
+            spesialisasi = fetch_all("""
+                SELECT nama_spesialisasi
+                FROM sizopi.spesialisasi
+                WHERE username_sh = %s
+            """, [username])
 
-        dashboard_data.update({
-            'no_str': dokter_info['no_str'],
-            'spesialisasi': [s['nama_spesialisasi'] for s in spesialisasi],
-            'jumlah_hewan': get_jumlah_hewan_rekam_medis(dokter['username']),
-        })
+            dashboard_data.update({
+                'no_str': dokter_info['no_str'],
+                'spesialisasi': [s['nama_spesialisasi'] for s in spesialisasi],
+                'jumlah_hewan': get_jumlah_hewan_rekam_medis(username),
+            })
 
     elif role == 'Penjaga Hewan':
         penjaga = fetch_one("""
             SELECT id_staf
             FROM sizopi.penjaga_hewan
             WHERE username_jh = %s
-        """, [dokter['username']])
+        """, [username])
 
-        dashboard_data.update({
-            'id_staf': penjaga['id_staf'],
-            'jumlah_hewan_dipakan': get_jumlah_hewan_dipakan(penjaga['id_staf']),
-        })
+        if penjaga:
+            dashboard_data.update({
+                'id_staf': penjaga['id_staf'],
+                'jumlah_hewan_dipakan': get_jumlah_hewan_dipakan(username),
+            })
 
     elif role == 'Staf Admin':
         admin = fetch_one("""
             SELECT id_staf
             FROM sizopi.staf_admin
             WHERE username_sa = %s
-        """, [dokter['username']])
+        """, [username])
 
-        dashboard_data.update({
-            'id_staf': admin['id_staf'],
-            'penjualan_tiket_hari_ini': get_ringkasan_penjualan_tiket(),
-            'jumlah_pengunjung_hari_ini': get_jumlah_pengunjung_hari_ini(),
-            'laporan_pendapatan_mingguan': get_laporan_pendapatan_mingguan(),
-        })
+        if admin:
+            dashboard_data.update({
+                'id_staf': admin['id_staf'],
+                'penjualan_tiket_hari_ini': get_ringkasan_penjualan_tiket(),
+                'jumlah_pengunjung_hari_ini': get_jumlah_pengunjung_hari_ini(),
+                'laporan_pendapatan_mingguan': get_laporan_pendapatan_mingguan(),
+            })
 
     elif role == 'Pelatih Hewan':
         pelatih = fetch_one("""
             SELECT id_staf
             FROM sizopi.pelatih_hewan
             WHERE username_lh = %s
-        """, [dokter['username']])
+        """, [username])
 
-        dashboard_data.update({
-            'id_staf': pelatih['id_staf'],
-            'jadwal_pertunjukan_hari_ini': get_jadwal_pertunjukan(pelatih['id_staf']),
-            'daftar_hewan_dilatih': get_daftar_hewan_dilatih(pelatih['id_staf']),
-            'status_latihan_terakhir': get_status_latihan_terakhir(pelatih['id_staf']),
-        })
+        if pelatih:
+            dashboard_data.update({
+                'id_staf': pelatih['id_staf'],
+                'jadwal_pertunjukan_hari_ini': get_jadwal_pertunjukan(pelatih['id_staf']),
+                'daftar_hewan_dilatih': get_daftar_hewan_dilatih(pelatih['id_staf']),
+                'status_latihan_terakhir': get_status_latihan_terakhir(pelatih['id_staf']),
+            })
 
     return render(request, 'dashboard/dashboard.html', {'dashboard_data': dashboard_data})
 
@@ -132,26 +142,10 @@ def get_role(username):
     return 'User'
 
 def get_riwayat_kunjungan(username):
-    with connection.cursor() as cursor:
-        cursor.execute("""
-            SELECT tanggal_kunjungan
-            FROM sizopi.kunjungan
-            WHERE username_pengunjung = %s
-            ORDER BY tanggal_kunjungan DESC
-        """, [username])
-        rows = cursor.fetchall()
-    return [row[0] for row in rows]
+    return []
 
 def get_informasi_tiket(username):
-    with connection.cursor() as cursor:
-        cursor.execute("""
-            SELECT nomor_tiket, tanggal_pembelian
-            FROM sizopi.tiket
-            WHERE username_pembeli = %s
-            ORDER BY tanggal_pembelian DESC
-        """, [username])
-        rows = cursor.fetchall()
-    return [{'nomor_tiket': row[0], 'tanggal_pembelian': row[1]} for row in rows]
+    return []
 
 def get_jumlah_hewan_rekam_medis(username):
     with connection.cursor() as cursor:
@@ -163,82 +157,37 @@ def get_jumlah_hewan_rekam_medis(username):
         count = cursor.fetchone()[0]
     return count
 
-def get_jumlah_hewan_dipakan(id_staf):
+def get_jumlah_hewan_dipakan(username_penjaga):
     with connection.cursor() as cursor:
         cursor.execute("""
             SELECT COUNT(*)
-            FROM sizopi.memberi
-            WHERE id_staf_penjaga = %s
-        """, [str(id_staf)])
+            FROM "sizopi"."memberi"
+            WHERE username_jh = %s
+        """, [username_penjaga])
         count = cursor.fetchone()[0]
     return count
+
 
 def get_ringkasan_penjualan_tiket():
-    today = date.today()
-    with connection.cursor() as cursor:
-        cursor.execute("""
-            SELECT SUM(harga)
-            FROM sizopi.tiket
-            WHERE tanggal_pembelian = %s
-        """, [today])
-        total = cursor.fetchone()[0]
-    return total or 0
+    return 0
 
 def get_jumlah_pengunjung_hari_ini():
-    today = date.today()
-    with connection.cursor() as cursor:
-        cursor.execute("""
-            SELECT COUNT(DISTINCT username_pengunjung)
-            FROM sizopi.kunjungan
-            WHERE tanggal_kunjungan = %s
-        """, [today])
-        count = cursor.fetchone()[0]
-    return count
+    return
 
 def get_laporan_pendapatan_mingguan():
-    today = date.today()
-    with connection.cursor() as cursor:
-        cursor.execute("""
-            SELECT tanggal_pembelian, SUM(harga)
-            FROM sizopi.tiket
-            WHERE tanggal_pembelian >= %s - INTERVAL '6 days'
-            GROUP BY tanggal_pembelian
-            ORDER BY tanggal_pembelian
-        """, [today])
-        rows = cursor.fetchall()
-    return [{'tanggal': row[0], 'pendapatan': row[1]} for row in rows]
+    return []
 
 def get_jadwal_pertunjukan(id_staf):
-    today = date.today()
-    with connection.cursor() as cursor:
-        cursor.execute("""
-            SELECT nama_pertunjukan, jam_mulai
-            FROM sizopi.atraksi
-            WHERE id_staf_pelatih = %s
-            AND tanggal_pertunjukan = %s
-            ORDER BY jam_mulai
-        """, [str(id_staf), today])
-        rows = cursor.fetchall()
-    return [{'nama_pertunjukan': row[0], 'jam_mulai': row[1]} for row in rows]
-
+    return []
 def get_daftar_hewan_dilatih(id_staf):
     with connection.cursor() as cursor:
         cursor.execute("""
-            SELECT nama_hewan
+            SELECT nama
             FROM sizopi.hewan
-            WHERE id_pelatih = %s
+            WHERE id = %s
         """, [str(id_staf)])
         rows = cursor.fetchall()
     return [row[0] for row in rows]
 
 def get_status_latihan_terakhir(id_staf):
-    with connection.cursor() as cursor:
-        cursor.execute("""
-            SELECT status_terakhir
-            FROM sizopi.latihan
-            WHERE id_staf_pelatih = %s
-            ORDER BY tanggal_latihan DESC, jam_latihan DESC
-            LIMIT 1
-        """, [str(id_staf)])
-        result = cursor.fetchone()
-    return result[0] if result else 'Belum Ada Latihan'
+    return []
