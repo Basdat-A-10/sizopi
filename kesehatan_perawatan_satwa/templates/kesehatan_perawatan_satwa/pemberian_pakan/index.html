@@ -37,6 +37,86 @@
     font-size: 1.9rem;
   }
 
+  .filter-container {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    padding: 25px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+
+  .filter-label {
+    font-weight: 600;
+    color: var(--charcoal);
+    white-space: nowrap;
+  }
+
+  .filter-select {
+    flex-grow: 1;
+    padding: 10px 15px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23546E7A'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E");
+    background-position: right 15px center;
+    background-repeat: no-repeat;
+    background-size: 16px;
+    font-size: 1rem;
+  }
+
+  .filter-select:focus {
+    outline: none;
+    border-color: var(--paynes-gray);
+    box-shadow: 0 0 0 3px rgba(88, 111, 124, 0.15);
+  }
+
+  .hewan-info {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-left: 5px solid var(--paynes-gray);
+    display: none; /* Hidden by default until a hewan is selected */
+  }
+
+  .hewan-info h3 {
+    margin-top: 0;
+    color: var(--charcoal);
+    font-size: 1.4rem;
+    display: flex;
+    align-items: center;
+  }
+
+  .hewan-info h3 i {
+    margin-right: 10px;
+    color: var(--paynes-gray);
+  }
+
+  .hewan-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .hewan-detail {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .detail-label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin-bottom: 5px;
+  }
+
+  .detail-value {
+    color: var(--charcoal);
+  }
+
   .table-container {
     background-color: white;
     border-radius: 10px;
@@ -64,29 +144,11 @@
 
   .table th:first-child {
     border-top-left-radius: 8px;
-    width: 17%;
-  }
-
-  .table th:nth-child(2) {
-    width: 15%;
-  }
-
-  .table th:nth-child(3) {
-    width: 15%;
-  }
-
-  .table th:nth-child(4) {
-    width: 12%;
-  }
-
-  .table th:nth-child(5) {
-    width: 10%;
   }
 
   .table th:last-child {
     border-top-right-radius: 8px;
     text-align: center;
-    width: 31%;
   }
 
   .table td {
@@ -225,7 +287,7 @@
       white-space: nowrap;
     }
   }
-  
+
   .modal {
     display: none;
     position: fixed;
@@ -255,7 +317,11 @@
   }
 
   .modal-header {
-    background: linear-gradient(135deg, var(--charcoal) 0%, var(--paynes-gray) 100%);
+    background: linear-gradient(
+      135deg,
+      var(--charcoal) 0%,
+      var(--paynes-gray) 100%
+    );
     color: white;
     border-radius: 10px 10px 0 0;
     padding: 20px 25px;
@@ -307,18 +373,18 @@
     border-top: 1px solid #eee;
     margin-top: 10px;
   }
-  
+
   .form-group {
     margin-bottom: 20px;
   }
-  
+
   .form-label {
     font-weight: 500;
     margin-bottom: 10px;
     color: var(--charcoal);
     display: block;
   }
-  
+
   .form-control {
     width: 100%;
     padding: 12px 15px;
@@ -326,13 +392,13 @@
     border-radius: 6px;
     font-size: 1rem;
   }
-  
+
   .form-control:focus {
     outline: none;
     border-color: var(--paynes-gray);
     box-shadow: 0 0 0 3px rgba(88, 111, 124, 0.15);
   }
-  
+
   .form-select {
     width: 100%;
     padding: 12px 15px;
@@ -357,25 +423,25 @@
     background-color: #fff9f9;
     border: 1px solid #f5c6cb;
   }
-  
+
   .detail-item {
     margin-bottom: 12px;
     display: flex;
     border-bottom: 1px dashed #eee;
     padding-bottom: 8px;
   }
-  
+
   .detail-item:last-child {
     border-bottom: none;
     margin-bottom: 0;
   }
-  
+
   .detail-label {
     font-weight: 500;
     width: 180px;
     color: #495057;
   }
-  
+
   .detail-value {
     flex-grow: 1;
     color: #212529;
@@ -407,6 +473,22 @@
     font-weight: 500;
     max-width: 300px;
   }
+
+  .no-data-selected {
+    text-align: center;
+    padding: 40px 0;
+    color: #6c757d;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    font-size: 1.1rem;
+  }
+
+  .no-data-selected i {
+    display: block;
+    font-size: 3rem;
+    margin-bottom: 15px;
+    color: #adb5bd;
+  }
 </style>
 
 <div class="pakan-container">
@@ -428,68 +510,76 @@
     </div>
   </div>
 
+  <!-- Filter Hewan -->
+  <div class="filter-container">
+    <span class="filter-label"
+      ><i class="fas fa-filter me-2"></i>Pilih Hewan:</span
+    >
+    <select id="hewan-filter" class="filter-select" onchange="filterHewan()">
+      <option value="" selected>-- Semua Hewan --</option>
+      {% for hewan in hewan_data %}
+      <option value="{{ hewan.id }}">
+        {{ hewan.nama }} ({{ hewan.spesies }})
+      </option>
+      {% endfor %}
+    
+      <!-- Jika hewan_data tidak tersedia, tambahkan daftar berdasarkan data pakan -->
+      {% if not hewan_data %}
+        {% for pakan in pakan_data %}
+          {% if forloop.first or pakan.id_hewan != prev_id %}
+            <option value="{{ pakan.id_hewan }}">
+              {{ pakan.nama_hewan }} ({{ pakan.spesies }})
+            </option>
+            {% with prev_id=pakan.id_hewan %}{% endwith %}
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+    </select>
+  </div>
+
+  <!-- Info Hewan yang dipilih -->
+  <div class="hewan-info" id="hewan-info">
+    <h3><i class="fas fa-paw"></i><span id="hewan-nama">Nama Hewan</span></h3>
+    <div class="hewan-details">
+      <div class="hewan-detail">
+        <div class="detail-label">Spesies</div>
+        <div class="detail-value" id="hewan-spesies"></div>
+      </div>
+      <div class="hewan-detail">
+        <div class="detail-label">Status</div>
+        <div class="detail-value" id="hewan-status"></div>
+      </div>
+    </div>
+  </div>
+
   <div class="table-container">
-    {% if pakan_data %}
-    <table class="table">
+    <div id="no-filter-selected" class="no-data-selected">
+      <i class="fas fa-filter"></i>
+      <p>Silakan pilih hewan untuk melihat jadwal pemberian pakan</p>
+    </div>
+
+    <div id="no-data-found" class="no-data-selected" style="display: none">
+      <i class="fas fa-drumstick-bite"></i>
+      <p>Tidak ada jadwal pemberian pakan untuk hewan yang dipilih</p>
+      <a href="#" class="btn btn-primary mt-3" onclick="openTambahModal()">
+        <i class="fas fa-plus-circle me-2"></i>Tambah Jadwal Pemberian Pakan
+      </a>
+    </div>
+
+    <table class="table" id="pakan-table" style="display: none">
       <thead>
         <tr>
-          <th>Nama Hewan</th>
-          <th>Spesies</th>
           <th>Jenis Pakan</th>
           <th>Jumlah Pakan (gram)</th>
+          <th>Jadwal Pemberian</th>
           <th>Status</th>
           <th>Aksi</th>
         </tr>
       </thead>
-      <tbody>
-        {% for pakan in pakan_data %}
-        <tr>
-          <td>{{ pakan.nama_hewan }}</td>
-          <td>{{ pakan.spesies }}</td>
-          <td>{{ pakan.jenis_pakan }}</td>
-          <td>{{ pakan.jumlah_pakan }}</td>
-          <td>
-            <span
-              class="status-badge {% if pakan.status == 'Terjadwal' %}status-terjadwal {% elif pakan.status == 'Selesai Diberikan' %}status-selesai-diberikan{% endif %}"
-            >
-              {{ pakan.status }}
-            </span>
-          </td>
-          <td>
-            <div class="action-btn-container">
-              {% if pakan.status == 'Terjadwal' %}
-              <a
-                href="{% url 'kesehatan_perawatan_satwa:beri_pakan' pakan.jadwal_str %}"
-                class="action-btn btn-pakan"
-              >
-                <i class="fas fa-check-circle me-1"></i>Beri Pakan
-              </a>
-              {% endif %}
-              <a href="#" 
-                 class="action-btn btn-edit"
-                 onclick="openEditModal('{{ pakan.id_hewan }}', '{{ pakan.nama_hewan }}', '{{ pakan.spesies }}', '{{ pakan.jenis_pakan }}', '{{ pakan.jumlah_pakan }}', '{{ pakan.jadwal|date:'Y-m-d\TH:i' }}', '{{ pakan.jadwal_str }}', '{{ pakan.status }}')">
-                <i class="fas fa-edit me-1"></i>Edit
-              </a>
-              <a href="#" 
-                 class="action-btn btn-delete"
-                 onclick="openDeleteModal('{{ pakan.id_hewan }}', '{{ pakan.nama_hewan }}', '{{ pakan.spesies }}', '{{ pakan.jenis_pakan }}', '{{ pakan.jumlah_pakan }}', '{{ pakan.jadwal|date:'d M Y H:i' }}', '{{ pakan.jadwal_str }}', '{{ pakan.status }}')">
-                <i class="fas fa-trash-alt me-1"></i>Hapus
-              </a>
-            </div>
-          </td>
-        </tr>
-        {% endfor %}
+      <tbody id="pakan-tbody">
+        <!-- soon 2 be filled -->
       </tbody>
     </table>
-    {% else %}
-    <div class="empty-state">
-      <i class="fas fa-drumstick-bite"></i>
-      <p>Belum ada jadwal pemberian pakan.</p>
-      <a href="#" class="btn btn-primary mt-3" onclick="openTambahModal()">
-        <i class="fas fa-plus-circle me-2"></i>Tambah Jadwal Pemberian Pakan Pertama
-      </a>
-    </div>
-    {% endif %}
   </div>
 </div>
 
@@ -497,47 +587,82 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h2><i class="fas fa-plus-circle"></i> Tambah Jadwal Pemberian Pakan</h2>
-        <button type="button" class="modal-close" onclick="closeTambahModal()">&times;</button>
+        <h2>
+          <i class="fas fa-plus-circle"></i> Tambah Jadwal Pemberian Pakan
+        </h2>
+        <button type="button" class="modal-close" onclick="closeTambahModal()">
+          &times;
+        </button>
       </div>
       <div class="modal-body">
         <form id="tambahForm">
           {% csrf_token %}
-          
+
           <div class="form-group">
             <label class="form-label" for="id_hewan">Hewan:</label>
             <select class="form-select" id="id_hewan" name="id_hewan" required>
               <option value="" selected disabled>-- Pilih Hewan --</option>
               {% for hewan in hewan_data %}
-                <option value="{{ hewan.id }}">{{ hewan.nama }} ({{ hewan.spesies }})</option>
+              <option value="{{ hewan.id }}">
+                {{ hewan.nama }} ({{ hewan.spesies }})
+              </option>
               {% endfor %}
             </select>
           </div>
-          
+
           <div class="form-group">
             <label class="form-label" for="jenis_pakan">Jenis Pakan:</label>
-            <input type="text" class="form-control" id="jenis_pakan" name="jenis_pakan" 
-                   placeholder="Contoh: Daging Sapi, Sayuran, Buah-buahan" required>
+            <input
+              type="text"
+              class="form-control"
+              id="jenis_pakan"
+              name="jenis_pakan"
+              placeholder="Contoh: Daging Sapi, Sayuran, Buah-buahan"
+              required
+            />
           </div>
-          
+
           <div class="form-group">
-            <label class="form-label" for="jumlah_pakan">Jumlah Pakan (gram):</label>
-            <input type="number" class="form-control" id="jumlah_pakan" name="jumlah_pakan" 
-                   min="1" placeholder="Masukkan jumlah dalam gram" required>
+            <label class="form-label" for="jumlah_pakan"
+              >Jumlah Pakan (gram):</label
+            >
+            <input
+              type="number"
+              class="form-control"
+              id="jumlah_pakan"
+              name="jumlah_pakan"
+              min="1"
+              placeholder="Masukkan jumlah dalam gram"
+              required
+            />
           </div>
-          
+
           <div class="form-group">
             <label class="form-label" for="jadwal">Jadwal Pemberian:</label>
-            <input type="datetime-local" class="form-control" id="jadwal" name="jadwal" 
-                   value="{{ default_datetime }}" required>
+            <input
+              type="datetime-local"
+              class="form-control"
+              id="jadwal"
+              name="jadwal"
+              value="{{ default_datetime }}"
+              required
+            />
           </div>
         </form>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-light" onclick="closeTambahModal()">
+        <button
+          type="button"
+          class="btn btn-light"
+          onclick="closeTambahModal()"
+        >
           <i class="fas fa-times me-2"></i>Batal
         </button>
-        <button type="button" class="btn btn-primary" onclick="submitTambahForm()">
+        <button
+          type="button"
+          class="btn btn-primary"
+          onclick="submitTambahForm()"
+        >
           <i class="fas fa-save me-2"></i>Simpan
         </button>
       </div>
@@ -550,7 +675,9 @@
     <div class="modal-content">
       <div class="modal-header">
         <h2><i class="fas fa-edit"></i> Edit Pemberian Pakan</h2>
-        <button type="button" class="modal-close" onclick="closeEditModal()">&times;</button>
+        <button type="button" class="modal-close" onclick="closeEditModal()">
+          &times;
+        </button>
       </div>
       <div class="modal-body">
         <div class="detail-card">
@@ -558,12 +685,12 @@
             <div class="detail-label">Nama Hewan:</div>
             <div class="detail-value" id="edit-nama-hewan"></div>
           </div>
-          
+
           <div class="detail-item">
             <div class="detail-label">Spesies:</div>
             <div class="detail-value" id="edit-spesies"></div>
           </div>
-          
+
           <div class="detail-item">
             <div class="detail-label">Status:</div>
             <div class="detail-value">
@@ -574,20 +701,43 @@
 
         <form id="editForm">
           {% csrf_token %}
-          
+
           <div class="form-group">
-            <label class="form-label" for="edit-jenis-pakan">Jenis Pakan Baru:</label>
-            <input type="text" class="form-control" id="edit-jenis-pakan" name="jenis_pakan" required>
+            <label class="form-label" for="edit-jenis-pakan"
+              >Jenis Pakan Baru:</label
+            >
+            <input
+              type="text"
+              class="form-control"
+              id="edit-jenis-pakan"
+              name="jenis_pakan"
+              required
+            />
           </div>
-          
+
           <div class="form-group">
-            <label class="form-label" for="edit-jumlah-pakan">Jumlah Pakan Baru (gram):</label>
-            <input type="number" class="form-control" id="edit-jumlah-pakan" name="jumlah_pakan" min="1" required>
+            <label class="form-label" for="edit-jumlah-pakan"
+              >Jumlah Pakan Baru (gram):</label
+            >
+            <input
+              type="number"
+              class="form-control"
+              id="edit-jumlah-pakan"
+              name="jumlah_pakan"
+              min="1"
+              required
+            />
           </div>
-          
+
           <div class="form-group">
             <label class="form-label" for="edit-jadwal">Jadwal Baru:</label>
-            <input type="datetime-local" class="form-control" id="edit-jadwal" name="jadwal" required>
+            <input
+              type="datetime-local"
+              class="form-control"
+              id="edit-jadwal"
+              name="jadwal"
+              required
+            />
           </div>
         </form>
       </div>
@@ -595,7 +745,11 @@
         <button type="button" class="btn btn-light" onclick="closeEditModal()">
           <i class="fas fa-times me-2"></i>Batal
         </button>
-        <button type="button" class="btn btn-primary" onclick="submitEditForm()">
+        <button
+          type="button"
+          class="btn btn-primary"
+          onclick="submitEditForm()"
+        >
           <i class="fas fa-save me-2"></i>Simpan Perubahan
         </button>
       </div>
@@ -608,40 +762,42 @@
     <div class="modal-content">
       <div class="modal-header modal-delete-header">
         <h2><i class="fas fa-trash-alt"></i> Hapus Pemberian Pakan</h2>
-        <button type="button" class="modal-close" onclick="closeDeleteModal()">&times;</button>
+        <button type="button" class="modal-close" onclick="closeDeleteModal()">
+          &times;
+        </button>
       </div>
       <div class="modal-body">
         <div class="warning-text">
-          Apakah Anda yakin ingin menghapus jadwal pemberian pakan ini?<br>
+          Apakah Anda yakin ingin menghapus jadwal pemberian pakan ini?<br />
           <small>Tindakan ini tidak dapat dibatalkan.</small>
         </div>
-        
+
         <div class="detail-card warning-detail-card">
           <div class="detail-item">
             <div class="detail-label">Nama Hewan:</div>
             <div class="detail-value" id="delete-nama-hewan"></div>
           </div>
-          
+
           <div class="detail-item">
             <div class="detail-label">Spesies:</div>
             <div class="detail-value" id="delete-spesies"></div>
           </div>
-          
+
           <div class="detail-item">
             <div class="detail-label">Jenis Pakan:</div>
             <div class="detail-value" id="delete-jenis-pakan"></div>
           </div>
-          
+
           <div class="detail-item">
             <div class="detail-label">Jumlah Pakan:</div>
             <div class="detail-value" id="delete-jumlah-pakan"></div>
           </div>
-          
+
           <div class="detail-item">
             <div class="detail-label">Jadwal:</div>
             <div class="detail-value" id="delete-jadwal"></div>
           </div>
-          
+
           <div class="detail-item">
             <div class="detail-label">Status:</div>
             <div class="detail-value">
@@ -650,15 +806,21 @@
           </div>
         </div>
 
-        <form id="deleteForm">
-          {% csrf_token %}
-        </form>
+        <form id="deleteForm">{% csrf_token %}</form>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-light" onclick="closeDeleteModal()">
+        <button
+          type="button"
+          class="btn btn-light"
+          onclick="closeDeleteModal()"
+        >
           <i class="fas fa-times me-2"></i>Batal
         </button>
-        <button type="button" class="btn btn-danger" onclick="submitDeleteForm()">
+        <button
+          type="button"
+          class="btn btn-danger"
+          onclick="submitDeleteForm()"
+        >
           <i class="fas fa-trash-alt me-2"></i>Hapus Pemberian Pakan
         </button>
       </div>
@@ -671,109 +833,275 @@
 <script>
   let currentEditId = '';
   let currentDeleteId = '';
+  let allPakanData = [];
+  let uniqueHewan = new Set();
+  let hewanMap = new Map();
+
+  // Inisialisasi data pakan dari template
+  document.addEventListener('DOMContentLoaded', function() {
+    // Convert data pakan dari template ke objek JavaScript
+    allPakanData = [
+      {% for pakan in pakan_data %}
+      {
+        id_hewan: "{{ pakan.id_hewan }}",
+        nama_hewan: "{{ pakan.nama_hewan }}",
+        spesies: "{{ pakan.spesies }}",
+        jenis_pakan: "{{ pakan.jenis_pakan }}",
+        jumlah_pakan: "{{ pakan.jumlah_pakan }}",
+        jadwal: "{{ pakan.jadwal|date:'Y-m-d\TH:i' }}",
+        jadwal_formatted: "{{ pakan.jadwal|date:'d M Y H:i' }}",
+        jadwal_str: "{{ pakan.jadwal_str }}",
+        status: "{{ pakan.status }}"
+      },
+      {% endfor %}
+    ];
+
+    const hewanFilter = document.getElementById('hewan-filter');
+    if (hewanFilter.options.length <= 1) { 
+      allPakanData.forEach(pakan => {
+        if (!uniqueHewan.has(pakan.id_hewan)) {
+          uniqueHewan.add(pakan.id_hewan);
+          hewanMap.set(pakan.id_hewan, {
+            nama: pakan.nama_hewan,
+            spesies: pakan.spesies
+          });
+
+          const option = document.createElement('option');
+          option.value = pakan.id_hewan;
+          option.textContent = pakan.nama_hewan + ' (' + pakan.spesies + ')';
+          hewanFilter.appendChild(option);
+        }
+      });
+    }
+  });
+
+  // Filter data pakan berdasarkan hewan yang dipilih
+  function filterHewan() {
+    const selectedHewanId = document.getElementById('hewan-filter').value;
+    const hewanInfoDiv = document.getElementById('hewan-info');
+    const noFilterDiv = document.getElementById('no-filter-selected');
+    const noDataDiv = document.getElementById('no-data-found');
+    const pakanTable = document.getElementById('pakan-table');
+    const pakanTbody = document.getElementById('pakan-tbody');
+
+    pakanTbody.innerHTML = '';
+
+    if (!selectedHewanId) {
+      hewanInfoDiv.style.display = 'none';
+      noFilterDiv.style.display = 'block';
+      noDataDiv.style.display = 'none';
+      pakanTable.style.display = 'none';
+      return;
+    }
+
+    let hewanData;
+
+    const selectElement = document.getElementById('hewan-filter');
+    const selectedOption = selectElement.options[selectElement.selectedIndex];
+    const hewanText = selectedOption.text;
+    const hewanParts = hewanText.match(/(.*) \((.*)\)/);
+
+    if (hewanParts) {
+      const nama = hewanParts[1];
+      const spesies = hewanParts[2];
+
+      document.getElementById('hewan-nama').textContent = nama;
+      document.getElementById('hewan-spesies').textContent = spesies;
+
+      const pakanForThisHewan = allPakanData.find(pakan => pakan.id_hewan === selectedHewanId);
+      document.getElementById('hewan-status').textContent = "Aktif";
+
+      hewanInfoDiv.style.display = 'block';
+    } else if (hewanMap.has(selectedHewanId)) {
+      hewanData = hewanMap.get(selectedHewanId);
+      document.getElementById('hewan-nama').textContent = hewanData.nama;
+      document.getElementById('hewan-spesies').textContent = hewanData.spesies;
+      document.getElementById('hewan-status').textContent = "Aktif";
+      hewanInfoDiv.style.display = 'block';
+    }
+
+    const filteredPakan = allPakanData.filter(pakan => pakan.id_hewan === selectedHewanId);
+
+    if (filteredPakan.length === 0) {
+      noFilterDiv.style.display = 'none';
+      noDataDiv.style.display = 'block';
+      pakanTable.style.display = 'none';
+      return;
+    }
+
+    noFilterDiv.style.display = 'none';
+    noDataDiv.style.display = 'none';
+    pakanTable.style.display = 'table';
+
+    filteredPakan.forEach(pakan => {
+      const row = document.createElement('tr');
+
+      const jenisTd = document.createElement('td');
+      jenisTd.textContent = pakan.jenis_pakan;
+      row.appendChild(jenisTd);
+
+      const jumlahTd = document.createElement('td');
+      jumlahTd.textContent = pakan.jumlah_pakan;
+      row.appendChild(jumlahTd);
+
+      const jadwalTd = document.createElement('td');
+      jadwalTd.textContent = pakan.jadwal_formatted;
+      row.appendChild(jadwalTd);
+
+      const statusTd = document.createElement('td');
+      const statusSpan = document.createElement('span');
+      statusSpan.className = `status-badge ${pakan.status === 'Terjadwal' ? 'status-terjadwal' : 'status-selesai-diberikan'}`;
+      statusSpan.textContent = pakan.status;
+      statusTd.appendChild(statusSpan);
+      row.appendChild(statusTd);
+
+      const aksiTd = document.createElement('td');
+      const aksiDiv = document.createElement('div');
+      aksiDiv.className = 'action-btn-container';
+
+      if (pakan.status === 'Terjadwal') {
+        const beriPakanLink = document.createElement('a');
+        beriPakanLink.href = `/kesehatan-perawatan/pemberian-pakan/beri-pakan/${pakan.jadwal_str}/`;
+        beriPakanLink.className = 'action-btn btn-pakan';
+        beriPakanLink.innerHTML = '<i class="fas fa-check-circle me-1"></i>Beri Pakan';
+        aksiDiv.appendChild(beriPakanLink);
+      }
+
+      const editBtn = document.createElement('a');
+      editBtn.href = '#';
+      editBtn.className = 'action-btn btn-edit';
+      editBtn.innerHTML = '<i class="fas fa-edit me-1"></i>Edit';
+      editBtn.onclick = function() {
+        openEditModal(pakan.id_hewan, pakan.nama_hewan, pakan.spesies, pakan.jenis_pakan, pakan.jumlah_pakan, pakan.jadwal, pakan.jadwal_str, pakan.status);
+        return false;
+      };
+      aksiDiv.appendChild(editBtn);
+
+      const deleteBtn = document.createElement('a');
+      deleteBtn.href = '#';
+      deleteBtn.className = 'action-btn btn-delete';
+      deleteBtn.innerHTML = '<i class="fas fa-trash-alt me-1"></i>Hapus';
+      deleteBtn.onclick = function() {
+        openDeleteModal(pakan.id_hewan, pakan.nama_hewan, pakan.spesies, pakan.jenis_pakan, pakan.jumlah_pakan, pakan.jadwal_formatted, pakan.jadwal_str, pakan.status);
+        return false;
+      };
+      aksiDiv.appendChild(deleteBtn);
+
+      aksiTd.appendChild(aksiDiv);
+      row.appendChild(aksiTd);
+
+      pakanTbody.appendChild(row);
+    });
+  }
 
   function showNotification(message) {
     const notification = document.getElementById('notification');
     notification.textContent = message;
     notification.style.display = 'block';
-    
+
     setTimeout(function() {
       notification.style.display = 'none';
     }, 3000);
   }
-  
+
   function openTambahModal() {
     document.getElementById('tambahModal').style.display = 'block';
     const now = new Date();
     now.setHours(now.getHours() + 1);
-    const dateString = now.toISOString().slice(0, 16); 
+    const dateString = now.toISOString().slice(0, 16);
     document.getElementById('jadwal').value = dateString;
+
+    // Pre-select hewan yang sudah dipilih di filter (jika ada)
+    const selectedHewanId = document.getElementById('hewan-filter').value;
+    if (selectedHewanId) {
+      document.getElementById('id_hewan').value = selectedHewanId;
+    }
   }
-  
+
   function closeTambahModal() {
     document.getElementById('tambahModal').style.display = 'none';
   }
-  
+
   function submitTambahForm() {
     const idHewan = document.getElementById('id_hewan').value;
     const jenisPakan = document.getElementById('jenis_pakan').value.trim();
     const jumlahPakan = document.getElementById('jumlah_pakan').value;
     const jadwal = document.getElementById('jadwal').value;
-    
+
     document.getElementById('id_hewan').style.borderColor = '#d1d5db';
     document.getElementById('jenis_pakan').style.borderColor = '#d1d5db';
     document.getElementById('jumlah_pakan').style.borderColor = '#d1d5db';
     document.getElementById('jadwal').style.borderColor = '#d1d5db';
-    
+
     if (!idHewan) {
       document.getElementById('id_hewan').style.borderColor = '#dc3545';
       showNotification('Pilih hewan terlebih dahulu');
       return;
     }
-    
+
     if (!jenisPakan) {
       document.getElementById('jenis_pakan').style.borderColor = '#dc3545';
       showNotification('Jenis pakan tidak boleh kosong');
       return;
     }
-    
+
     if (!jumlahPakan || jumlahPakan < 1) {
       document.getElementById('jumlah_pakan').style.borderColor = '#dc3545';
       showNotification('Jumlah pakan harus diisi dengan angka positif');
       return;
     }
-    
+
     if (!jadwal) {
       document.getElementById('jadwal').style.borderColor = '#dc3545';
       showNotification('Jadwal pemberian pakan harus diisi');
       return;
     }
-    
+
     const form = document.createElement('form');
     form.method = 'POST';
     form.action = "{% url 'kesehatan_perawatan_satwa:tambah_pemberian_pakan' %}";
-    
+
     const csrfToken = document.getElementById('tambahForm').querySelector('input[name="csrfmiddlewaretoken"]').value;
     const csrfInput = document.createElement('input');
     csrfInput.type = 'hidden';
     csrfInput.name = 'csrfmiddlewaretoken';
     csrfInput.value = csrfToken;
     form.appendChild(csrfInput);
-    
+
     const idHewanInput = document.createElement('input');
     idHewanInput.type = 'hidden';
     idHewanInput.name = 'id_hewan';
     idHewanInput.value = idHewan;
     form.appendChild(idHewanInput);
-    
+
     const jenisPakanInput = document.createElement('input');
     jenisPakanInput.type = 'hidden';
     jenisPakanInput.name = 'jenis_pakan';
     jenisPakanInput.value = jenisPakan;
     form.appendChild(jenisPakanInput);
-    
+
     const jumlahPakanInput = document.createElement('input');
     jumlahPakanInput.type = 'hidden';
     jumlahPakanInput.name = 'jumlah_pakan';
     jumlahPakanInput.value = jumlahPakan;
     form.appendChild(jumlahPakanInput);
-    
+
     const jadwalInput = document.createElement('input');
     jadwalInput.type = 'hidden';
     jadwalInput.name = 'jadwal';
     jadwalInput.value = jadwal;
     form.appendChild(jadwalInput);
-    
+
     document.body.appendChild(form);
     form.submit();
   }
-  
+
   function openEditModal(idHewan, namaHewan, spesies, jenisPakan, jumlahPakan, jadwalISO, jadwalStr, status) {
     currentEditId = jadwalStr;
-    
+
     document.getElementById('edit-nama-hewan').textContent = namaHewan;
     document.getElementById('edit-spesies').textContent = spesies;
-    
+
     const statusBadge = document.getElementById('edit-status-badge');
     statusBadge.textContent = status;
     statusBadge.className = 'status-badge';
@@ -782,88 +1110,88 @@
     } else if (status === 'Selesai Diberikan') {
       statusBadge.classList.add('status-selesai-diberikan');
     }
-    
+
     document.getElementById('edit-jenis-pakan').value = jenisPakan;
     document.getElementById('edit-jumlah-pakan').value = jumlahPakan;
     document.getElementById('edit-jadwal').value = jadwalISO;
-    
+
     document.getElementById('editModal').style.display = 'block';
   }
-  
+
   function closeEditModal() {
     document.getElementById('editModal').style.display = 'none';
   }
-  
+
   function submitEditForm() {
     // Validasi form
     const jenisPakan = document.getElementById('edit-jenis-pakan').value.trim();
     const jumlahPakan = document.getElementById('edit-jumlah-pakan').value;
     const jadwal = document.getElementById('edit-jadwal').value;
-    
+
     document.getElementById('edit-jenis-pakan').style.borderColor = '#d1d5db';
     document.getElementById('edit-jumlah-pakan').style.borderColor = '#d1d5db';
     document.getElementById('edit-jadwal').style.borderColor = '#d1d5db';
-    
+
     if (!jenisPakan) {
       document.getElementById('edit-jenis-pakan').style.borderColor = '#dc3545';
       showNotification('Jenis pakan tidak boleh kosong');
       return;
     }
-    
+
     if (!jumlahPakan || jumlahPakan < 1) {
       document.getElementById('edit-jumlah-pakan').style.borderColor = '#dc3545';
       showNotification('Jumlah pakan harus diisi dengan angka positif');
       return;
     }
-    
+
     if (!jadwal) {
       document.getElementById('edit-jadwal').style.borderColor = '#dc3545';
       showNotification('Jadwal pemberian pakan harus diisi');
       return;
     }
-    
+
     const form = document.createElement('form');
     form.method = 'POST';
     form.action = `/kesehatan-perawatan/pemberian-pakan/edit/${currentEditId}/`;
-    
+
     const csrfToken = document.getElementById('editForm').querySelector('input[name="csrfmiddlewaretoken"]').value;
     const csrfInput = document.createElement('input');
     csrfInput.type = 'hidden';
     csrfInput.name = 'csrfmiddlewaretoken';
     csrfInput.value = csrfToken;
     form.appendChild(csrfInput);
-    
+
     const jenisPakanInput = document.createElement('input');
     jenisPakanInput.type = 'hidden';
     jenisPakanInput.name = 'jenis_pakan';
     jenisPakanInput.value = jenisPakan;
     form.appendChild(jenisPakanInput);
-    
+
     const jumlahPakanInput = document.createElement('input');
     jumlahPakanInput.type = 'hidden';
     jumlahPakanInput.name = 'jumlah_pakan';
     jumlahPakanInput.value = jumlahPakan;
     form.appendChild(jumlahPakanInput);
-    
+
     const jadwalInput = document.createElement('input');
     jadwalInput.type = 'hidden';
     jadwalInput.name = 'jadwal';
     jadwalInput.value = jadwal;
     form.appendChild(jadwalInput);
-    
+
     document.body.appendChild(form);
     form.submit();
   }
-  
+
   function openDeleteModal(idHewan, namaHewan, spesies, jenisPakan, jumlahPakan, jadwalFormatted, jadwalStr, status) {
     currentDeleteId = jadwalStr;
-    
+
     document.getElementById('delete-nama-hewan').textContent = namaHewan;
     document.getElementById('delete-spesies').textContent = spesies;
     document.getElementById('delete-jenis-pakan').textContent = jenisPakan;
     document.getElementById('delete-jumlah-pakan').textContent = jumlahPakan + ' gram';
     document.getElementById('delete-jadwal').textContent = jadwalFormatted;
-    
+
     const statusBadge = document.getElementById('delete-status-badge');
     statusBadge.textContent = status;
     statusBadge.className = 'status-badge';
@@ -872,43 +1200,43 @@
     } else if (status === 'Selesai Diberikan') {
       statusBadge.classList.add('status-selesai-diberikan');
     }
-    
+
     document.getElementById('deleteModal').style.display = 'block';
   }
-  
+
   function closeDeleteModal() {
     document.getElementById('deleteModal').style.display = 'none';
   }
-  
+
   function submitDeleteForm() {
     const form = document.createElement('form');
     form.method = 'POST';
     form.action = `/kesehatan-perawatan/pemberian-pakan/hapus/${currentDeleteId}/`;
-    
+
     const csrfToken = document.getElementById('deleteForm').querySelector('input[name="csrfmiddlewaretoken"]').value;
     const csrfInput = document.createElement('input');
     csrfInput.type = 'hidden';
     csrfInput.name = 'csrfmiddlewaretoken';
     csrfInput.value = csrfToken;
     form.appendChild(csrfInput);
-    
+
     document.body.appendChild(form);
     form.submit();
   }
-  
+
   window.onclick = function(event) {
     const tambahModal = document.getElementById('tambahModal');
     const editModal = document.getElementById('editModal');
     const deleteModal = document.getElementById('deleteModal');
-    
+
     if (event.target == tambahModal) {
       closeTambahModal();
     }
-    
+
     if (event.target == editModal) {
       closeEditModal();
     }
-    
+
     if (event.target == deleteModal) {
       closeDeleteModal();
     }
