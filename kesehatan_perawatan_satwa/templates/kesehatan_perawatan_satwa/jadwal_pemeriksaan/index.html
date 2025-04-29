@@ -136,16 +136,6 @@
     color: #721c24;
   }
 
-  .status-observasi {
-    background-color: #fff3cd;
-    color: #856404;
-  }
-
-  .status-pemulihan {
-    background-color: #cce5ff;
-    color: #004085;
-  }
-
   .action-btn-container {
     display: flex;
     justify-content: center;
@@ -164,6 +154,7 @@
     text-decoration: none;
     margin-bottom: 5px;
     white-space: nowrap;
+    cursor: pointer;
   }
 
   .btn-edit {
@@ -239,6 +230,7 @@
     background-color: #f8f9fa;
     border: 1px solid #dee2e6;
     transition: all 0.2s;
+    cursor: pointer;
   }
 
   .freq-edit-link:hover {
@@ -257,6 +249,189 @@
     display: flex;
     align-items: center;
   }
+
+  /* Modal styles */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1050;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+
+  .modal-dialog {
+    position: relative;
+    width: auto;
+    margin: 1.75rem auto;
+    max-width: 800px;
+  }
+
+  .modal-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  }
+
+  .modal-header {
+    background: linear-gradient(135deg, var(--charcoal) 0%, var(--paynes-gray) 100%);
+    color: white;
+    border-radius: 10px 10px 0 0;
+    padding: 20px 25px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .modal-header h2 {
+    font-size: 1.6rem;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .modal-header h2 i {
+    margin-right: 12px;
+    font-size: 1.8rem;
+  }
+
+  .modal-delete-header {
+    background: linear-gradient(135deg, #cb2d3e 0%, #ef473a 100%);
+  }
+
+  .modal-close {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 1.4rem;
+    cursor: pointer;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+  }
+
+  .modal-close:hover {
+    opacity: 1;
+  }
+
+  .modal-body {
+    padding: 25px;
+  }
+
+  .modal-footer {
+    padding: 15px 25px 25px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    border-top: 1px solid #eee;
+    margin-top: 10px;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .form-label {
+    font-weight: 500;
+    margin-bottom: 10px;
+    color: var(--charcoal);
+    display: block;
+  }
+  
+  .form-control {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 1rem;
+  }
+  
+  .form-control:focus {
+    outline: none;
+    border-color: var(--paynes-gray);
+    box-shadow: 0 0 0 3px rgba(88, 111, 124, 0.15);
+  }
+  
+  .form-select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23546E7A'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E");
+    background-position: right 15px center;
+    background-repeat: no-repeat;
+    background-size: 16px;
+  }
+
+  .detail-card {
+    background-color: #f9f9f9;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .warning-detail-card {
+    background-color: #fff9f9;
+    border: 1px solid #f5c6cb;
+  }
+  
+  .detail-item {
+    margin-bottom: 12px;
+    display: flex;
+    border-bottom: 1px dashed #eee;
+    padding-bottom: 8px;
+  }
+  
+  .detail-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+  }
+  
+  .detail-label {
+    font-weight: 500;
+    width: 180px;
+    color: #495057;
+  }
+  
+  .detail-value {
+    flex-grow: 1;
+    color: #212529;
+  }
+
+  .warning-text {
+    color: #721c24;
+    text-align: center;
+    font-weight: 500;
+    margin-bottom: 20px;
+    padding: 10px;
+    border-radius: 6px;
+    background-color: #f8d7da;
+  }
+
+  /* Notifikasi */
+  .notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 12px 25px;
+    border-radius: 6px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    display: none;
+    z-index: 1060;
+    font-size: 0.9rem;
+    font-weight: 500;
+    max-width: 300px;
+  }
 </style>
 
 <div class="jadwal-container">
@@ -265,10 +440,7 @@
       <i class="fas fa-calendar-alt"></i>
       Jadwal Pemeriksaan Kesehatan
     </h1>
-    <a
-      href="{% url 'kesehatan_perawatan_satwa:tambah_jadwal_pemeriksaan' %}"
-      class="btn btn-light"
-    >
+    <a href="#" class="btn btn-light" onclick="openTambahModal()">
       <i class="fas fa-plus-circle me-2"></i>Tambah Jadwal Pemeriksaan
     </a>
   </div>
@@ -278,7 +450,7 @@
     <table class="table">
       <thead>
         <tr>
-          <th>Tanggal Pemeriksaan</th>
+          <th>Tanggal Pemeriksaan Selanjutnya</th>
           <th>Nama Hewan</th>
           <th>Spesies</th>
           <th>Frekuensi Pemeriksaan</th>
@@ -297,34 +469,26 @@
               <span class="freq-badge">
                 {{ jadwal.freq_pemeriksaan_rutin }} bulan sekali
               </span>
-              <a
-                href="{% url 'kesehatan_perawatan_satwa:edit_frekuensi_pemeriksaan' id=jadwal.id_hewan %}"
-                class="freq-edit-link"
-                title="Edit Frekuensi Pemeriksaan"
-              >
+              <a class="freq-edit-link" 
+                 onclick="openEditFrekuensiModal('{{ jadwal.id_hewan }}', '{{ jadwal.nama_hewan }}', '{{ jadwal.spesies }}', '{{ jadwal.status_kesehatan }}', '{{ jadwal.freq_pemeriksaan_rutin }}')"
+                 title="Edit Frekuensi Pemeriksaan">
                 <i class="fas fa-sync-alt"></i> Edit
               </a>
             </div>
           </td>
           <td>
-            <span
-              class="status-badge {% if jadwal.status_kesehatan == 'Sehat' %}status-sehat {% elif jadwal.status_kesehatan == 'Sakit' %}status-sakit {% elif jadwal.status_kesehatan == 'Observasi' %}status-observasi {% elif jadwal.status_kesehatan == 'Pemulihan' %}status-pemulihan{% endif %}"
-            >
+            <span class="status-badge {% if jadwal.status_kesehatan == 'Sehat' %}status-sehat{% else %}status-sakit{% endif %}">
               {{ jadwal.status_kesehatan }}
             </span>
           </td>
           <td>
             <div class="action-btn-container">
-              <a
-                href="{% url 'kesehatan_perawatan_satwa:edit_jadwal_pemeriksaan' id=jadwal.id_hewan %}"
-                class="action-btn btn-edit"
-              >
+              <a class="action-btn btn-edit"
+                 onclick="openEditJadwalModal('{{ jadwal.id_hewan }}', '{{ jadwal.nama_hewan }}', '{{ jadwal.spesies }}', '{{ jadwal.status_kesehatan }}', '{{ jadwal.freq_pemeriksaan_rutin }}', '{{ jadwal.tgl_pemeriksaan_selanjutnya|date:'Y-m-d' }}')">
                 <i class="fas fa-calendar-day me-1"></i>Edit Jadwal
               </a>
-              <a
-                href="{% url 'kesehatan_perawatan_satwa:hapus_jadwal_pemeriksaan' id=jadwal.id_hewan %}"
-                class="action-btn btn-delete"
-              >
+              <a class="action-btn btn-delete"
+                 onclick="openHapusModal('{{ jadwal.id_hewan }}', '{{ jadwal.nama_hewan }}', '{{ jadwal.spesies }}', '{{ jadwal.status_kesehatan }}', '{{ jadwal.freq_pemeriksaan_rutin }}', '{{ jadwal.tgl_pemeriksaan_selanjutnya|date:'d M Y' }}')">
                 <i class="fas fa-trash-alt me-1"></i>Hapus
               </a>
             </div>
@@ -337,14 +501,485 @@
     <div class="empty-state">
       <i class="fas fa-calendar-times"></i>
       <p>Belum ada jadwal pemeriksaan kesehatan.</p>
-      <a
-        href="{% url 'kesehatan_perawatan_satwa:tambah_jadwal_pemeriksaan' %}"
-        class="btn btn-primary mt-3"
-      >
+      <a href="#" class="btn btn-primary mt-3" onclick="openTambahModal()">
         <i class="fas fa-plus-circle me-2"></i>Tambah Jadwal Pemeriksaan Pertama
       </a>
     </div>
     {% endif %}
   </div>
 </div>
+
+<!-- Edit Frekuensi Modal -->
+<div class="modal" id="editFrekuensiModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i class="fas fa-sync"></i> Edit Frekuensi Pemeriksaan</h2>
+        <button type="button" class="modal-close" onclick="closeEditFrekuensiModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <!-- Informasi Hewan -->
+        <div class="detail-card">
+          <div class="detail-item">
+            <div class="detail-label">Nama Hewan:</div>
+            <div class="detail-value" id="edit-frekuensi-nama-hewan"></div>
+          </div>
+          
+          <div class="detail-item">
+            <div class="detail-label">Spesies:</div>
+            <div class="detail-value" id="edit-frekuensi-spesies"></div>
+          </div>
+          
+          <div class="detail-item">
+            <div class="detail-label">Status Kesehatan:</div>
+            <div class="detail-value">
+              <span class="status-badge" id="edit-frekuensi-status-badge"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form Edit Frekuensi -->
+        <form id="editFrekuensiForm">
+          {% csrf_token %}
+          
+          <div class="form-group">
+            <label class="form-label" for="freq_pemeriksaan_rutin">Frekuensi Pemeriksaan Rutin:</label>
+            <select class="form-select" id="freq_pemeriksaan_rutin" name="freq_pemeriksaan_rutin" required>
+              <option value="1">1 bulan sekali</option>
+              <option value="2">2 bulan sekali</option>
+              <option value="3">3 bulan sekali</option>
+              <option value="4">4 bulan sekali</option>
+              <option value="6">6 bulan sekali</option>
+              <option value="12">12 bulan sekali</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light" onclick="closeEditFrekuensiModal()">
+          <i class="fas fa-times me-2"></i>Batal
+        </button>
+        <button type="button" class="btn btn-primary" onclick="submitEditFrekuensiForm()">
+          <i class="fas fa-save me-2"></i>Simpan Perubahan
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Jadwal Modal -->
+<div class="modal" id="editJadwalModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i class="fas fa-calendar-day"></i> Edit Jadwal Pemeriksaan</h2>
+        <button type="button" class="modal-close" onclick="closeEditJadwalModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <!-- Informasi Hewan -->
+        <div class="detail-card">
+          <div class="detail-item">
+            <div class="detail-label">Nama Hewan:</div>
+            <div class="detail-value" id="edit-jadwal-nama-hewan"></div>
+          </div>
+          
+          <div class="detail-item">
+            <div class="detail-label">Spesies:</div>
+            <div class="detail-value" id="edit-jadwal-spesies"></div>
+          </div>
+          
+          <div class="detail-item">
+            <div class="detail-label">Frekuensi Pemeriksaan:</div>
+            <div class="detail-value" id="edit-jadwal-frekuensi"></div>
+          </div>
+          
+          <div class="detail-item">
+            <div class="detail-label">Status Kesehatan:</div>
+            <div class="detail-value">
+              <span class="status-badge" id="edit-jadwal-status-badge"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form Edit Jadwal -->
+        <form id="editJadwalForm">
+          {% csrf_token %}
+          
+          <div class="form-group">
+            <label class="form-label" for="tgl_pemeriksaan_selanjutnya">Tanggal Pemeriksaan Selanjutnya:</label>
+            <input type="date" class="form-control" id="tgl_pemeriksaan_selanjutnya" name="tgl_pemeriksaan_selanjutnya" required>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light" onclick="closeEditJadwalModal()">
+          <i class="fas fa-times me-2"></i>Batal
+        </button>
+        <button type="button" class="btn btn-primary" onclick="submitEditJadwalForm()">
+          <i class="fas fa-save me-2"></i>Simpan Perubahan
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Hapus Modal -->
+<div class="modal" id="hapusModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header modal-delete-header">
+        <h2><i class="fas fa-calendar-times"></i> Hapus Jadwal Pemeriksaan</h2>
+        <button type="button" class="modal-close" onclick="closeHapusModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="warning-text">
+          Apakah Anda yakin ingin menghapus jadwal pemeriksaan ini?<br>
+          <small>Tindakan ini tidak dapat dibatalkan.</small>
+        </div>
+        
+        <div class="detail-card warning-detail-card">
+          <div class="detail-item">
+            <div class="detail-label">Nama Hewan:</div>
+            <div class="detail-value" id="hapus-nama-hewan"></div>
+          </div>
+          
+          <div class="detail-item">
+            <div class="detail-label">Spesies:</div>
+            <div class="detail-value" id="hapus-spesies"></div>
+          </div>
+          
+          <div class="detail-item">
+            <div class="detail-label">Tanggal Pemeriksaan:</div>
+            <div class="detail-value" id="hapus-tanggal"></div>
+          </div>
+          
+          <div class="detail-item">
+            <div class="detail-label">Frekuensi Pemeriksaan:</div>
+            <div class="detail-value" id="hapus-frekuensi"></div>
+          </div>
+          
+          <div class="detail-item">
+            <div class="detail-label">Status Kesehatan:</div>
+            <div class="detail-value">
+              <span class="status-badge" id="hapus-status-badge"></span>
+            </div>
+          </div>
+        </div>
+
+        <form id="hapusForm">
+          {% csrf_token %}
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light" onclick="closeHapusModal()">
+          <i class="fas fa-times me-2"></i>Batal
+        </button>
+        <button type="button" class="btn btn-danger" onclick="submitHapusForm()">
+          <i class="fas fa-trash-alt me-2"></i>Hapus Jadwal Pemeriksaan
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="tambahModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i class="fas fa-calendar-plus"></i> Tambah Jadwal Pemeriksaan</h2>
+        <button type="button" class="modal-close" onclick="closeTambahModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="tambahForm">
+          {% csrf_token %}
+          
+          <div class="form-group">
+            <label class="form-label" for="id_hewan">Pilih Hewan:</label>
+            <select class="form-select" id="id_hewan" name="id_hewan" required>
+              <option value="" selected disabled>-- Pilih Hewan --</option>
+              {% for hewan in hewan_data %}
+                <option value="{{ hewan.id }}">{{ hewan.nama }} ({{ hewan.spesies }})</option>
+              {% endfor %}
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="tambah-tgl-pemeriksaan">Tanggal Pemeriksaan Selanjutnya:</label>
+            <input type="date" class="form-control" id="tambah-tgl-pemeriksaan" name="tgl_pemeriksaan_selanjutnya" value="{{ default_date }}" required>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="tambah-freq-pemeriksaan">Frekuensi Pemeriksaan (dalam bulan):</label>
+            <select class="form-select" id="tambah-freq-pemeriksaan" name="freq_pemeriksaan_rutin" required>
+              <option value="1">1 bulan sekali</option>
+              <option value="2">2 bulan sekali</option>
+              <option value="3" selected>3 bulan sekali</option>
+              <option value="4">4 bulan sekali</option>
+              <option value="6">6 bulan sekali</option>
+              <option value="12">12 bulan sekali</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light" onclick="closeTambahModal()">
+          <i class="fas fa-times me-2"></i>Batal
+        </button>
+        <button type="button" class="btn btn-primary" onclick="submitTambahForm()">
+          <i class="fas fa-save me-2"></i>Simpan Jadwal Pemeriksaan
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="notification" class="notification"></div>
+
+<script>
+  let currentEditFrekuensiId = '';
+  let currentEditJadwalId = '';
+  let currentHapusId = '';
+  
+  function openEditFrekuensiModal(id, namaHewan, spesies, status, frekuensi) {
+    currentEditFrekuensiId = id;
+    
+    document.getElementById('edit-frekuensi-nama-hewan').textContent = namaHewan;
+    document.getElementById('edit-frekuensi-spesies').textContent = spesies;
+    
+    const statusBadge = document.getElementById('edit-frekuensi-status-badge');
+    statusBadge.textContent = status;
+    statusBadge.className = 'status-badge';
+    if (status === 'Sehat') {
+      statusBadge.classList.add('status-sehat');
+    } else {
+      statusBadge.classList.add('status-sakit');
+    }
+    
+    document.getElementById('freq_pemeriksaan_rutin').value = frekuensi;
+    
+    document.getElementById('editFrekuensiModal').style.display = 'block';
+  }
+  
+  function closeEditFrekuensiModal() {
+    document.getElementById('editFrekuensiModal').style.display = 'none';
+  }
+  
+  function submitEditFrekuensiForm() {
+    const frekuensi = document.getElementById('freq_pemeriksaan_rutin').value;
+    if (!frekuensi) {
+      showNotification('Pilih frekuensi pemeriksaan');
+      return;
+    }
+    
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/kesehatan-perawatan/jadwal-pemeriksaan/edit-frekuensi/${currentEditFrekuensiId}/`;
+    
+    const csrfToken = document.getElementById('editFrekuensiForm').querySelector('input[name="csrfmiddlewaretoken"]').value;
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'csrfmiddlewaretoken';
+    csrfInput.value = csrfToken;
+    form.appendChild(csrfInput);
+    
+    const frekuensiInput = document.createElement('input');
+    frekuensiInput.type = 'hidden';
+    frekuensiInput.name = 'freq_pemeriksaan_rutin';
+    frekuensiInput.value = frekuensi;
+    form.appendChild(frekuensiInput);
+    
+    document.body.appendChild(form);
+    form.submit();
+  }
+  
+  function openEditJadwalModal(id, namaHewan, spesies, status, frekuensi, tanggal) {
+    currentEditJadwalId = id;
+    
+    document.getElementById('edit-jadwal-nama-hewan').textContent = namaHewan;
+    document.getElementById('edit-jadwal-spesies').textContent = spesies;
+    document.getElementById('edit-jadwal-frekuensi').textContent = frekuensi + ' bulan sekali';
+    
+    const statusBadge = document.getElementById('edit-jadwal-status-badge');
+    statusBadge.textContent = status;
+    statusBadge.className = 'status-badge';
+    if (status === 'Sehat') {
+      statusBadge.classList.add('status-sehat');
+    } else {
+      statusBadge.classList.add('status-sakit');
+    }
+    
+    document.getElementById('tgl_pemeriksaan_selanjutnya').value = tanggal;
+    
+    document.getElementById('editJadwalModal').style.display = 'block';
+  }
+  
+  function closeEditJadwalModal() {
+    document.getElementById('editJadwalModal').style.display = 'none';
+  }
+  
+  function submitEditJadwalForm() {
+    const tanggal = document.getElementById('tgl_pemeriksaan_selanjutnya').value;
+    if (!tanggal) {
+      showNotification('Pilih tanggal pemeriksaan selanjutnya');
+      return;
+    }
+    
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/kesehatan-perawatan/jadwal-pemeriksaan/edit/${currentEditJadwalId}/`;
+    
+    const csrfToken = document.getElementById('editJadwalForm').querySelector('input[name="csrfmiddlewaretoken"]').value;
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'csrfmiddlewaretoken';
+    csrfInput.value = csrfToken;
+    form.appendChild(csrfInput);
+    
+    const tanggalInput = document.createElement('input');
+    tanggalInput.type = 'hidden';
+    tanggalInput.name = 'tgl_pemeriksaan_selanjutnya';
+    tanggalInput.value = tanggal;
+    form.appendChild(tanggalInput);
+    
+    document.body.appendChild(form);
+    form.submit();
+  }
+  
+  function openHapusModal(id, namaHewan, spesies, status, frekuensi, tanggal) {
+    currentHapusId = id;
+    
+    document.getElementById('hapus-nama-hewan').textContent = namaHewan;
+    document.getElementById('hapus-spesies').textContent = spesies;
+    document.getElementById('hapus-tanggal').textContent = tanggal;
+    document.getElementById('hapus-frekuensi').textContent = frekuensi + ' bulan sekali';
+    
+    const statusBadge = document.getElementById('hapus-status-badge');
+    statusBadge.textContent = status;
+    statusBadge.className = 'status-badge';
+    if (status === 'Sehat') {
+      statusBadge.classList.add('status-sehat');
+    } else {
+      statusBadge.classList.add('status-sakit');
+    }
+    
+    document.getElementById('hapusModal').style.display = 'block';
+  }
+  
+  function closeHapusModal() {
+    document.getElementById('hapusModal').style.display = 'none';
+  }
+  
+  function submitHapusForm() {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/kesehatan-perawatan/jadwal-pemeriksaan/hapus/${currentHapusId}/`;
+    
+    const csrfToken = document.getElementById('hapusForm').querySelector('input[name="csrfmiddlewaretoken"]').value;
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'csrfmiddlewaretoken';
+    csrfInput.value = csrfToken;
+    form.appendChild(csrfInput);
+    
+    document.body.appendChild(form);
+    form.submit();
+  }
+  
+  function openTambahModal() {
+    document.getElementById('tambahModal').style.display = 'block';
+    
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('tambah-tgl-pemeriksaan').value = today;
+  }
+  
+  function closeTambahModal() {
+    document.getElementById('tambahModal').style.display = 'none';
+  }
+  
+  function submitTambahForm() {
+    const idHewan = document.getElementById('id_hewan').value;
+    const tanggal = document.getElementById('tambah-tgl-pemeriksaan').value;
+    const frekuensi = document.getElementById('tambah-freq-pemeriksaan').value;
+    
+    if (!idHewan) {
+      showNotification('Pilih hewan terlebih dahulu');
+      return;
+    }
+    
+    if (!tanggal) {
+      showNotification('Pilih tanggal pemeriksaan selanjutnya');
+      return;
+    }
+    
+    if (!frekuensi) {
+      showNotification('Pilih frekuensi pemeriksaan');
+      return;
+    }
+    
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = "{% url 'kesehatan_perawatan_satwa:tambah_jadwal_pemeriksaan' %}";
+    
+    const csrfToken = document.getElementById('tambahForm').querySelector('input[name="csrfmiddlewaretoken"]').value;
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'csrfmiddlewaretoken';
+    csrfInput.value = csrfToken;
+    form.appendChild(csrfInput);
+    
+    const idHewanInput = document.createElement('input');
+    idHewanInput.type = 'hidden';
+    idHewanInput.name = 'id_hewan';
+    idHewanInput.value = idHewan;
+    form.appendChild(idHewanInput);
+    
+    const tanggalInput = document.createElement('input');
+    tanggalInput.type = 'hidden';
+    tanggalInput.name = 'tgl_pemeriksaan_selanjutnya';
+    tanggalInput.value = tanggal;
+    form.appendChild(tanggalInput);
+    
+    const frekuensiInput = document.createElement('input');
+    frekuensiInput.type = 'hidden';
+    frekuensiInput.name = 'freq_pemeriksaan_rutin';
+    frekuensiInput.value = frekuensi;
+    form.appendChild(frekuensiInput);
+    
+    document.body.appendChild(form);
+    form.submit();
+  }
+  
+  function showNotification(message) {
+    const notification = document.getElementById('notification');
+    notification.textContent = message;
+    notification.style.display = 'block';
+    
+    setTimeout(function() {
+      notification.style.display = 'none';
+    }, 3000);
+  }
+  
+  window.onclick = function(event) {
+    const editFrekuensiModal = document.getElementById('editFrekuensiModal');
+    const editJadwalModal = document.getElementById('editJadwalModal');
+    const hapusModal = document.getElementById('hapusModal');
+    const tambahModal = document.getElementById('tambahModal');
+    
+    if (event.target == editFrekuensiModal) {
+      closeEditFrekuensiModal();
+    }
+    
+    if (event.target == editJadwalModal) {
+      closeEditJadwalModal();
+    }
+    
+    if (event.target == hapusModal) {
+      closeHapusModal();
+    }
+    
+    if (event.target == tambahModal) {
+      closeTambahModal();
+    }
+  }
+</script>
 {% endblock %}
