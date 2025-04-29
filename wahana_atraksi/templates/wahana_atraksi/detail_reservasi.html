@@ -1,0 +1,294 @@
+{% extends "base.html" %}
+
+{% block title %}Detail Reservasi - {{ reservasi.nama_atraksi }}{% endblock %}
+
+{% block content %}
+<style>
+    .detail-container {
+        padding: 40px 0;
+    }
+    
+    .page-header {
+        background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+        color: white;
+        padding: 40px 0;
+        text-align: center;
+        margin-bottom: 30px;
+        border-radius: 0 0 50px 50px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .page-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .page-header p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+    }
+    
+    .status-badge {
+        font-size: 1rem;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        display: inline-block;
+        font-weight: 600;
+    }
+    
+    .status-confirmed {
+        background-color: #28a745;
+        color: white;
+    }
+    
+    .status-pending {
+        background-color: #ffc107;
+        color: #212529;
+    }
+    
+    .status-cancelled {
+        background-color: #dc3545;
+        color: white;
+    }
+    
+    .card {
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        margin-bottom: 30px;
+        border: none;
+    }
+    
+    .card-header {
+        padding: 1.2rem;
+        font-weight: bold;
+        letter-spacing: 1px;
+    }
+    
+    .action-buttons {
+        margin-top: 2rem;
+    }
+    
+    .btn-edit {
+        background-color: #17a2b8;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+    
+    .btn-edit:hover {
+        background-color: #138496;
+        transform: translateY(-2px);
+        color: white;
+    }
+    
+    .btn-cancel {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+    
+    .btn-cancel:hover {
+        background-color: #c82333;
+        transform: translateY(-2px);
+        color: white;
+    }
+    
+    .detail-row {
+        margin-bottom: 1rem;
+        border-bottom: 1px solid #f0f0f0;
+        padding-bottom: 1rem;
+    }
+    
+    .detail-row:last-child {
+        border-bottom: none;
+    }
+    
+    .detail-label {
+        font-weight: 600;
+        color: #495057;
+    }
+    
+    .detail-value {
+        font-weight: 500;
+        color: #212529;
+    }
+    
+    .ticket-container {
+        border: 2px dashed #6a11cb;
+        border-radius: 15px;
+        padding: 20px;
+        background-color: #f8f9fa;
+        margin-top: 20px;
+    }
+    
+    .ticket-header {
+        text-align: center;
+        margin-bottom: 15px;
+    }
+    
+    .ticket-header h3 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #6a11cb;
+        margin-bottom: 5px;
+    }
+    
+    .ticket-content {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+    }
+    
+    .ticket-info {
+        flex: 1;
+        min-width: 200px;
+    }
+    
+    .ticket-qr {
+        width: 120px;
+        height: 120px;
+        background-color: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: #adb5bd;
+        border-radius: 10px;
+    }
+</style>
+
+<!-- Header Section -->
+<div class="page-header">
+    <div class="container">
+        <h1>Detail Reservasi</h1>
+        <p>Informasi lengkap tentang reservasi tiket atraksi Anda</p>
+    </div>
+</div>
+
+<div class="detail-container">
+    <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2>DETAIL RESERVASI</h2>
+                    {% if reservasi.status == 'Confirmed' %}
+                        <span class="status-badge status-confirmed">Terjadwal</span>
+                    {% elif reservasi.status == 'Pending' %}
+                        <span class="status-badge status-pending">Pending</span>
+                    {% else %}
+                        <span class="status-badge status-cancelled">Dibatalkan</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row detail-row">
+                    <div class="col-md-4 detail-label">Nama Atraksi</div>
+                    <div class="col-md-8 detail-value">{{ reservasi.nama_atraksi }}</div>
+                </div>
+                <div class="row detail-row">
+                    <div class="col-md-4 detail-label">Lokasi</div>
+                    <div class="col-md-8 detail-value">{{ reservasi.lokasi }}</div>
+                </div>
+                <div class="row detail-row">
+                    <div class="col-md-4 detail-label">Jadwal</div>
+                    <div class="col-md-8 detail-value">{{ reservasi.jadwal|time:"H:i" }} WIB</div>
+                </div>
+                <div class="row detail-row">
+                    <div class="col-md-4 detail-label">Tanggal Kunjungan</div>
+                    <div class="col-md-8 detail-value">{{ reservasi.tanggal_kunjungan|date:"l, d F Y" }}</div>
+                </div>
+                <div class="row detail-row">
+                    <div class="col-md-4 detail-label">Jumlah Tiket</div>
+                    <div class="col-md-8 detail-value">{{ reservasi.jumlah_tiket }} tiket</div>
+                </div>
+                <div class="row detail-row">
+                    <div class="col-md-4 detail-label">Status</div>
+                    <div class="col-md-8 detail-value">
+                        {% if reservasi.status == 'Confirmed' %}
+                            <span class="badge bg-success">Terjadwal</span>
+                        {% elif reservasi.status == 'Pending' %}
+                            <span class="badge bg-warning text-dark">Pending</span>
+                        {% else %}
+                            <span class="badge bg-danger">Dibatalkan</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                {% if reservasi.status == 'Confirmed' %}
+                <div class="ticket-container">
+                    <div class="ticket-header">
+                        <h3>E-TICKET</h3>
+                        <p>Tunjukkan tiket ini saat memasuki atraksi</p>
+                    </div>
+                    <div class="ticket-content">
+                        <div class="ticket-info">
+                            <p><strong>Reservasi ID:</strong> #{{ reservasi.username_p|slice:":3" }}{{ reservasi.tanggal_kunjungan|date:"dmy" }}</p>
+                            <p><strong>Atraksi:</strong> {{ reservasi.nama_atraksi }}</p>
+                            <p><strong>Tanggal:</strong> {{ reservasi.tanggal_kunjungan|date:"d M Y" }}</p>
+                            <p><strong>Jam:</strong> {{ reservasi.jadwal|time:"H:i" }} WIB</p>
+                            <p><strong>Jumlah Tiket:</strong> {{ reservasi.jumlah_tiket }}</p>
+                        </div>
+                        <div class="ticket-qr">
+                            <i class="fas fa-qrcode"></i>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="action-buttons">
+                    {% if reservasi.status != 'Cancelled' %}
+                        <a href="{% url 'edit_reservasi' username=reservasi.username_p nama_atraksi=reservasi.nama_atraksi tanggal_kunjungan=reservasi.tanggal_kunjungan %}" class="btn btn-edit me-2">
+                            <i class="fas fa-edit me-1"></i> Edit Reservasi
+                        </a>
+                        
+                        <a href="{% url 'batalkan_reservasi' username=reservasi.username_p nama_atraksi=reservasi.nama_atraksi tanggal_kunjungan=reservasi.tanggal_kunjungan %}" 
+                           class="btn btn-cancel"
+                           onclick="return confirm('Apakah Anda yakin ingin membatalkan reservasi ini? Tindakan ini tidak dapat dibatalkan.');">
+                            <i class="fas fa-times-circle me-1"></i> Batalkan Reservasi
+                        </a>
+                    {% endif %}
+                    
+                    <a href="{% url 'daftar_wahana_dan_atraksi' %}" class="btn btn-secondary ms-2">
+                        <i class="fas fa-arrow-left me-1"></i> Kembali
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h2>INFORMASI PENTING</h2>
+            </div>
+            <div class="card-body">
+                <ul>
+                    <li>Harap datang 30 menit sebelum jadwal atraksi dimulai</li>
+                    <li>Pembayaran dilakukan di tempat pada hari kunjungan</li>
+                    <li>Tiket yang sudah dibeli tidak dapat dikembalikan</li>
+                    <li>Reservasi yang telah dikonfirmasi hanya dapat dibatalkan maksimal 1 hari sebelum tanggal kunjungan</li>
+                    <li>Untuk informasi lebih lanjut, silakan hubungi customer service kami di (021) 123-4567</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

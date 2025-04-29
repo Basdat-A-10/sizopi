@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIZOPI - Sistem Informasi Zoo Pintar</title>
+    <style>
+        /* Color Palette */
+        :root {
+            --slate-gray: #586F7C;
+            --white-smoke: #F4F4F9;
+            --powder-blue: #B8DBD9;
+            --charcoal: #2F4550;
+            --black: #000000;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--white-smoke);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .gateway-container {
+            max-width: 600px;
+            width: 90%;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(47, 69, 80, 0.1);
+            overflow: hidden;
+        }
+        
+        .gateway-header {
+            background: linear-gradient(135deg, #2F4550 0%, #586F7C 100%);
+            color: var(--white-smoke);
+            padding: 30px 20px;
+            text-align: center;
+        }
+        
+        .gateway-header h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        
+        .gateway-header h2 {
+            margin: 10px 0 0;
+            font-size: 1.2rem;
+            font-weight: normal;
+        }
+        
+        .gateway-body {
+            padding: 40px 30px;
+            text-align: center;
+        }
+        
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            border-radius: 5px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-login {
+            background-color: var(--charcoal);
+            color: var(--white-smoke);
+        }
+        
+        .btn-login:hover {
+            background-color: var(--black);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 10px rgba(47, 69, 80, 0.2);
+        }
+        
+        .btn-register {
+            background-color: var(--white-smoke);
+            color: var(--charcoal);
+            border: 2px solid var(--charcoal);
+        }
+        
+        .btn-register:hover {
+            background-color: var(--slate-gray);
+            color: var(--white-smoke);
+            border-color: var(--slate-gray);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 10px rgba(88, 111, 124, 0.2);
+        }
+        
+        @media (max-width: 480px) {
+            .buttons {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="gateway-container">
+        <div class="gateway-header">
+            <h1>SIZOPI A-10</h1>
+            <h2>Sistem Informasi Zoo Pintar</h2>
+        </div>
+        <div class="gateway-body">
+            <p>Selamat datang di Sistem Informasi Zoo Pintar. Silahkan login untuk mengakses sistem atau daftar jika Anda belum memiliki akun.</p>
+            <div class="buttons">
+                <a href="/login/" class="btn btn-login">Login</a>
+                <a href="/register/" class="btn btn-register">Register</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

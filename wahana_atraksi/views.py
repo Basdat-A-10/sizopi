@@ -1,11 +1,15 @@
 from django.shortcuts import render, redirect
 from django.db import connection
 from django.http import JsonResponse, Http404
+from django.contrib import messages
 
 # View utama - menampilkan daftar wahana dan atraksi
 def daftar_wahana_dan_atraksi(request):
+    # Ambil username dari cookie
+    username = request.COOKIES.get('user_id')
+    
     with connection.cursor() as cursor:
-        cursor.execute("SET search_path TO SIZOPI;") 
+        cursor.execute("SET search_path TO SIZOPI;")  
 
         # Wahana
         cursor.execute("""
@@ -65,14 +69,47 @@ def daftar_wahana_dan_atraksi(request):
         atraksi_columns = [col[0] for col in cursor.description]
         atraksi_rows = cursor.fetchall()
         atraksi_list = [dict(zip(atraksi_columns, row)) for row in atraksi_rows]
+        
+        # Reservasi (jika user sudah login)
+        reservasi_list = []
+        if username:
+            cursor.execute("""
+                SELECT
+                    r.username_p,
+                    CONCAT(p.nama_depan, ' ', COALESCE(p.nama_tengah || ' ', ''), p.nama_belakang) AS nama_pengunjung,
+                    r.nama_atraksi,
+                    a.lokasi,
+                    f.jadwal,
+                    r.tanggal_kunjungan,
+                    r.jumlah_tiket,
+                    r.status
+                FROM
+                    RESERVASI r
+                JOIN
+                    ATRAKSI a ON r.nama_atraksi = a.nama_atraksi
+                JOIN
+                    FASILITAS f ON a.nama_atraksi = f.nama
+                JOIN
+                    PENGUNJUNG pg ON r.username_p = pg.username_P
+                JOIN
+                    PENGGUNA p ON pg.username_P = p.username
+                WHERE
+                    r.username_p = %s
+                ORDER BY
+                    r.tanggal_kunjungan DESC
+            """, [username])
+            
+            reservasi_columns = [col[0] for col in cursor.description]
+            reservasi_rows = cursor.fetchall()
+            reservasi_list = [dict(zip(reservasi_columns, row)) for row in reservasi_rows]
 
     return render(request, 'wahana_atraksi/daftar_wahana_dan_atraksi.html', {
         'wahana_list': wahana_list,
-        'atraksi_list': atraksi_list
+        'atraksi_list': atraksi_list,
+        'reservasi_list': reservasi_list,
+        'is_logged_in': bool(username)
     })
 
-# Tambah Wahana
-# Tambah Wahana
 # Tambah Wahana dengan pengecekan duplikasi
 def tambah_wahana(request):
     if request.method == "POST":
@@ -554,4 +591,436 @@ def delete_atraksi(request, nama_atraksi):
             DELETE FROM FASILITAS WHERE nama = %s
         """, [nama_atraksi])
         
+    return redirect('daftar_wahana_dan_atraksi')
+
+# View untuk menampilkan form reservasi
+def tampil_form_reservasi(request, nama_atraksi):
+    # Ambil username dari cookie
+    username = request.COOKIES.get('user_id')
+    
+    if not username:
+        # Jika belum login, redirect ke halaman login
+        return redirect('login')
+    
+    # Ambil data atraksi
+    with connection.cursor() as cursor:
+        cursor.execute("SET search_path TO SIZOPI;")
+        
+        # Ambil detail atraksi
+        cursor.execute("""
+            SELECT
+                A.nama_atraksi,
+                F.kapasitas_max,
+                A.lokasi,
+                F.jadwal
+            FROM
+                ATRAKSI A
+            JOIN
+                FASILITAS F ON A.nama_atraksi = F.nama
+            WHERE
+                A.nama_atraksi = %s
+        """, [nama_atraksi])
+        
+        atraksi = cursor.fetchone()
+        
+        if not atraksi:
+            raise Http404("Atraksi tidak ditemukan")
+        
+        atraksi_data = {
+            'nama_atraksi': atraksi[0],
+            'kapasitas_max': atraksi[1],
+            'lokasi': atraksi[2],
+            'jadwal': atraksi[3]
+        }
+    
+    # Tambahkan tanggal hari ini untuk set min date input
+    from datetime import date
+    today = date.today()
+    
+    return render(request, 'wahana_atraksi/tambah_reservasi.html', {
+        'atraksi': atraksi_data,
+        'today': today
+    })
+
+# View untuk membuat reservasi baru
+def buat_reservasi(request):
+    # Ambil username dari cookie
+    username = request.COOKIES.get('user_id')
+    
+    if not username:
+        # Jika belum login, redirect ke halaman login
+        return redirect('login')
+    
+    if request.method == "POST":
+        nama_atraksi = request.POST.get('nama_atraksi')
+        tanggal_kunjungan = request.POST.get('tanggal_kunjungan')
+        jumlah_tiket = request.POST.get('jumlah_tiket')
+        
+        # Default status saat reservasi dibuat
+        status = "Pending"
+        
+        with connection.cursor() as cursor:
+            cursor.execute("SET search_path TO SIZOPI;")
+            
+            # Cek apakah atraksi tersedia pada tanggal dan kapasitas cukup
+            cursor.execute("""
+                SELECT
+                    F.kapasitas_max,
+                    COALESCE(SUM(R.jumlah_tiket), 0) as tiket_terjual
+                FROM
+                    ATRAKSI A
+                JOIN
+                    FASILITAS F ON A.nama_atraksi = F.nama
+                LEFT JOIN
+                    RESERVASI R ON A.nama_atraksi = R.nama_atraksi
+                    AND R.tanggal_kunjungan = %s
+                    AND R.status != 'Cancelled'
+                WHERE
+                    A.nama_atraksi = %s
+                GROUP BY
+                    F.kapasitas_max
+            """, [tanggal_kunjungan, nama_atraksi])
+            
+            kapasitas_data = cursor.fetchone()
+            
+            if not kapasitas_data:
+                messages.error(request, "Atraksi tidak ditemukan.")
+                return redirect('daftar_wahana_dan_atraksi')
+            
+            kapasitas_max = kapasitas_data[0]
+            tiket_terjual = kapasitas_data[1]
+            tiket_tersedia = kapasitas_max - tiket_terjual
+            
+            if int(jumlah_tiket) > tiket_tersedia:
+                messages.error(request, f"Maaf, hanya tersisa {tiket_tersedia} tiket untuk tanggal ini.")
+                
+                # Ambil data atraksi
+                cursor.execute("""
+                    SELECT
+                        A.nama_atraksi,
+                        F.kapasitas_max,
+                        A.lokasi,
+                        F.jadwal
+                    FROM
+                        ATRAKSI A
+                    JOIN
+                        FASILITAS F ON A.nama_atraksi = F.nama
+                    WHERE
+                        A.nama_atraksi = %s
+                """, [nama_atraksi])
+                
+                atraksi = cursor.fetchone()
+                atraksi_data = {
+                    'nama_atraksi': atraksi[0],
+                    'kapasitas_max': atraksi[1],
+                    'lokasi': atraksi[2],
+                    'jadwal': atraksi[3]
+                }
+                
+                from datetime import date
+                today = date.today()
+                
+                return render(request, 'wahana_atraksi/tambah_reservasi.html', {
+                    'atraksi': atraksi_data,
+                    'form_data': {
+                        'tanggal_kunjungan': tanggal_kunjungan,
+                        'jumlah_tiket': jumlah_tiket
+                    },
+                    'tiket_tersedia': tiket_tersedia,
+                    'today': today
+                })
+            
+            # Buat reservasi baru
+            cursor.execute("""
+                INSERT INTO RESERVASI
+                    (username_p, nama_atraksi, tanggal_kunjungan, jumlah_tiket, status)
+                VALUES
+                    (%s, %s, %s, %s, %s)
+            """, [username, nama_atraksi, tanggal_kunjungan, jumlah_tiket, status])
+            
+            messages.success(request, "Reservasi berhasil dibuat! Status: Pending")
+            return redirect('detail_reservasi', username=username, nama_atraksi=nama_atraksi, tanggal_kunjungan=tanggal_kunjungan)
+    
+    # Jika method GET tanpa nama_atraksi, redirect ke daftar
+    return redirect('daftar_wahana_dan_atraksi')
+
+# View untuk melihat detail reservasi
+def detail_reservasi(request, username, nama_atraksi, tanggal_kunjungan):
+    # Cek hak akses - hanya pemilik reservasi atau admin yang boleh lihat
+    current_user = request.COOKIES.get('user_id')
+    
+    if not current_user:
+        # Jika belum login, redirect ke halaman login
+        return redirect('login')
+    
+    if current_user != username:
+        # Bisa tambahkan pengecekan apakah user adalah admin
+        messages.error(request, "Anda tidak memiliki akses untuk melihat reservasi ini.")
+        return redirect('daftar_wahana_dan_atraksi')
+    
+    with connection.cursor() as cursor:
+        cursor.execute("SET search_path TO SIZOPI;")
+        
+        # Ambil detail reservasi
+        cursor.execute("""
+            SELECT
+                r.username_p,
+                r.nama_atraksi,
+                a.lokasi,
+                f.jadwal,
+                r.tanggal_kunjungan,
+                r.jumlah_tiket,
+                r.status
+            FROM
+                RESERVASI r
+            JOIN
+                ATRAKSI a ON r.nama_atraksi = a.nama_atraksi
+            JOIN
+                FASILITAS f ON a.nama_atraksi = f.nama
+            WHERE
+                r.username_p = %s
+                AND r.nama_atraksi = %s
+                AND r.tanggal_kunjungan = %s
+        """, [username, nama_atraksi, tanggal_kunjungan])
+        
+        reservasi = cursor.fetchone()
+        
+        if not reservasi:
+            raise Http404("Reservasi tidak ditemukan")
+        
+        reservasi_data = {
+            'username_p': reservasi[0],
+            'nama_atraksi': reservasi[1],
+            'lokasi': reservasi[2],
+            'jadwal': reservasi[3],
+            'tanggal_kunjungan': reservasi[4],
+            'jumlah_tiket': reservasi[5],
+            'status': reservasi[6]
+        }
+    
+    return render(request, 'wahana_atraksi/detail_reservasi.html', {
+        'reservasi': reservasi_data
+    })
+
+# View untuk tampil form edit reservasi
+def tampil_form_edit_reservasi(request, username, nama_atraksi, tanggal_kunjungan):
+    # Cek hak akses - hanya pemilik reservasi atau admin yang boleh edit
+    current_user = request.COOKIES.get('user_id')
+    
+    if not current_user:
+        # Jika belum login, redirect ke halaman login
+        return redirect('login')
+    
+    if current_user != username:
+        # Bisa tambahkan pengecekan apakah user adalah admin
+        messages.error(request, "Anda tidak memiliki akses untuk mengedit reservasi ini.")
+        return redirect('daftar_wahana_dan_atraksi')
+    
+    # Jika method GET, tampilkan form edit
+    with connection.cursor() as cursor:
+        cursor.execute("SET search_path TO SIZOPI;")
+        
+        # Ambil detail reservasi untuk ditampilkan di form
+        cursor.execute("""
+            SELECT
+                r.username_p,
+                r.nama_atraksi,
+                a.lokasi,
+                f.jadwal,
+                r.tanggal_kunjungan,
+                r.jumlah_tiket,
+                r.status
+            FROM
+                RESERVASI r
+            JOIN
+                ATRAKSI a ON r.nama_atraksi = a.nama_atraksi
+            JOIN
+                FASILITAS f ON a.nama_atraksi = f.nama
+            WHERE
+                r.username_p = %s
+                AND r.nama_atraksi = %s
+                AND r.tanggal_kunjungan = %s
+        """, [username, nama_atraksi, tanggal_kunjungan])
+        
+        reservasi = cursor.fetchone()
+        
+        if not reservasi:
+            raise Http404("Reservasi tidak ditemukan")
+        
+        reservasi_data = {
+            'username_p': reservasi[0],
+            'nama_atraksi': reservasi[1],
+            'lokasi': reservasi[2],
+            'jadwal': reservasi[3],
+            'tanggal_kunjungan': reservasi[4],
+            'jumlah_tiket': reservasi[5],
+            'status': reservasi[6]
+        }
+    
+    # Tambahkan tanggal hari ini untuk set min date input
+    from datetime import date
+    today = date.today()
+    
+    return render(request, 'wahana_atraksi/edit_reservasi.html', {
+        'reservasi': reservasi_data,
+        'today': today
+    })
+
+# View untuk mengedit reservasi
+def edit_reservasi(request, username, nama_atraksi, tanggal_kunjungan):
+    # Cek hak akses - hanya pemilik reservasi atau admin yang boleh edit
+    current_user = request.COOKIES.get('user_id')
+    
+    if not current_user:
+        # Jika belum login, redirect ke halaman login
+        return redirect('login')
+    
+    if current_user != username:
+        # Bisa tambahkan pengecekan apakah user adalah admin
+        messages.error(request, "Anda tidak memiliki akses untuk mengedit reservasi ini.")
+        return redirect('daftar_wahana_dan_atraksi')
+    
+    if request.method == "POST":
+        jumlah_tiket = request.POST.get('jumlah_tiket')
+        new_tanggal_kunjungan = request.POST.get('tanggal_kunjungan')
+        
+        with connection.cursor() as cursor:
+            cursor.execute("SET search_path TO SIZOPI;")
+            
+            # Jika tanggal berubah, perlu cek kapasitas di tanggal baru
+            if new_tanggal_kunjungan != tanggal_kunjungan:
+                # Cek kapasitas untuk tanggal baru
+                cursor.execute("""
+                    SELECT
+                        F.kapasitas_max,
+                        COALESCE(SUM(R.jumlah_tiket), 0) as tiket_terjual
+                    FROM
+                        ATRAKSI A
+                    JOIN
+                        FASILITAS F ON A.nama_atraksi = F.nama
+                    LEFT JOIN
+                        RESERVASI R ON A.nama_atraksi = R.nama_atraksi
+                        AND R.tanggal_kunjungan = %s
+                        AND R.status != 'Cancelled'
+                    WHERE
+                        A.nama_atraksi = %s
+                    GROUP BY
+                        F.kapasitas_max
+                """, [new_tanggal_kunjungan, nama_atraksi])
+                
+                kapasitas_data = cursor.fetchone()
+                
+                if not kapasitas_data:
+                    messages.error(request, "Atraksi tidak ditemukan.")
+                    return redirect('tampil_form_edit_reservasi', username=username, nama_atraksi=nama_atraksi, tanggal_kunjungan=tanggal_kunjungan)
+                
+                kapasitas_max = kapasitas_data[0]
+                tiket_terjual = kapasitas_data[1]
+                tiket_tersedia = kapasitas_max - tiket_terjual
+                
+                if int(jumlah_tiket) > tiket_tersedia:
+                    messages.error(request, f"Maaf, hanya tersisa {tiket_tersedia} tiket untuk tanggal baru yang dipilih.")
+                    return redirect('tampil_form_edit_reservasi', username=username, nama_atraksi=nama_atraksi, tanggal_kunjungan=tanggal_kunjungan)
+                
+                # Hapus reservasi lama
+                cursor.execute("""
+                    DELETE FROM RESERVASI
+                    WHERE username_p = %s
+                    AND nama_atraksi = %s
+                    AND tanggal_kunjungan = %s
+                """, [username, nama_atraksi, tanggal_kunjungan])
+                
+                # Buat reservasi baru
+                cursor.execute("""
+                    INSERT INTO RESERVASI
+                        (username_p, nama_atraksi, tanggal_kunjungan, jumlah_tiket, status)
+                    VALUES
+                        (%s, %s, %s, %s, 'Pending')
+                """, [username, nama_atraksi, new_tanggal_kunjungan, jumlah_tiket])
+                
+                messages.success(request, "Reservasi berhasil diperbarui dengan tanggal kunjungan baru.")
+                return redirect('detail_reservasi', username=username, nama_atraksi=nama_atraksi, tanggal_kunjungan=new_tanggal_kunjungan)
+            
+            else:
+                # Jika hanya jumlah tiket yang berubah
+                # Cek apakah masih ada tiket tersedia
+                cursor.execute("""
+                    SELECT
+                        F.kapasitas_max,
+                        COALESCE(SUM(R.jumlah_tiket), 0) as tiket_terjual
+                    FROM
+                        ATRAKSI A
+                    JOIN
+                        FASILITAS F ON A.nama_atraksi = F.nama
+                    LEFT JOIN
+                        RESERVASI R ON A.nama_atraksi = R.nama_atraksi
+                        AND R.tanggal_kunjungan = %s
+                        AND R.status != 'Cancelled'
+                        AND NOT (R.username_p = %s AND R.nama_atraksi = %s AND R.tanggal_kunjungan = %s)
+                    WHERE
+                        A.nama_atraksi = %s
+                    GROUP BY
+                        F.kapasitas_max
+                """, [tanggal_kunjungan, username, nama_atraksi, tanggal_kunjungan, nama_atraksi])
+                
+                kapasitas_data = cursor.fetchone()
+                
+                if not kapasitas_data:
+                    messages.error(request, "Atraksi tidak ditemukan.")
+                    return redirect('tampil_form_edit_reservasi', username=username, nama_atraksi=nama_atraksi, tanggal_kunjungan=tanggal_kunjungan)
+                
+                kapasitas_max = kapasitas_data[0]
+                tiket_terjual = kapasitas_data[1]
+                tiket_tersedia = kapasitas_max - tiket_terjual
+
+                if int(jumlah_tiket) > tiket_tersedia:
+                    messages.error(request, f"Maaf, hanya tersisa {tiket_tersedia} tiket untuk tanggal ini.")
+                    return redirect('tampil_form_edit_reservasi', username=username, nama_atraksi=nama_atraksi, tanggal_kunjungan=tanggal_kunjungan)
+                
+                # Update jumlah tiket
+                cursor.execute("""
+                    UPDATE RESERVASI
+                    SET jumlah_tiket = %s
+                    WHERE username_p = %s
+                    AND nama_atraksi = %s
+                    AND tanggal_kunjungan = %s
+                """, [jumlah_tiket, username, nama_atraksi, tanggal_kunjungan])
+                
+                messages.success(request, "Jumlah tiket berhasil diperbarui.")
+                return redirect('detail_reservasi', username=username, nama_atraksi=nama_atraksi, tanggal_kunjungan=tanggal_kunjungan)
+
+    # Jika method GET, redirect ke form edit
+    return redirect('tampil_form_edit_reservasi', username=username, nama_atraksi=nama_atraksi, tanggal_kunjungan=tanggal_kunjungan)
+
+# View untuk membatalkan reservasi
+def batalkan_reservasi(request, username, nama_atraksi, tanggal_kunjungan):
+    # Cek hak akses - hanya pemilik reservasi atau admin yang boleh membatalkan
+    current_user = request.COOKIES.get('user_id')
+    
+    if not current_user:
+        # Jika belum login, redirect ke halaman login
+        return redirect('login')
+    
+    if current_user != username:
+        # Bisa tambahkan pengecekan apakah user adalah admin
+        messages.error(request, "Anda tidak memiliki akses untuk membatalkan reservasi ini.")
+        return redirect('daftar_wahana_dan_atraksi')
+    
+    # Konfirmasi via URL (mirip dengan delete wahana/atraksi)
+    if request.method == "GET":
+        # Langsung update status tanpa halaman konfirmasi tambahan
+        with connection.cursor() as cursor:
+            cursor.execute("SET search_path TO SIZOPI;")
+            
+            # Update status reservasi menjadi Cancelled
+            cursor.execute("""
+                UPDATE RESERVASI
+                SET status = 'Cancelled'
+                WHERE username_p = %s
+                AND nama_atraksi = %s
+                AND tanggal_kunjungan = %s
+            """, [username, nama_atraksi, tanggal_kunjungan])
+            
+            messages.success(request, "Reservasi berhasil dibatalkan.")
+    
     return redirect('daftar_wahana_dan_atraksi')

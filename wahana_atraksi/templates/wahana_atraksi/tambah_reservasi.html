@@ -1,0 +1,274 @@
+{% extends "base.html" %}
+
+{% block title %}Buat Reservasi - {{ atraksi.nama_atraksi }}{% endblock %}
+
+{% block content %}
+<style>
+    .reservasi-container {
+        padding: 40px 0;
+    }
+    
+    .page-header {
+        background: linear-gradient(135deg, #ff9966 0%, #ff5e62 100%);
+        color: white;
+        padding: 40px 0;
+        text-align: center;
+        margin-bottom: 30px;
+        border-radius: 0 0 50px 50px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .page-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .page-header p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+    }
+    
+    .card {
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        margin-bottom: 30px;
+    }
+    
+    .card-header {
+        padding: 1.2rem;
+        font-weight: bold;
+        letter-spacing: 1px;
+    }
+    
+    .card-header h2 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #495057;
+    }
+    
+    .form-control {
+        border-radius: 8px;
+        padding: 10px 15px;
+        border: 1px solid #ced4da;
+        transition: all 0.2s;
+    }
+    
+    .form-control:focus {
+        border-color: #ff9966;
+        box-shadow: 0 0 0 0.2rem rgba(255, 153, 102, 0.25);
+    }
+    
+    .input-group-text {
+        background-color: #f8f9fa;
+        border-radius: 8px 0 0 8px;
+    }
+    
+    .btn-reservasi {
+        background-color: #ff5e62;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 5px;
+        font-weight: 600;
+        transition: all 0.3s;
+        box-shadow: 0 2px 5px rgba(255, 94, 98, 0.2);
+    }
+    
+    .btn-reservasi:hover {
+        background-color: #ff4b50;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(255, 94, 98, 0.3);
+        color: white;
+    }
+    
+    .atraksi-detail {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .atraksi-detail h3 {
+        color: #343a40;
+        font-size: 1.4rem;
+        margin-bottom: 15px;
+        font-weight: 700;
+    }
+    
+    .detail-item {
+        display: flex;
+        margin-bottom: 10px;
+    }
+    
+    .detail-label {
+        width: 100px;
+        font-weight: 600;
+        color: #6c757d;
+    }
+    
+    .detail-value {
+        flex: 1;
+        font-weight: 500;
+    }
+    
+    .alert {
+        border-radius: 10px;
+    }
+</style>
+
+<!-- Header Section -->
+<div class="page-header">
+    <div class="container">
+        <h1>Reservasi Tiket Atraksi</h1>
+        <p>Isi form di bawah untuk melakukan reservasi</p>
+    </div>
+</div>
+
+<div class="reservasi-container">
+    <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        {% if tiket_tersedia and tiket_tersedia == 0 %}
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle me-2"></i> Maaf, tiket untuk atraksi ini pada tanggal yang Anda pilih sudah habis.
+        </div>
+        {% endif %}
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h2>FORM RESERVASI</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="atraksi-detail">
+                            <h3>{{ atraksi.nama_atraksi }}</h3>
+                            <div class="detail-item">
+                                <div class="detail-label">Lokasi</div>
+                                <div class="detail-value">{{ atraksi.lokasi }}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Jam</div>
+                                <div class="detail-value">{{ atraksi.jadwal|time:"H:i" }}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Kapasitas</div>
+                                <div class="detail-value">{{ atraksi.kapasitas_max }} orang</div>
+                            </div>
+                        </div>
+                        
+                        <form method="POST" action="{% url 'buat_reservasi' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="nama_atraksi" value="{{ atraksi.nama_atraksi }}">
+                            
+                            <div class="mb-4">
+                                <label for="tanggal_kunjungan" class="form-label">Tanggal Kunjungan</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                                    <input type="date" class="form-control" id="tanggal_kunjungan" name="tanggal_kunjungan"
+                                           value="{{ form_data.tanggal_kunjungan|default:'' }}" 
+                                           min="{{ today|date:'Y-m-d' }}" required>
+                                </div>
+                                <small class="form-text text-muted">Pilih tanggal kunjungan (minimal H+1)</small>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="jumlah_tiket" class="form-label">Jumlah Tiket</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-ticket-alt"></i></span>
+                                    <input type="number" class="form-control" id="jumlah_tiket" name="jumlah_tiket"
+                                           value="{{ form_data.jumlah_tiket|default:'1' }}" min="1" 
+                                           {% if tiket_tersedia %}max="{{ tiket_tersedia }}"{% endif %} required>
+                                </div>
+                                {% if tiket_tersedia %}
+                                <small class="form-text text-muted">Tersisa {{ tiket_tersedia }} tiket untuk tanggal yang dipilih</small>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="d-grid gap-2 mt-4">
+                                <button type="submit" class="btn btn-reservasi">
+                                    <i class="fas fa-check me-2"></i> BUAT RESERVASI
+                                </button>
+                                <a href="{% url 'daftar_wahana_dan_atraksi' %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times me-2"></i> BATAL
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h2>INFORMASI RESERVASI</h2>
+                    </div>
+                    <div class="card-body">
+                        <h4 class="mb-3">Syarat dan Ketentuan:</h4>
+                        <ul class="mb-4">
+                            <li>Pemesanan dapat dilakukan minimal 1 hari sebelum tanggal kunjungan</li>
+                            <li>Jumlah tiket maksimal per reservasi adalah 10 tiket</li>
+                            <li>Pembayaran dilakukan di tempat pada hari kunjungan</li>
+                            <li>Harap datang 30 menit sebelum jadwal atraksi dimulai</li>
+                            <li>Pembatalan dapat dilakukan maksimal 1 hari sebelum tanggal kunjungan</li>
+                        </ul>
+                        
+                        <h4 class="mb-3">Status Reservasi:</h4>
+                        <div class="mb-4">
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="badge bg-warning text-dark me-2">Pending</span>
+                                <span>Reservasi telah dibuat, menunggu konfirmasi</span>
+                            </div>
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="badge bg-success me-2">Confirmed</span>
+                                <span>Reservasi telah dikonfirmasi, tiket siap digunakan</span>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <span class="badge bg-danger me-2">Cancelled</span>
+                                <span>Reservasi telah dibatalkan</span>
+                            </div>
+                        </div>
+                        
+                        <p class="mb-0">Jika ada pertanyaan, silakan hubungi customer service kami di nomor <strong>(021) 123-4567</strong></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set minimum date to tomorrow
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        
+        const dateInput = document.getElementById('tanggal_kunjungan');
+        const formattedDate = tomorrow.toISOString().split('T')[0];
+        
+        if (!dateInput.value) {
+            dateInput.value = formattedDate;
+        }
+        
+        dateInput.setAttribute('min', formattedDate);
+    });
+</script>
+{% endblock %}

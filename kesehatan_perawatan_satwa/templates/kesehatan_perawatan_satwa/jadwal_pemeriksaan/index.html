@@ -36,6 +36,92 @@
     margin-right: 12px;
     font-size: 1.9rem;
   }
+  
+  /* Filter styles */
+  .filter-container {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    padding: 25px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+
+  .filter-label {
+    font-weight: 600;
+    color: var(--charcoal);
+    white-space: nowrap;
+  }
+
+  .filter-select {
+    flex-grow: 1;
+    padding: 10px 15px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23546E7A'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E");
+    background-position: right 15px center;
+    background-repeat: no-repeat;
+    background-size: 16px;
+    font-size: 1rem;
+  }
+
+  .filter-select:focus {
+    outline: none;
+    border-color: var(--paynes-gray);
+    box-shadow: 0 0 0 3px rgba(88, 111, 124, 0.15);
+  }
+
+  .hewan-info {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-left: 5px solid var(--paynes-gray);
+    display: none; 
+  }
+
+  .hewan-info h3 {
+    margin-top: 0;
+    color: var(--charcoal);
+    font-size: 1.4rem;
+    display: flex;
+    align-items: center;
+  }
+
+  .hewan-info h3 i {
+    margin-right: 10px;
+    color: var(--paynes-gray);
+  }
+
+  .hewan-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .hewan-detail {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .no-data-selected {
+    text-align: center;
+    padding: 40px 0;
+    color: #6c757d;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    font-size: 1.1rem;
+  }
+
+  .no-data-selected i {
+    display: block;
+    font-size: 3rem;
+    margin-bottom: 15px;
+    color: #adb5bd;
+  }
 
   .table-container {
     background-color: white;
@@ -64,29 +150,11 @@
 
   .table th:first-child {
     border-top-left-radius: 8px;
-    width: 15%; 
-  }
-
-  .table th:nth-child(2) {
-    width: 18%; 
-  }
-
-  .table th:nth-child(3) {
-    width: 15%; 
-  }
-
-  .table th:nth-child(4) {
-    width: 22%; 
-  }
-
-  .table th:nth-child(5) {
-    width: 10%; 
   }
 
   .table th:last-child {
     border-top-right-radius: 8px;
     text-align: center;
-    width: 20%; 
   }
 
   .table td {
@@ -445,67 +513,78 @@
     </a>
   </div>
 
+  <!-- Filter Hewan -->
+  <div class="filter-container">
+    <span class="filter-label"><i class="fas fa-filter me-2"></i>Pilih Hewan:</span>
+    <select id="hewan-filter" class="filter-select" onchange="filterHewan()">
+      <option value="" selected>-- Semua Hewan --</option>
+      {% for hewan in hewan_data %}
+      <option value="{{ hewan.id }}">
+        {{ hewan.nama }} ({{ hewan.spesies }})
+      </option>
+      {% endfor %}
+    
+      {% if not hewan_data %}
+        {% for jadwal in jadwal_pemeriksaan_data %}
+          {% if forloop.first or jadwal.id_hewan != prev_id %}
+            <option value="{{ jadwal.id_hewan }}">
+              {{ jadwal.nama_hewan }} ({{ jadwal.spesies }})
+            </option>
+            {% with prev_id=jadwal.id_hewan %}{% endwith %}
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+    </select>
+  </div>
+
+  <!-- Info Hewan yang dipilih -->
+  <div class="hewan-info" id="hewan-info">
+    <h3><i class="fas fa-paw"></i><span id="hewan-nama">Nama Hewan</span></h3>
+    <div class="hewan-details">
+      <div class="hewan-detail">
+        <div class="detail-label">Spesies</div>
+        <div class="detail-value" id="hewan-spesies"></div>
+      </div>
+      <div class="hewan-detail">
+        <div class="detail-label">Status Kesehatan</div>
+        <div class="detail-value">
+          <span class="status-badge" id="hewan-status-badge"></span>
+        </div>
+      </div>
+      <div class="hewan-detail">
+        <div class="detail-label">Frekuensi Pemeriksaan</div>
+        <div class="detail-value" id="hewan-frekuensi"></div>
+      </div>
+    </div>
+  </div>
+
   <div class="table-container">
-    {% if jadwal_pemeriksaan_data %}
-    <table class="table">
+    <div id="no-filter-selected" class="no-data-selected">
+      <i class="fas fa-filter"></i>
+      <p>Silakan pilih hewan untuk melihat jadwal pemeriksaan kesehatan</p>
+    </div>
+    
+    <div id="no-data-found" class="no-data-selected" style="display: none">
+      <i class="fas fa-calendar-times"></i>
+      <p>Tidak ada jadwal pemeriksaan untuk hewan yang dipilih</p>
+      <a href="#" class="btn btn-primary mt-3" onclick="openTambahModal()">
+        <i class="fas fa-plus-circle me-2"></i>Tambah Jadwal Pemeriksaan
+      </a>
+    </div>
+    
+    <table class="table" id="jadwal-table" style="display: none">
       <thead>
         <tr>
           <th>Tanggal Pemeriksaan Selanjutnya</th>
-          <th>Nama Hewan</th>
-          <th>Spesies</th>
           <th>Frekuensi Pemeriksaan</th>
-          <th>Status</th>
+          <th>Status Kesehatan</th>
           <th>Aksi</th>
         </tr>
       </thead>
-      <tbody>
-        {% for jadwal in jadwal_pemeriksaan_data %}
-        <tr>
-          <td>{{ jadwal.tgl_pemeriksaan_selanjutnya|date:"d M Y" }}</td>
-          <td>{{ jadwal.nama_hewan }}</td>
-          <td>{{ jadwal.spesies }}</td>
-          <td>
-            <div class="freq-container">
-              <span class="freq-badge">
-                {{ jadwal.freq_pemeriksaan_rutin }} bulan sekali
-              </span>
-              <a class="freq-edit-link" 
-                 onclick="openEditFrekuensiModal('{{ jadwal.id_hewan }}', '{{ jadwal.nama_hewan }}', '{{ jadwal.spesies }}', '{{ jadwal.status_kesehatan }}', '{{ jadwal.freq_pemeriksaan_rutin }}')"
-                 title="Edit Frekuensi Pemeriksaan">
-                <i class="fas fa-sync-alt"></i> Edit
-              </a>
-            </div>
-          </td>
-          <td>
-            <span class="status-badge {% if jadwal.status_kesehatan == 'Sehat' %}status-sehat{% else %}status-sakit{% endif %}">
-              {{ jadwal.status_kesehatan }}
-            </span>
-          </td>
-          <td>
-            <div class="action-btn-container">
-              <a class="action-btn btn-edit"
-                 onclick="openEditJadwalModal('{{ jadwal.id_hewan }}', '{{ jadwal.nama_hewan }}', '{{ jadwal.spesies }}', '{{ jadwal.status_kesehatan }}', '{{ jadwal.freq_pemeriksaan_rutin }}', '{{ jadwal.tgl_pemeriksaan_selanjutnya|date:'Y-m-d' }}')">
-                <i class="fas fa-calendar-day me-1"></i>Edit Jadwal
-              </a>
-              <a class="action-btn btn-delete"
-                 onclick="openHapusModal('{{ jadwal.id_hewan }}', '{{ jadwal.nama_hewan }}', '{{ jadwal.spesies }}', '{{ jadwal.status_kesehatan }}', '{{ jadwal.freq_pemeriksaan_rutin }}', '{{ jadwal.tgl_pemeriksaan_selanjutnya|date:'d M Y' }}')">
-                <i class="fas fa-trash-alt me-1"></i>Hapus
-              </a>
-            </div>
-          </td>
-        </tr>
-        {% endfor %}
+      <tbody id="jadwal-tbody">
+        <!-- soon 2 be filled -->
       </tbody>
     </table>
-    {% else %}
-    <div class="empty-state">
-      <i class="fas fa-calendar-times"></i>
-      <p>Belum ada jadwal pemeriksaan kesehatan.</p>
-      <a href="#" class="btn btn-primary mt-3" onclick="openTambahModal()">
-        <i class="fas fa-plus-circle me-2"></i>Tambah Jadwal Pemeriksaan Pertama
-      </a>
-    </div>
-    {% endif %}
   </div>
 </div>
 
@@ -682,6 +761,7 @@
   </div>
 </div>
 
+<!-- Tambah Modal -->
 <div class="modal" id="tambahModal">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -739,6 +819,192 @@
   let currentEditFrekuensiId = '';
   let currentEditJadwalId = '';
   let currentHapusId = '';
+  let allJadwalData = [];
+  let uniqueHewan = new Set();
+  let hewanMap = new Map();
+  
+  document.addEventListener('DOMContentLoaded', function() {
+    allJadwalData = [
+      {% for jadwal in jadwal_pemeriksaan_data %}
+      {
+        id_hewan: "{{ jadwal.id_hewan }}",
+        nama_hewan: "{{ jadwal.nama_hewan }}",
+        spesies: "{{ jadwal.spesies }}",
+        tgl_pemeriksaan_selanjutnya: "{{ jadwal.tgl_pemeriksaan_selanjutnya|date:'Y-m-d' }}",
+        tgl_pemeriksaan_formatted: "{{ jadwal.tgl_pemeriksaan_selanjutnya|date:'d M Y' }}",
+        freq_pemeriksaan_rutin: "{{ jadwal.freq_pemeriksaan_rutin }}",
+        status_kesehatan: "{{ jadwal.status_kesehatan }}"
+      },
+      {% endfor %}
+    ];
+
+    const hewanFilter = document.getElementById('hewan-filter');
+    if (hewanFilter.options.length <= 1) { 
+      allJadwalData.forEach(jadwal => {
+        if (!uniqueHewan.has(jadwal.id_hewan)) {
+          uniqueHewan.add(jadwal.id_hewan);
+          hewanMap.set(jadwal.id_hewan, {
+            nama: jadwal.nama_hewan,
+            spesies: jadwal.spesies,
+            status: jadwal.status_kesehatan,
+            frekuensi: jadwal.freq_pemeriksaan_rutin
+          });
+
+          const option = document.createElement('option');
+          option.value = jadwal.id_hewan;
+          option.textContent = jadwal.nama_hewan + ' (' + jadwal.spesies + ')';
+          hewanFilter.appendChild(option);
+        }
+      });
+    }
+  });
+
+  // Filter data jadwal berdasarkan hewan yang dipilih
+  function filterHewan() {
+    const selectedHewanId = document.getElementById('hewan-filter').value;
+    const hewanInfoDiv = document.getElementById('hewan-info');
+    const noFilterDiv = document.getElementById('no-filter-selected');
+    const noDataDiv = document.getElementById('no-data-found');
+    const jadwalTable = document.getElementById('jadwal-table');
+    const jadwalTbody = document.getElementById('jadwal-tbody');
+
+    jadwalTbody.innerHTML = '';
+    
+    if (!selectedHewanId) {
+      hewanInfoDiv.style.display = 'none';
+      noFilterDiv.style.display = 'block';
+      noDataDiv.style.display = 'none';
+      jadwalTable.style.display = 'none';
+      return;
+    }
+
+    let hewanData;
+    
+    const selectElement = document.getElementById('hewan-filter');
+    const selectedOption = selectElement.options[selectElement.selectedIndex];
+    const hewanText = selectedOption.text;
+    const hewanParts = hewanText.match(/(.*) \((.*)\)/);
+    
+    if (hewanParts) {
+      const nama = hewanParts[1];
+      const spesies = hewanParts[2];
+
+      document.getElementById('hewan-nama').textContent = nama;
+      document.getElementById('hewan-spesies').textContent = spesies;
+      
+      const jadwalForThisHewan = allJadwalData.find(jadwal => jadwal.id_hewan === selectedHewanId);
+      if (jadwalForThisHewan) {
+        const statusBadge = document.getElementById('hewan-status-badge');
+        statusBadge.textContent = jadwalForThisHewan.status_kesehatan;
+        statusBadge.className = 'status-badge';
+        if (jadwalForThisHewan.status_kesehatan === 'Sehat') {
+          statusBadge.classList.add('status-sehat');
+        } else {
+          statusBadge.classList.add('status-sakit');
+        }
+        
+        document.getElementById('hewan-frekuensi').textContent = jadwalForThisHewan.freq_pemeriksaan_rutin + ' bulan sekali';
+      } else {
+        document.getElementById('hewan-status-badge').textContent = 'Belum diperiksa';
+        document.getElementById('hewan-frekuensi').textContent = 'Belum diatur';
+      }
+      
+      hewanInfoDiv.style.display = 'block';
+    } else if (hewanMap.has(selectedHewanId)) {
+      hewanData = hewanMap.get(selectedHewanId);
+      document.getElementById('hewan-nama').textContent = hewanData.nama;
+      document.getElementById('hewan-spesies').textContent = hewanData.spesies;
+      
+      const statusBadge = document.getElementById('hewan-status-badge');
+      statusBadge.textContent = hewanData.status;
+      statusBadge.className = 'status-badge';
+      if (hewanData.status === 'Sehat') {
+        statusBadge.classList.add('status-sehat');
+      } else {
+        statusBadge.classList.add('status-sakit');
+      }
+      
+      document.getElementById('hewan-frekuensi').textContent = hewanData.frekuensi + ' bulan sekali';
+      hewanInfoDiv.style.display = 'block';
+    }
+
+    const filteredJadwal = allJadwalData.filter(jadwal => jadwal.id_hewan === selectedHewanId);
+    
+    if (filteredJadwal.length === 0) {
+      noFilterDiv.style.display = 'none';
+      noDataDiv.style.display = 'block';
+      jadwalTable.style.display = 'none';
+      return;
+    }
+
+    noFilterDiv.style.display = 'none';
+    noDataDiv.style.display = 'none';
+    jadwalTable.style.display = 'table';
+
+    filteredJadwal.forEach(jadwal => {
+      const row = document.createElement('tr');
+      
+      const tanggalTd = document.createElement('td');
+      tanggalTd.textContent = jadwal.tgl_pemeriksaan_formatted;
+      row.appendChild(tanggalTd);
+      
+      const frekuensiTd = document.createElement('td');
+      const frekuensiDiv = document.createElement('div');
+      frekuensiDiv.className = 'freq-container';
+      
+      const frekuensiBadge = document.createElement('span');
+      frekuensiBadge.className = 'freq-badge';
+      frekuensiBadge.textContent = jadwal.freq_pemeriksaan_rutin + ' bulan sekali';
+      frekuensiDiv.appendChild(frekuensiBadge);
+      
+      const editFrekuensiLink = document.createElement('a');
+      editFrekuensiLink.className = 'freq-edit-link';
+      editFrekuensiLink.innerHTML = '<i class="fas fa-sync-alt"></i> Edit';
+      editFrekuensiLink.title = 'Edit Frekuensi Pemeriksaan';
+      editFrekuensiLink.onclick = function() {
+        openEditFrekuensiModal(jadwal.id_hewan, jadwal.nama_hewan, jadwal.spesies, jadwal.status_kesehatan, jadwal.freq_pemeriksaan_rutin);
+      };
+      frekuensiDiv.appendChild(editFrekuensiLink);
+      
+      frekuensiTd.appendChild(frekuensiDiv);
+      row.appendChild(frekuensiTd);
+      
+      // Status Kesehatan
+      const statusTd = document.createElement('td');
+      const statusSpan = document.createElement('span');
+      statusSpan.className = `status-badge ${jadwal.status_kesehatan === 'Sehat' ? 'status-sehat' : 'status-sakit'}`;
+      statusSpan.textContent = jadwal.status_kesehatan;
+      statusTd.appendChild(statusSpan);
+      row.appendChild(statusTd);
+      
+      const aksiTd = document.createElement('td');
+      const aksiDiv = document.createElement('div');
+      aksiDiv.className = 'action-btn-container';
+      
+      const editBtn = document.createElement('a');
+      editBtn.className = 'action-btn btn-edit';
+      editBtn.innerHTML = '<i class="fas fa-calendar-day me-1"></i>Edit Jadwal';
+      editBtn.onclick = function() {
+        openEditJadwalModal(jadwal.id_hewan, jadwal.nama_hewan, jadwal.spesies, jadwal.status_kesehatan, jadwal.freq_pemeriksaan_rutin, jadwal.tgl_pemeriksaan_selanjutnya);
+        return false;
+      };
+      aksiDiv.appendChild(editBtn);
+      
+      const deleteBtn = document.createElement('a');
+      deleteBtn.className = 'action-btn btn-delete';
+      deleteBtn.innerHTML = '<i class="fas fa-trash-alt me-1"></i>Hapus';
+      deleteBtn.onclick = function() {
+        openHapusModal(jadwal.id_hewan, jadwal.nama_hewan, jadwal.spesies, jadwal.status_kesehatan, jadwal.freq_pemeriksaan_rutin, jadwal.tgl_pemeriksaan_formatted);
+        return false;
+      };
+      aksiDiv.appendChild(deleteBtn);
+      
+      aksiTd.appendChild(aksiDiv);
+      row.appendChild(aksiTd);
+      
+      jadwalTbody.appendChild(row);
+    });
+  }
   
   function openEditFrekuensiModal(id, namaHewan, spesies, status, frekuensi) {
     currentEditFrekuensiId = id;
@@ -890,6 +1156,11 @@
     
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('tambah-tgl-pemeriksaan').value = today;
+    
+    const selectedHewanId = document.getElementById('hewan-filter').value;
+    if (selectedHewanId) {
+      document.getElementById('id_hewan').value = selectedHewanId;
+    }
   }
   
   function closeTambahModal() {
@@ -982,4 +1253,4 @@
     }
   }
 </script>
-{% endblock %}
+{% endblock %} 
