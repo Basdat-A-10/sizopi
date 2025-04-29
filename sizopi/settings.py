@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'authentication',
     'satwa_habitat',
     'dashboard',
+    'adopsi',
 ]
 
 MIDDLEWARE = [

@@ -167,6 +167,23 @@
     border-color: var(--paynes-gray);
     color: white;
   }
+  
+  /* Notifikasi style */
+  .notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 12px 25px;
+    border-radius: 6px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    display: none;
+    z-index: 1000;
+    font-size: 0.9rem;
+    font-weight: 500;
+    max-width: 300px;
+  }
 </style>
 
 <div class="form-container">
@@ -210,21 +227,21 @@
     </div>
 
     <!-- Form Edit -->
-    <form method="post" action="">
+    <form id="editRekamMedisForm" method="post" action="">
       {% csrf_token %}
       
       <div class="form-group">
-        <label class="form-label" for="diagnosis">Diagnosis:</label>
+        <label class="form-label" for="diagnosis">Diagnosis: <span style="color: #dc3545;">*</span></label>
         <textarea class="form-control" id="diagnosis" name="diagnosis" rows="3" placeholder="Masukkan diagnosis hewan">{{ rekam_medis.diagnosis }}</textarea>
       </div>
       
       <div class="form-group">
-        <label class="form-label" for="pengobatan">Pengobatan:</label>
+        <label class="form-label" for="pengobatan">Pengobatan: <span style="color: #dc3545;">*</span></label>
         <textarea class="form-control" id="pengobatan" name="pengobatan" rows="3" placeholder="Masukkan pengobatan yang diberikan">{{ rekam_medis.pengobatan }}</textarea>
       </div>
       
       <div class="form-group">
-        <label class="form-label" for="catatan_tindak_lanjut">Catatan Tindak Lanjut:</label>
+        <label class="form-label" for="catatan_tindak_lanjut">Catatan Tindak Lanjut: <span style="color: #6c757d; font-size: 0.85rem;">(Opsional)</span></label>
         <textarea class="form-control" id="catatan_tindak_lanjut" name="catatan_tindak_lanjut" rows="3" placeholder="Masukkan catatan tindak lanjut untuk hewan ini">{{ rekam_medis.catatan_tindak_lanjut }}</textarea>
       </div>
       
@@ -239,4 +256,48 @@
     </form>
   </div>
 </div>
+
+<div id="notification" class="notification"></div>
+
+<script>
+  document.getElementById('editRekamMedisForm').addEventListener('submit', function(event) {
+    const diagnosis = document.getElementById('diagnosis').value.trim();
+    const pengobatan = document.getElementById('pengobatan').value.trim();
+    
+    document.getElementById('diagnosis').style.borderColor = '#d1d5db';
+    document.getElementById('pengobatan').style.borderColor = '#d1d5db';
+    
+    if (!diagnosis && !pengobatan) {
+      event.preventDefault(); 
+      showNotification('Diagnosis dan Pengobatan tidak boleh kosong');
+      document.getElementById('diagnosis').style.borderColor = '#dc3545';
+      document.getElementById('pengobatan').style.borderColor = '#dc3545';
+      return;
+    }
+    
+    if (!diagnosis) {
+      event.preventDefault();
+      showNotification('Diagnosis tidak boleh kosong');
+      document.getElementById('diagnosis').style.borderColor = '#dc3545';
+      return;
+    }
+    
+    if (!pengobatan) {
+      event.preventDefault();
+      showNotification('Pengobatan tidak boleh kosong');
+      document.getElementById('pengobatan').style.borderColor = '#dc3545';
+      return;
+    }
+  });
+  
+  function showNotification(message) {
+    const notification = document.getElementById('notification');
+    notification.textContent = message;
+    notification.style.display = 'block';
+    
+    setTimeout(function() {
+      notification.style.display = 'none';
+    }, 3000);
+  }
+</script>
 {% endblock %}
