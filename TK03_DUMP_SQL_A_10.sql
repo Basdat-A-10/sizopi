@@ -500,7 +500,10 @@ VALUES
 ('Rumah Burung', '2025-05-01 13:00:00', 120),
 ('Savana Afrika', '2025-05-01 14:00:00', 250),
 ('Hutan Hujan', '2025-05-01 15:00:00', 180),
-('Taman Kupu-kupu', '2025-05-01 16:00:00', 50);
+('Taman Kupu-kupu', '2025-05-01 16:00:00', 50),
+('Zona Edukasi Satwa', '2025-05-01 12:00:00', 90),
+('Kebun Binatang Mini', '2025-05-01 13:30:00', 110),
+('Teater Alam Terbuka', '2025-05-01 17:00:00', 200);
 
 INSERT INTO ATRAKSI (nama_atraksi, lokasi)
 VALUES 
