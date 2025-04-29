@@ -1,77 +1,135 @@
 from django.shortcuts import render
-from .models import (
-    Pengguna, Pengunjung, DokterHewan, PenjagaHewan, PelatihHewan, StafAdmin, Spesialisasi
-)
 from django.db import connection
-from django.db.models import Count, Sum
-from django.utils.timezone import now
 from datetime import date
 
 def dashboard_view(request):
-    dokter = DokterHewan.objects.first()
+    dokter = fetch_one("""
+        SELECT pengguna.username, pengguna.nama_depan, pengguna.nama_tengah, pengguna.nama_belakang, pengguna.email, pengguna.no_telepon
+        FROM sizopi.dokter_hewan
+        JOIN sizopi.pengguna ON dokter_hewan.username_dh = pengguna.username
+        LIMIT 1
+    """)
+    
     if dokter is None:
         return render(request, 'dashboard/dashboard.html', {'error': 'Tidak ada Dokter Hewan ditemukan.'})
-
-    pengguna = dokter.username_dh
-
-
-
-    role = pengguna.get_role()
+    
+    role = get_role(dokter['username'])
 
     dashboard_data = {
-        'nama_lengkap': pengguna.get_full_name(),
-        'username': pengguna.username,
-        'email': pengguna.email,
-        'no_telepon': pengguna.no_telepon,
+        'nama_lengkap': get_full_name(dokter),
+        'username': dokter['username'],
+        'email': dokter['email'],
+        'no_telepon': dokter['no_telepon'],
         'peran': role,
     }
 
     if role == 'Pengunjung':
-        pengunjung = Pengunjung.objects.get(pengguna=pengguna)
+        pengunjung = fetch_one("""
+            SELECT alamat, tgl_lahir
+            FROM sizopi.pengunjung
+            WHERE username_p = %s
+        """, [dokter['username']])
+
         dashboard_data.update({
-            'alamat': pengunjung.alamat,
-            'tgl_lahir': pengunjung.tgl_lahir,
-            'riwayat_kunjungan': get_riwayat_kunjungan(pengguna.username),
-            'tiket_dibeli': get_informasi_tiket(pengguna.username),
+            'alamat': pengunjung['alamat'],
+            'tgl_lahir': pengunjung['tgl_lahir'],
+            'riwayat_kunjungan': get_riwayat_kunjungan(dokter['username']),
+            'tiket_dibeli': get_informasi_tiket(dokter['username']),
         })
 
     elif role == 'Dokter Hewan':
-        dokter = DokterHewan.objects.get(username_dh=pengguna)
+        dokter_info = fetch_one("""
+            SELECT no_str
+            FROM sizopi.dokter_hewan
+            WHERE username_dh = %s
+        """, [dokter['username']])
+
+        spesialisasi = fetch_all("""
+            SELECT nama_spesialisasi
+            FROM sizopi.spesialisasi
+            WHERE username_sh = %s
+        """, [dokter['username']])
+
         dashboard_data.update({
-            'no_str': dokter.no_str,
-            'spesialisasi': list(Spesialisasi.objects.filter(username_sh=dokter).values_list('nama_spesialisasi', flat=True)),
-            'jumlah_hewan': get_jumlah_hewan_rekam_medis(pengguna.username),
+            'no_str': dokter_info['no_str'],
+            'spesialisasi': [s['nama_spesialisasi'] for s in spesialisasi],
+            'jumlah_hewan': get_jumlah_hewan_rekam_medis(dokter['username']),
         })
 
     elif role == 'Penjaga Hewan':
-        penjaga = PenjagaHewan.objects.get(pengguna=pengguna)
+        penjaga = fetch_one("""
+            SELECT id_staf
+            FROM sizopi.penjaga_hewan
+            WHERE username_jh = %s
+        """, [dokter['username']])
+
         dashboard_data.update({
-            'id_staf': penjaga.id_staf,
-            'jumlah_hewan_dipakan': get_jumlah_hewan_dipakan(penjaga.id_staf),
+            'id_staf': penjaga['id_staf'],
+            'jumlah_hewan_dipakan': get_jumlah_hewan_dipakan(penjaga['id_staf']),
         })
 
     elif role == 'Staf Admin':
-        admin = StafAdmin.objects.get(pengguna=pengguna)
+        admin = fetch_one("""
+            SELECT id_staf
+            FROM sizopi.staf_admin
+            WHERE username_sa = %s
+        """, [dokter['username']])
+
         dashboard_data.update({
-            'id_staf': admin.id_staf,
+            'id_staf': admin['id_staf'],
             'penjualan_tiket_hari_ini': get_ringkasan_penjualan_tiket(),
             'jumlah_pengunjung_hari_ini': get_jumlah_pengunjung_hari_ini(),
             'laporan_pendapatan_mingguan': get_laporan_pendapatan_mingguan(),
         })
 
     elif role == 'Pelatih Hewan':
-        pelatih = PelatihHewan.objects.get(pengguna=pengguna)
+        pelatih = fetch_one("""
+            SELECT id_staf
+            FROM sizopi.pelatih_hewan
+            WHERE username_lh = %s
+        """, [dokter['username']])
+
         dashboard_data.update({
-            'id_staf': pelatih.id_staf,
-            'jadwal_pertunjukan_hari_ini': get_jadwal_pertunjukan(pelatih.id_staf),
-            'daftar_hewan_dilatih': get_daftar_hewan_dilatih(pelatih.id_staf),
-            'status_latihan_terakhir': get_status_latihan_terakhir(pelatih.id_staf),
+            'id_staf': pelatih['id_staf'],
+            'jadwal_pertunjukan_hari_ini': get_jadwal_pertunjukan(pelatih['id_staf']),
+            'daftar_hewan_dilatih': get_daftar_hewan_dilatih(pelatih['id_staf']),
+            'status_latihan_terakhir': get_status_latihan_terakhir(pelatih['id_staf']),
         })
 
     return render(request, 'dashboard/dashboard.html', {'dashboard_data': dashboard_data})
 
-# --------------------------------------------------------------------
-# 🔥 Helper functions (FINISHED, ready to run)
+
+def fetch_one(sql, params=None):
+    with connection.cursor() as cursor:
+        cursor.execute(sql, params or [])
+        desc = [col[0] for col in cursor.description]
+        row = cursor.fetchone()
+        if row:
+            return dict(zip(desc, row))
+        return None
+
+def fetch_all(sql, params=None):
+    with connection.cursor() as cursor:
+        cursor.execute(sql, params or [])
+        desc = [col[0] for col in cursor.description]
+        return [dict(zip(desc, row)) for row in cursor.fetchall()]
+
+def get_full_name(user):
+    return f"{user['nama_depan']} {user['nama_tengah'] or ''} {user['nama_belakang']}".strip()
+
+def get_role(username):
+    # detect role manually by checking existence
+    if fetch_one("SELECT 1 FROM sizopi.staf_admin WHERE username_sa = %s", [username]):
+        return 'Staf Admin'
+    if fetch_one("SELECT 1 FROM sizopi.dokter_hewan WHERE username_dh = %s", [username]):
+        return 'Dokter Hewan'
+    if fetch_one("SELECT 1 FROM sizopi.penjaga_hewan WHERE username_jh = %s", [username]):
+        return 'Penjaga Hewan'
+    if fetch_one("SELECT 1 FROM sizopi.pelatih_hewan WHERE username_lh = %s", [username]):
+        return 'Pelatih Hewan'
+    if fetch_one("SELECT 1 FROM sizopi.pengunjung WHERE username_p = %s", [username]):
+        return 'Pengunjung'
+    return 'User'
 
 def get_riwayat_kunjungan(username):
     with connection.cursor() as cursor:
