@@ -52,3 +52,12 @@ def delete_adopsi(request, id_adopter, id_hewan, tgl_mulai_adopsi):
     if adopsi.tgl_berhenti_adopsi < timezone.now().date():
         adopsi.delete()
     return redirect('adopter_detail', id_adopter=id_adopter)
+
+def adopsi_home(request):
+    return render(request, 'adopsi/adopsi_home.html')
+
+def form_individu(request):
+    return render(request, 'adopsi/form_adopsi_individu.html')
+
+def form_organisasi(request):
+    return render(request, 'adopsi/form_adopsi_organisasi.html')

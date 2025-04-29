@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    #button_daftar_adopter {
+        background-color: #B8DBD9; 
+        color: #000; 
+        border: none; 
+    }
+
+    #title_small {
+        font-size: 1.5rem; 
+        color: #2f4550; 
+        margin-bottom: 2rem; 
+    }
+    
+    .confirmation-dialog {
+        border: 1px solid #dee2e6;
+        border-radius: 0.5rem;
+        padding: 2rem;
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .confirmation-buttons {
+        margin-top: 1.5rem;
+    }
+    
+    .confirmation-buttons .btn {
+        min-width: 100px;
+        margin: 0 0.5rem;
+    }
+</style>
+
+  <div class="container py-5">
+    <h1 class="mb-4">Program Adopsi Satwa: Bantu Mereka dengan Cinta</h1>
+    <h3 id="title_small">Pantau Status Adopsi Hewan</h3>
+    <div class="row">
+      <!-- Animal Card 1 (Adopted) -->
+      <div class="col-12 mb-4">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h5 class="card-title">Harimau Sumatera</h5>
+                <p class="card-text">
+                  Jenis: Mamalia<br>
+                  Kondisi: Sehat<br>
+                  <span class="badge bg-success">Diadopsi</span>
+                </p>
+              </div>
+              <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#detailModal1">
+                Lihat Detail
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Animal Card 2 (Not Adopted) -->
+      <div class="col-12 mb-4">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h5 class="card-title">Burung Kakaktua</h5>
+                <p class="card-text">
+                  Jenis: Burung Eksotis<br>
+                  Kondisi: Memerlukan Perawatan<br>
+                  <span class="badge bg-danger text-white">Tidak Diadopsi</span>
+                </p>
+              </div>
+              <button class="btn btn-warning btn-sm" id='button_daftar_adopter' data-bs-toggle="modal" data-bs-target="#registerModal2">
+                Daftarkan Adopter
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail Modal -->
+  <div class="modal fade" id="detailModal1" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Detail Adopsi Hewan</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p><strong>Nama hewan:</strong> Harimau Sumatera</p>
+          <p><strong>Jenis hewan:</strong> Harimau</p>
+          <p><strong>Adopter saat ini:</strong> @konservasi_indo</p>
+          <p><strong>Tanggal mulai adopsi:</strong> 2025-01-10</p>
+          <p><strong>Tanggal akhir adopsi:</strong> 2026-01-10</p>
+          <p><strong>Nominal kontribusi:</strong> Rp 5.000.000</p>
+          <p><strong>Status Pembayaran:</strong>
+            <select class="form-select form-select-sm">
+              <option>Tertunda</option>
+              <option selected>Lunas</option>
+            </select>
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+          <button type="button" class="btn btn-primary">Simpan Status</button>
+          <button type="button" class="btn btn-danger" id="hentikanAdopsiBtn">Hentikan Adopsi</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Konfirmasi Hentikan Adopsi Modal -->
+  <div class="modal fade" id="konfirmasiModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-body">
+          <div class="confirmation-dialog">
+            <h4>Apakah Anda yakin ingin menghentikan adopsi ini?</h4>
+            <div class="confirmation-buttons">
+              <button type="button" class="btn btn-danger" id="yaButton">Iya</button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Register Modal -->
+  <div class="modal fade" id="registerModal2" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Pendataan Adopter</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <form>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="adopterUsername" class="form-label">Username calon adopter</label>
+              <input type="text" class="form-control" id="adopterUsername" placeholder="Masukkan username">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Calon adopter akan mengadopsi sebagai:</label><br>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="adopterType" id="individu" value="individu">
+                <label class="form-check-label" for="individu">Individu</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="adopterType" id="organisasi" value="organisasi">
+                <label class="form-check-label" for="organisasi">Organisasi</label>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+            <button type="submit" class="btn btn-success">Verifikasi Akun</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Script untuk form pendaftaran adopter
+    document.querySelector("form").addEventListener("submit", function (e) {
+      e.preventDefault(); // mencegah reload
+      const type = document.querySelector('input[name="adopterType"]:checked');
+      if (type) {
+        if (type.value === "individu") {
+          window.location.href = "/adopsi/form-individu/";
+        } else if (type.value === "organisasi") {
+          window.location.href = "/adopsi/form-organisasi/";
+        }
+      } else {
+        alert("Silakan pilih tipe adopter terlebih dahulu.");
+      }
+    });
+    
+    // Script untuk konfirmasi hentikan adopsi
+    document.getElementById("hentikanAdopsiBtn").addEventListener("click", function() {
+      // Tutup modal detail
+      var detailModal = bootstrap.Modal.getInstance(document.getElementById('detailModal1'));
+      detailModal.hide();
+      
+      // Buka modal konfirmasi
+      setTimeout(function() {
+        var konfirmasiModal = new bootstrap.Modal(document.getElementById('konfirmasiModal'));
+        konfirmasiModal.show();
+      }, 500);
+    });
+    
+    // Script untuk tombol "Iya" di modal konfirmasi
+    document.getElementById("yaButton").addEventListener("click", function() {
+      // Di sini Anda bisa menambahkan logika untuk menghentikan adopsi
+      // Misalnya Ajax request ke server
+      
+      // Tutup modal konfirmasi
+      var konfirmasiModal = bootstrap.Modal.getInstance(document.getElementById('konfirmasiModal'));
+      konfirmasiModal.hide();
+      
+      // Contoh: Tampilkan pesan berhasil
+      setTimeout(function() {
+        alert("Adopsi berhasil dihentikan");
+        // Refresh halaman atau update UI
+      }, 500);
+    });
+  </script>
+  
+{% endblock %}
