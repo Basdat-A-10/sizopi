@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    #title_small {
+        font-size: 1.5rem;
+        color: #2f4550;
+        margin-bottom: 2rem;
+    }
+    .info-card {
+        border: 1px solid #ced4da;
+        border-radius: 0.75rem;
+        padding: 2rem;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    .adopted-animal {
+        border: 1px solid #ced4da;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    .btn-link-style {
+        text-decoration: underline;
+        background: none;
+        border: none;
+        color: #007bff;
+        padding: 0;
+    }
+</style>
+
+<div class="container py-5">
+  <div class="info-card">
+    <h2>Program Adopsi Satwa: Bantu Mereka dengan Cinta</h2>
+    <p>Terima kasih telah mewujudkan kepedulian Anda terhadap satwa dengan menjadi adopter simbolis! Dapatkan sertifikat digital dan laporan berkala tentang kondisi hewan yang Anda dukung.</p>
+  </div>
+
+  <h4 id="title_small">Hewan yang Sedang Anda Adopsi</h4>
+
+  <!-- Animal Card 1 -->
+  <div class="adopted-animal">
+    <p><strong>Harimau Sumatera</strong><br>Jenis: Mamalia<br>Kondisi: Sehat</p>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalDetail1">Lihat Detail</button>
+  </div>
+</div>
+
+<!-- Modal Informasi Hewan Adopsi -->
+<div class="modal fade" id="modalDetail1" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Informasi Hewan Adopsi</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-center">[foto hewan]</p>
+        <p><strong>Nama hewan:</strong> Harimau Sumatera<br>
+           <strong>Jenis:</strong> Mamalia<br>
+           <strong>Habitat:</strong> Hutan hujan tropis<br>
+           <strong>Tanggal mulai adopsi:</strong> 2025-01-10<br>
+           <strong>Tanggal akhir adopsi:</strong> 2026-01-10</p>
+        <div class="d-flex flex-wrap justify-content-center gap-3 mt-4">
+          <a href="#modalLaporan" class="btn btn-outline-success" data-bs-toggle="modal">Pantau Kondisi Hewan</a>
+          <a href="#modalSertifikat" class="btn btn-outline-success" data-bs-toggle="modal">Lihat Sertifikat Adopsi</a>
+          <a href="#modalBerhenti" class="btn btn-outline-danger" data-bs-toggle="modal">Berhenti Adopsi</a>
+          <a href="#modalPerpanjang" class="btn btn-outline-success" data-bs-toggle="modal">Perpanjang Periode Adopsi</a>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Sertifikat Adopsi -->
+<div class="modal fade" id="modalSertifikat" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body text-center py-4">
+        <h4 class="mb-3">Sertifikat Adopsi Satwa</h4>
+        <p>Sertifikat ini diberikan kepada <strong>Nicholas Saputra</strong><br>
+        yang telah mengadopsi satwa <strong>Harimau Sumatera</strong> secara simbolis<br>
+        dari <strong>10 Januari 2025</strong> hingga <strong>10 Januari 2026</strong>.<br>
+        Kami sangat berterima kasih atas kepedulian dan kontribusi Anda terhadap pelestarian satwa di taman safari.</p>
+        <button type="button" class="btn btn-outline-primary mt-3" data-bs-dismiss="modal">Kembali</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Laporan Kondisi Hewan -->
+<div class="modal fade" id="modalLaporan" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Laporan Kondisi Satwa</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-center">[foto hewan]</p>
+        <p><strong>Nama:</strong> Harimau Sumatera<br>
+           <strong>Jenis:</strong> Mamalia<br>
+           <strong>Habitat:</strong> Hutan hujan tropis</p>
+
+        <h6 class="mt-4">Rekam Medis Satwa</h6>
+        <div class="table-responsive">
+          <table class="table table-bordered mt-2">
+            <thead class="table-light">
+              <tr>
+                <th>Tanggal Pemeriksaan</th>
+                <th>Nama Dokter</th>
+                <th>Status Kesehatan</th>
+                <th>Diagnosa</th>
+                <th>Pengobatan</th>
+                <th>Catatan Tindak Lanjut</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>2025-04-01</td>
+                <td>Dr. Siti Aminah</td>
+                <td>Sakit</td>
+                <td>Infeksi saluran pernapasan</td>
+                <td>Antibiotik selama 7 hari</td>
+                <td>Evaluasi kondisi perbaikan ventilasi kandang</td>
+              </tr>
+              <tr>
+                <td colspan="6" class="text-center">...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Perpanjang Adopsi -->
+<div class="modal fade" id="modalPerpanjang" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form>
+        <div class="modal-header">
+          <h5 class="modal-title">Form Perpanjang Periode Adopsi Satwa</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p><strong>Nama:</strong> Nicholas Saputra</p>
+          <div class="mb-3">
+            <label class="form-label">Nominal Tambahan Kontribusi</label>
+            <input type="number" class="form-control" placeholder="Masukkan nominal">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Periode Tambahan</label>
+            <select class="form-select">
+              <option value="3">3 Bulan</option>
+              <option value="6">6 Bulan</option>
+              <option value="12">12 Bulan</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success">Submit Form</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Berhenti Adopsi -->
+<div class="modal fade" id="modalBerhenti" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body text-center py-4">
+        <h5>Apakah Anda yakin ingin berhenti mengadopsi satwa ini?</h5>
+        <div class="mt-4">
+          <button class="btn btn-danger me-2">Iya</button>
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

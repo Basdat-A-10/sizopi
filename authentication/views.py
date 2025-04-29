@@ -362,5 +362,8 @@ def change_password_view(request):
     
     return render(request, 'authentication/change_password.html', context)
 
+def role_selection(request):
+    return render(request, 'authentication/role.html')
+
 def gateway_view(request):
     return render(request, 'authentication/gateway.html')
