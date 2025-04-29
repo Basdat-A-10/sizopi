@@ -110,10 +110,12 @@ CREATE TABLE PAKAN (
 
 -- 12. MEMBERI table
 CREATE TABLE MEMBERI (
-    id_hewan UUID PRIMARY KEY,
+    id_hewan UUID,
     jadwal TIMESTAMP NOT NULL,
     username_jh VARCHAR(50),
+    PRIMARY KEY (id_hewan, jadwal),
     FOREIGN KEY (id_hewan) REFERENCES HEWAN(id),
+    FOREIGN KEY (id_hewan, jadwal) REFERENCES PAKAN(id_hewan, jadwal),
     FOREIGN KEY (username_jh) REFERENCES PENJAGA_HEWAN(username_jh)
 );
 
@@ -432,14 +434,21 @@ VALUES
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a44', 'joko_susilo', '2024-03-25', 'Lesi kulit', 'Pengobatan antibiotik dan terapi air', 'Pemulihan', 'Evaluasi kondisi kulit setiap 3 hari'),
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a46', 'kartika_sari', '2024-04-12', 'Retak pada cangkang', 'Penutupan retak dengan resin khusus', 'Pemulihan', 'Pemantauan kesembuhan cangkang selama 4 minggu');
 
--- Insert 5 datas for 11. PAKAN table
+-- Insert datas for 11. PAKAN table
 INSERT INTO PAKAN (id_hewan, jadwal, jenis, jumlah, status)
 VALUES 
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', '2024-04-25 08:00:00', 'Daging Sapi', 8, 'Terjadwal'),
-('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12', '2024-04-25 09:30:00', 'Buah-buahan Segar', 5, 'Selesai'),
-('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13', '2024-04-25 10:15:00', 'Rumput dan Sayuran', 25, 'Selesai'),
+('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12', '2024-04-25 09:30:00', 'Buah-buahan Segar', 5, 'Selesai Diberikan'),
+('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13', '2024-04-25 10:15:00', 'Rumput dan Sayuran', 25, 'Selesai Diberikan'),
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a43', '2024-04-25 13:45:00', 'Daun Eucalyptus', 3, 'Terjadwal'),
-('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a44', '2024-04-25 15:30:00', 'Ikan Segar', 12, 'Terjadwal');
+('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a44', '2024-04-25 15:30:00', 'Ikan Segar', 12, 'Terjadwal'),
+('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a14', '2024-04-26 08:30:00', 'Daging Sapi', 7, 'Selesai Diberikan'),
+('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a15', '2024-04-26 09:45:00', 'Daging Rusa', 5, 'Selesai Diberikan'),
+('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a25', '2024-04-26 11:15:00', 'Daging Ayam', 3, 'Selesai Diberikan'),
+('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a43', '2024-04-26 13:45:00', 'Daun Eucalyptus', 4, 'Selesai Diberikan'),
+('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a44', '2024-04-26 15:30:00', 'Ikan Segar', 10, 'Selesai Diberikan'),
+('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a45', '2024-04-27 10:00:00', 'Pakan Ikan', 2, 'Selesai Diberikan'),
+('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a29', '2024-04-27 11:30:00', 'Rumput dan Daun', 15, 'Selesai Diberikan');
 
 -- Insert 5 datas for 12. MEMBERI table
 INSERT INTO MEMBERI (id_hewan, jadwal, username_jh)

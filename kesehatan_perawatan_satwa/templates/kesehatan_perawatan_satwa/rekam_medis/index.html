@@ -1,61 +1,280 @@
-{% extends 'base.html' %} 
-{% block title %}Rekam Medis Hewan{% endblock %} 
+{% extends 'base.html' %}
+{% block title %}Rekam Medis Hewan | Sizopi{% endblock %}
 {% block content %}
-<div class="container mx-auto p-6">
-  <div class="flex justify-between items-center mb-6">
-    <h1 class="text-2xl font-bold">Rekam Medis Hewan</h1>
-    <a
-      href="{% url 'kesehatan_perawatan_satwa:tambah_rekam_medis' %}"
-      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-    >
-      + Tambah Rekam Medis
+<style>
+  .rekam-medis-container {
+    max-width: 1600px; 
+    margin: 20px auto;
+    padding: 0 15px; 
+  }
+  
+  .rekam-medis-header {
+    background: linear-gradient(135deg, var(--charcoal) 0%, var(--paynes-gray) 100%);
+    color: white;
+    border-radius: 10px;
+    padding: 25px;
+    margin-bottom: 30px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .rekam-medis-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+  }
+  
+  .rekam-medis-title i {
+    margin-right: 12px;
+    font-size: 1.9rem;
+  }
+  
+  .table-container {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    padding: 25px;
+    margin-bottom: 20px;
+    overflow-x: auto;
+    width: 100%; 
+  }
+  
+  .table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: fixed; 
+  }
+  
+  .table th {
+    background-color: var(--charcoal);
+    color: white;
+    padding: 14px 18px; 
+    font-weight: 500;
+    text-align: left;
+  }
+  
+  .table th:first-child {
+    border-top-left-radius: 8px;
+    width: 9%; 
+  }
+  
+  .table th:nth-child(2) {
+    width: 11%; 
+  }
+  
+  .table th:nth-child(3) {
+    width: 11%; 
+  }
+  
+  .table th:nth-child(4) {
+    width: 8%; 
+  }
+  
+  .table th:nth-child(5),
+  .table th:nth-child(6),
+  .table th:nth-child(7) {
+    width: 14%; 
+  }
+  
+  .table th:nth-child(8) {
+    width: 10%; 
+  }
+  
+  .table th:last-child {
+    border-top-right-radius: 8px;
+    text-align: center;
+    width: 10%; 
+  }
+  
+  .table td {
+    padding: 14px 18px; 
+    border-bottom: 1px solid #f0f0f0;
+    color: var(--charcoal);
+    vertical-align: middle; 
+  }
+  
+  .table tr:last-child td {
+    border-bottom: none;
+  }
+  
+  .table tr:hover td {
+    background-color: #f9f9f9;
+  }
+  
+  .status-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-align: center;
+    width: 100%;
+    max-width: 100px;
+  }
+  
+  .status-sehat {
+    background-color: #d4edda;
+    color: #155724;
+  }
+  
+  .status-sakit {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+  
+  .status-observasi {
+    background-color: #fff3cd;
+    color: #856404;
+  }
+  
+  .status-pemulihan {
+    background-color: #cce5ff;
+    color: #004085;
+  }
+  
+  .action-btn-container {
+    display: flex;
+    justify-content: center;
+    gap: 8px; 
+  }
+  
+  .action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 12px;
+    border-radius: 5px;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+    text-decoration: none;
+    min-width: 70px; 
+  }
+  
+  .btn-edit {
+    background-color: var(--paynes-gray);
+    color: white;
+  }
+  
+  .btn-edit:hover {
+    background-color: #455a67;
+    color: white;
+    text-decoration: none;
+  }
+  
+  .btn-delete {
+    background-color: #dc3545;
+    color: white;
+  }
+  
+  .btn-delete:hover {
+    background-color: #c82333;
+    color: white;
+    text-decoration: none;
+  }
+  
+  .empty-state {
+    text-align: center;
+    padding: 50px 0;
+    color: var(--paynes-gray);
+  }
+  
+  .empty-state i {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    opacity: 0.5;
+  }
+
+  @media (max-width: 992px) {
+    .table {
+      table-layout: auto;
+    }
+    
+    .table th, 
+    .table td {
+      white-space: nowrap;
+    }
+  }
+</style>
+
+<div class="rekam-medis-container">
+  <div class="rekam-medis-header">
+    <h1 class="rekam-medis-title">
+      <i class="fas fa-notes-medical"></i>
+      Rekam Medis Hewan
+    </h1>
+    <a href="{% url 'kesehatan_perawatan_satwa:tambah_rekam_medis' %}" class="btn btn-light">
+      <i class="fas fa-plus-circle me-2"></i>Tambah Rekam Medis
     </a>
   </div>
 
-  <div class="overflow-x-auto">
-    <table class="min-w-full bg-white border">
-      <thead>
-        <tr>
-          <th class="py-2 px-4 border text-center">Tanggal Pemeriksaan</th>
-          <th class="py-2 px-4 border text-center">Nama Dokter</th>
-          <th class="py-2 px-4 border text-center">Status Kesehatan</th>
-          <th class="py-2 px-4 border text-center">Diagnosis</th>
-          <th class="py-2 px-4 border text-center">Pengobatan</th>
-          <th class="py-2 px-4 border text-center">Catatan Tindak Lanjut</th>
-          <th class="py-2 px-4 border text-center">Aksi</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for rekam in rekam_medis_data %}
-        <tr>
-          <td class="py-2 px-4 border text-center">
-            {{ rekam.tanggal_pemeriksaan }}
-          </td>
-          <td class="py-2 px-4 border text-center">{{ rekam.nama_dokter }}</td>
-          <td class="py-2 px-4 border text-center">
-            {{ rekam.status_kesehatan }}
-          </td>
-          <td class="py-2 px-4 border text-center">{{ rekam.diagnosis }}</td>
-          <td class="py-2 px-4 border text-center">{{ rekam.pengobatan }}</td>
-          <td class="py-2 px-4 border text-center">
-            {{ rekam.catatan_tindak_lanjut }}
-          </td>
-          <td class="py-2 px-4 border text-center">
-            <a
-              href="{% url 'kesehatan_perawatan_satwa:edit_rekam_medis' rekam.id %}"
-              class="text-blue-500 hover:underline mr-2"
-              >[Edit]</a
-            >
-            <a
-              href="{% url 'kesehatan_perawatan_satwa:hapus_rekam_medis' rekam.id %}"
-              class="text-red-500 hover:underline"
-              >[Hapus]</a
-            >
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+  <div class="table-container">
+    {% if rekam_medis_data %}
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Tanggal</th>
+            <th>Nama Hewan</th>
+            <th>Spesies</th>
+            <th>Status</th>
+            <th>Diagnosis</th>
+            <th>Pengobatan</th>
+            <th>Catatan Tindak Lanjut</th>
+            <th>Dokter</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for rekam_medis in rekam_medis_data %}
+            <tr>
+              <td>{{ rekam_medis.tanggal_pemeriksaan|date:"d M Y" }}</td>
+              <td>{{ rekam_medis.nama_hewan }}</td>
+              <td>{{ rekam_medis.spesies }}</td>
+              <td>
+                <span class="status-badge 
+                    {% if rekam_medis.status_pemeriksaan == 'Sehat' %}status-sehat
+                    {% elif rekam_medis.status_pemeriksaan == 'Sakit' %}status-sakit
+                    {% elif rekam_medis.status_pemeriksaan == 'Observasi' %}status-observasi
+                    {% elif rekam_medis.status_pemeriksaan == 'Pemulihan' %}status-pemulihan{% endif %}">
+                    {{ rekam_medis.status_pemeriksaan }}
+                </span>
+              </td>
+              <td>{% if rekam_medis.diagnosis %}{{ rekam_medis.diagnosis }}{% else %}-{% endif %}</td>
+              <td>{% if rekam_medis.pengobatan %}{{ rekam_medis.pengobatan }}{% else %}-{% endif %}</td>
+              <td>{% if rekam_medis.catatan_tindak_lanjut %}{{ rekam_medis.catatan_tindak_lanjut }}{% else %}-{% endif %}</td>
+              <td>{{ rekam_medis.nama_dokter }}</td>
+              <td>
+                <div class="action-btn-container">
+                  {% if rekam_medis.id_hewan and rekam_medis.tanggal_str %}
+                    <!-- edit hanya muncul jika status hewan adalah Sakit -->
+                    {% if rekam_medis.status_pemeriksaan == 'Sakit' %}
+                    <a href="/kesehatan-perawatan/rekam-medis/edit/{{ rekam_medis.id_hewan }}_{{ rekam_medis.tanggal_str }}/" class="action-btn btn-edit">
+                      <i class="fas fa-edit me-1"></i>Edit
+                    </a>
+                    {% endif %}
+                    <a href="/kesehatan-perawatan/rekam-medis/hapus/{{ rekam_medis.id_hewan }}_{{ rekam_medis.tanggal_str }}/" class="action-btn btn-delete">
+                      <i class="fas fa-trash-alt me-1"></i>Hapus
+                    </a>
+                  {% endif %}
+                  </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="empty-state">
+        <i class="fas fa-folder-open"></i>
+        <p>Belum ada data rekam medis.</p>
+        <a href="{% url 'kesehatan_perawatan_satwa:tambah_rekam_medis' %}" class="btn btn-primary mt-3">
+          <i class="fas fa-plus-circle me-2"></i>Tambah Rekam Medis Pertama
+        </a>
+      </div>
+    {% endif %}
   </div>
 </div>
 {% endblock %}

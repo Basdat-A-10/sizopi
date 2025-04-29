@@ -93,33 +93,10 @@
 
         {% elif user_role == 'penjaga_hewan' %}
         <!-- Menu untuk Penjaga Hewan -->
-        <li class="nav-item dropdown">
-          <a
-            class="nav-link dropdown-toggle"
-            href="#"
-            role="button"
-            data-bs-toggle="dropdown"
-          >
-            <i class="fas fa-shield-alt me-1"></i> Perawatan Hewan
+        <li class="nav-item">
+          <a class="nav-link" href="/kesehatan-perawatan/pemberian-pakan/">
+            <i class="fas fa-paw me-1"></i> Catatan Perawatan Hewan
           </a>
-          <ul class="dropdown-menu">
-            <li>
-              <a
-                class="dropdown-item"
-                href="/kesehatan-perawatan/pemberian-pakan/"
-              >
-                <i class="fas fa-drumstick-bite me-1"></i> Pemberian Pakan
-              </a>
-            </li>
-            <li>
-              <a
-                class="dropdown-item"
-                href="/kesehatan-perawatan/catatan-perawatan/"
-              >
-                <i class="fas fa-paw me-1"></i> Catatan Perawatan
-              </a>
-            </li>
-          </ul>
         </li>
 
         {% elif user_role == 'pelatih_hewan' %}
