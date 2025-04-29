@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% block title %}Register{% endblock %}
+
 {% block content %}
 <style>
     .register-container {
@@ -24,6 +26,15 @@
         font-size: 2rem;
         margin: 0;
         font-weight: 600;
+    }
+    
+    .role-indicator {
+        display: inline-block;
+        background-color: rgba(255, 255, 255, 0.2);
+        padding: 5px 15px;
+        border-radius: 20px;
+        margin-top: 10px;
+        font-weight: 500;
     }
     
     .register-body {
@@ -64,9 +75,40 @@
         margin-top: 20px;
     }
     
+    .change-role {
+        text-align: center;
+        margin-top: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .change-role a {
+        color: #11998e;
+        text-decoration: none;
+        font-weight: 500;
+    }
+    
+    .change-role a:hover {
+        text-decoration: underline;
+    }
+    
     .alert {
         border-radius: 8px;
         padding: 15px;
+    }
+    
+    .doctor-fields, .staff-fields {
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 8px;
+        background-color: rgba(17, 153, 142, 0.05);
+        border: 1px solid rgba(17, 153, 142, 0.1);
+    }
+    
+    .section-title {
+        font-size: 1.1rem;
+        color: #11998e;
+        margin-bottom: 15px;
+        font-weight: 500;
     }
 </style>
 
@@ -76,11 +118,17 @@
         <div class="register-header">
             <h1>Daftar Akun</h1>
             <p>Buat akun baru untuk mengakses sistem</p>
+            <div id="roleDisplay" class="role-indicator">Peran: <span id="roleName">Pengunjung</span></div>
         </div>
         
         <div class="register-body">
+            <div class="change-role">
+                <a href="{% url 'role' %}">← Kembali untuk mengubah peran</a>
+            </div>
+            
             <form method="POST" action="{% url 'register' %}">
                 {% csrf_token %}
+                <input type="hidden" id="role" name="role" value="pengunjung">
                 
                 <div class="row mb-3">
                     <div class="col-md-6 mb-3 mb-md-0">
@@ -119,6 +167,41 @@
                            placeholder="No. telepon" required>
                 </div>
                 
+                <!-- Dokter Hewan specific fields -->
+                <div id="doctorFields" class="doctor-fields" style="display: none;">
+                    <div class="section-title">Informasi Dokter Hewan</div>
+                    <div class="mb-3">
+                        <label for="nomor_sip" class="form-label">Nomor SIP (Surat Izin Praktik)</label>
+                        <input type="text" class="form-control" id="nomor_sip" name="nomor_sip" 
+                               placeholder="Nomor SIP">
+                    </div>
+                    <div class="mb-3">
+                        <label for="spesialisasi" class="form-label">Spesialisasi</label>
+                        <input type="text" class="form-control" id="spesialisasi" name="spesialisasi" 
+                               placeholder="Spesialisasi (contoh: Hewan Kecil, Hewan Besar, Eksotik)">
+                    </div>
+                    <div class="mb-3">
+                        <label for="pengalaman_tahun" class="form-label">Lama Pengalaman (Tahun)</label>
+                        <input type="number" class="form-control" id="pengalaman_tahun" name="pengalaman_tahun" 
+                               placeholder="Lama pengalaman dalam tahun">
+                    </div>
+                </div>
+                
+                <!-- Staff specific fields -->
+                <div id="staffFields" class="staff-fields" style="display: none;">
+                    <div class="section-title">Informasi Staff</div>
+                    <div class="mb-3">
+                        <label for="jabatan" class="form-label">Jabatan</label>
+                        <input type="text" class="form-control" id="jabatan" name="jabatan" 
+                               placeholder="Jabatan/Posisi">
+                    </div>
+                    <div class="mb-3">
+                        <label for="departemen" class="form-label">Departemen</label>
+                        <input type="text" class="form-control" id="departemen" name="departemen" 
+                               placeholder="Departemen">
+                    </div>
+                </div>
+                
                 <div class="mb-3">
                     <label for="password" class="form-label">Password</label>
                     <input type="password" class="form-control" id="password" name="password" 
@@ -145,6 +228,35 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Get role from URL parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const role = urlParams.get('role') || 'pengunjung';
+    
+    // Set role in hidden input
+    document.getElementById('role').value = role;
+    
+    // Update role display
+    const roleDisplay = document.getElementById('roleName');
+    let roleName = 'Pengunjung';
+    
+    // Show/hide fields based on role
+    if (role === 'dokter') {
+        roleName = 'Dokter Hewan';
+        document.getElementById('doctorFields').style.display = 'block';
+        // Make doctor-specific fields required
+        document.getElementById('nomor_sip').required = true;
+        document.getElementById('spesialisasi').required = true;
+        document.getElementById('pengalaman_tahun').required = true;
+    } else if (role === 'staff') {
+        roleName = 'Staff';
+        document.getElementById('staffFields').style.display = 'block';
+        // Make staff-specific fields required
+        document.getElementById('jabatan').required = true;
+        document.getElementById('departemen').required = true;
+    }
+    
+    roleDisplay.textContent = roleName;
+    
     // Auto-dismiss alert after 5 seconds
     setTimeout(function() {
         const alerts = document.querySelectorAll('.alert');
@@ -164,6 +276,7 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             alert('Password dan konfirmasi password tidak sama!');
         }
+        
     });
 });
 </script>

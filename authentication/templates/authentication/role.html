@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}Pilih Role{% endblock %}
+
+{% block content %}
+<style>
+    .role-selection-container {
+        max-width: 800px;
+        margin: 60px auto;
+    }
+    
+    .role-selection-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+    
+    .role-selection-header h1 {
+        font-size: 2.5rem;
+        color: #11998e;
+        margin-bottom: 15px;
+    }
+    
+    .role-selection-header p {
+        font-size: 1.2rem;
+        color: #666;
+    }
+    
+    .roles-grid {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        flex-wrap: wrap;
+    }
+    
+    .role-card {
+        width: 220px;
+        border-radius: 15px;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .role-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    }
+    
+    .role-icon {
+        height: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    }
+    
+    .role-icon i {
+        font-size: 3rem;
+        color: white;
+    }
+    
+    .role-details {
+        padding: 20px;
+        text-align: center;
+    }
+    
+    .role-details h3 {
+        margin: 0 0 10px 0;
+        color: #333;
+        font-size: 1.3rem;
+    }
+    
+    .role-details p {
+        color: #666;
+        margin-bottom: 15px;
+        font-size: 0.9rem;
+    }
+    
+    .btn-select-role {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 5px;
+        font-weight: 500;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .btn-select-role:hover {
+        background: linear-gradient(135deg, #0d8177 0%, #32d96f 100%);
+        color: white;
+    }
+</style>
+
+<div class="role-selection-container">
+    <div class="role-selection-header">
+        <h1>Pilih Peran Anda</h1>
+        <p>Silakan pilih peran yang sesuai untuk register</p>
+    </div>
+    
+    <div class="roles-grid">
+        <div class="role-card" onclick="selectRole('pengunjung')">
+            <div class="role-icon">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="role-details">
+                <h3>Pengunjung</h3>
+                <p>Daftar sebagai pengunjung</p>
+                <a href="{% url 'register' %}?role=pengunjung" class="btn-select-role">Pilih</a>
+            </div>
+        </div>
+        
+        <div class="role-card" onclick="selectRole('dokter')">
+            <div class="role-icon">
+                <i class="fas fa-user-md"></i>
+            </div>
+            <div class="role-details">
+                <h3>Dokter Hewan</h3>
+                <p>Daftar sebagai dokter hewan</p>
+                <a href="{% url 'register' %}?role=dokter" class="btn-select-role">Pilih</a>
+            </div>
+        </div>
+        
+        <div class="role-card" onclick="selectRole('staff')">
+            <div class="role-icon">
+                <i class="fas fa-id-card"></i>
+            </div>
+            <div class="role-details">
+                <h3>Staff</h3>
+                <p>Daftar sebagai staff SIZOPI</p>
+                <a href="{% url 'register' %}?role=staff" class="btn-select-role">Pilih</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function selectRole(role) {
+    window.location.href = "{% url 'register' %}?role=" + role;
+}
+</script>
+{% endblock %}
