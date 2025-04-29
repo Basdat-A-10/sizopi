@@ -61,3 +61,6 @@ def form_individu(request):
 
 def form_organisasi(request):
     return render(request, 'adopsi/form_adopsi_organisasi.html')
+
+def adopter_home(request):
+    return render(request, 'adopsi/adopsi_home_adopter.html')
