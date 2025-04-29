@@ -150,9 +150,14 @@
                 </div>
                 
                 <div class="mb-3">
-                    <label for="username" class="form-label">Username</label>
-                    <input type="text" class="form-control" id="username" name="username" 
-                           placeholder="Username" required>
+                    <label for="tanggal_lahir" class="form-label">Tanggal Lahir</label>
+                    <input type="date" class="form-control" id="tanggal_lahir" name="tanggal_lahir" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="alamat_lengkap" class="form-label">Alamat Lengkap</label>
+                    <textarea class="form-control" id="alamat_lengkap" name="alamat_lengkap" 
+                              placeholder="Alamat lengkap" rows="3" required></textarea>
                 </div>
                 
                 <div class="mb-3">
@@ -165,6 +170,21 @@
                     <label for="no_telepon" class="form-label">No. Telepon</label>
                     <input type="tel" class="form-control" id="no_telepon" name="no_telepon" 
                            placeholder="No. telepon" required>
+                </div>
+
+                <!-- Pengunjung specific fields -->
+                <div id="pengunjungFields" class="pengunjung-fields" style="display: none;">
+                    <div class="section-title">Informasi Staff</div>
+                    <div class="mb-3">
+                        <label for="jabatan" class="form-label">Jabatan</label>
+                        <input type="text" class="form-control" id="jabatan" name="jabatan" 
+                               placeholder="Jabatan/Posisi">
+                    </div>
+                    <div class="mb-3">
+                        <label for="departemen" class="form-label">Departemen</label>
+                        <input type="text" class="form-control" id="departemen" name="departemen" 
+                               placeholder="Departemen">
+                    </div>
                 </div>
                 
                 <!-- Dokter Hewan specific fields -->
@@ -202,6 +222,12 @@
                     </div>
                 </div>
                 
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="username" name="username" 
+                           placeholder="Username" required>
+                </div>
+
                 <div class="mb-3">
                     <label for="password" class="form-label">Password</label>
                     <input type="password" class="form-control" id="password" name="password" 
@@ -256,6 +282,15 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     roleDisplay.textContent = roleName;
+    
+    // Set min and max dates for date picker
+    const today = new Date();
+    const maxDate = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate()); // Min age 18 years
+    const minDate = new Date(today.getFullYear() - 100, today.getMonth(), today.getDate()); // Max age 100 years
+    
+    const datePickerElement = document.getElementById('tanggal_lahir');
+    datePickerElement.max = maxDate.toISOString().split('T')[0];
+    datePickerElement.min = minDate.toISOString().split('T')[0];
     
     // Auto-dismiss alert after 5 seconds
     setTimeout(function() {
