@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-from django.db import models
-
-# Create your models here.
-=======
 import uuid
 from django.db import models
 
@@ -37,4 +32,3 @@ class Adopsi(models.Model):
 
     def __str__(self):
         return f'{self.id_adopter} - {self.id_hewan}'
->>>>>>> 1be7431a32b3a155ded74136348c4611c55e5da1

@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-from django.shortcuts import render
-
-# Create your views here.
-=======
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Sum
 from django.utils import timezone
@@ -57,4 +52,3 @@ def delete_adopsi(request, id_adopter, id_hewan, tgl_mulai_adopsi):
     if adopsi.tgl_berhenti_adopsi < timezone.now().date():
         adopsi.delete()
     return redirect('adopter_detail', id_adopter=id_adopter)
->>>>>>> 1be7431a32b3a155ded74136348c4611c55e5da1

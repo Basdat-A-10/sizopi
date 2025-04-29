@@ -1,318 +1,185 @@
 {% extends "base.html" %}
-
 {% block title %}Register{% endblock %}
-
 {% block content %}
 <style>
-    .register-container {
-        max-width: 650px;
-        margin: 40px auto;
-    }
-    
-    .register-card {
-        border-radius: 15px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        overflow: hidden;
-    }
-    
-    .register-header {
-        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-        color: white;
-        padding: 25px 20px;
-        text-align: center;
-    }
-    
-    .register-header h1 {
-        font-size: 2rem;
-        margin: 0;
-        font-weight: 600;
-    }
-    
-    .role-indicator {
-        display: inline-block;
-        background-color: rgba(255, 255, 255, 0.2);
-        padding: 5px 15px;
-        border-radius: 20px;
-        margin-top: 10px;
-        font-weight: 500;
-    }
-    
-    .register-body {
-        padding: 30px;
-    }
-    
-    .form-control {
-        border-radius: 8px;
-        padding: 10px 15px;
-        font-size: 1rem;
-    }
-    
-    .form-control:focus {
-        box-shadow: 0 0 0 3px rgba(56, 239, 125, 0.25);
-        border-color: #38ef7d;
-    }
-    
-    .btn-register {
-        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-        border: none;
-        color: white;
-        padding: 12px 0;
-        font-size: 1.1rem;
-        font-weight: 500;
-        letter-spacing: 1px;
-        border-radius: 8px;
-        transition: all 0.3s;
-        box-shadow: 0 4px 10px rgba(56, 239, 125, 0.2);
-    }
-    
-    .btn-register:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 15px rgba(56, 239, 125, 0.3);
-    }
-    
-    .login-link {
-        text-align: center;
-        margin-top: 20px;
-    }
-    
-    .change-role {
-        text-align: center;
-        margin-top: 10px;
-        margin-bottom: 20px;
-    }
-    
-    .change-role a {
-        color: #11998e;
-        text-decoration: none;
-        font-weight: 500;
-    }
-    
-    .change-role a:hover {
-        text-decoration: underline;
-    }
-    
-    .alert {
-        border-radius: 8px;
-        padding: 15px;
-    }
-    
-    .doctor-fields, .staff-fields {
-        padding: 15px;
-        margin: 15px 0;
-        border-radius: 8px;
-        background-color: rgba(17, 153, 142, 0.05);
-        border: 1px solid rgba(17, 153, 142, 0.1);
-    }
-    
-    .section-title {
-        font-size: 1.1rem;
-        color: #11998e;
-        margin-bottom: 15px;
-        font-weight: 500;
-    }
+  .register-container { max-width: 650px; margin: 40px auto; }
+  .register-card { border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden; }
+  .register-header { background: linear-gradient(135deg,#11998e 0%,#38ef7d 100%); color:white; padding:25px 20px; text-align:center; }
+  .register-header h1 { font-size:2rem; margin:0; font-weight:600; }
+  .role-indicator { display:inline-block; background-color:rgba(255,255,255,0.2); padding:5px 15px; border-radius:20px; margin-top:10px; font-weight:500; }
+  .form-check-input:checked { background-color:#11998e; border-color:#11998e; }
+  .register-body { padding:30px; }
+  .form-control { border-radius:8px; padding:10px 15px; font-size:1rem; }
+  .form-control:focus { box-shadow:0 0 0 3px rgba(56,239,125,0.25); border-color:#38ef7d; }
+  .btn-register { background:linear-gradient(135deg,#11998e 0%,#38ef7d 100%); border:none; color:white; padding:12px 0; font-size:1.1rem; font-weight:500; letter-spacing:1px; border-radius:8px; transition:all 0.3s; box-shadow:0 4px 10px rgba(56,239,125,0.2); }
+  .btn-register:hover { transform:translateY(-2px); box-shadow:0 6px 15px rgba(56,239,125,0.3); }
+  .login-link { text-align:center; margin-top:20px; }
+  .change-role { text-align:center; margin:10px 0 20px; }
+  .change-role a { color:#11998e; text-decoration:none; font-weight:500; }
+  .change-role a:hover { text-decoration:underline; }
+  .alert { border-radius:8px; padding:15px; }
+  .doctor-fields, .staff-fields { padding:15px; margin:15px 0; border-radius:8px; background-color:rgba(17,153,142,0.05); border:1px solid rgba(17,153,142,0.1); }
+  .section-title { font-size:1.1rem; color:#11998e; margin-bottom:15px; font-weight:500; }
+  #spesialisasi_lainnya_container { margin-top:10px; }
 </style>
 
 <div class="register-container">
-    
-    <div class="register-card">
-        <div class="register-header">
-            <h1>Daftar Akun</h1>
-            <p>Buat akun baru untuk mengakses sistem</p>
-            <div id="roleDisplay" class="role-indicator">Peran: <span id="roleName">Pengunjung</span></div>
-        </div>
-        
-        <div class="register-body">
-            <div class="change-role">
-                <a href="{% url 'role' %}">← Kembali untuk mengubah peran</a>
-            </div>
-            
-            <form method="POST" action="{% url 'register' %}">
-                {% csrf_token %}
-                <input type="hidden" id="role" name="role" value="pengunjung">
-                
-                <div class="row mb-3">
-                    <div class="col-md-6 mb-3 mb-md-0">
-                        <label for="nama_depan" class="form-label">Nama Depan</label>
-                        <input type="text" class="form-control" id="nama_depan" name="nama_depan" 
-                               placeholder="Nama depan" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="nama_belakang" class="form-label">Nama Belakang</label>
-                        <input type="text" class="form-control" id="nama_belakang" name="nama_belakang" 
-                               placeholder="Nama belakang" required>
-                    </div>
-                </div>
-                
-                <div class="mb-3">
-                    <label for="nama_tengah" class="form-label">Nama Tengah (Opsional)</label>
-                    <input type="text" class="form-control" id="nama_tengah" name="nama_tengah" 
-                           placeholder="Nama tengah (opsional)">
-                </div>
-                
-                <div class="mb-3">
-                    <label for="tanggal_lahir" class="form-label">Tanggal Lahir</label>
-                    <input type="date" class="form-control" id="tanggal_lahir" name="tanggal_lahir" required>
-                </div>
-
-                <div class="mb-3">
-                    <label for="alamat_lengkap" class="form-label">Alamat Lengkap</label>
-                    <textarea class="form-control" id="alamat_lengkap" name="alamat_lengkap" 
-                              placeholder="Alamat lengkap" rows="3" required></textarea>
-                </div>
-                
-                <div class="mb-3">
-                    <label for="email" class="form-label">Email</label>
-                    <input type="email" class="form-control" id="email" name="email" 
-                           placeholder="Email" required>
-                </div>
-                
-                <div class="mb-3">
-                    <label for="no_telepon" class="form-label">No. Telepon</label>
-                    <input type="tel" class="form-control" id="no_telepon" name="no_telepon" 
-                           placeholder="No. telepon" required>
-                </div>
-
-                <!-- Pengunjung specific fields -->
-                <div id="pengunjungFields" class="pengunjung-fields" style="display: none;">
-                    <div class="section-title">Informasi Staff</div>
-                    <div class="mb-3">
-                        <label for="jabatan" class="form-label">Jabatan</label>
-                        <input type="text" class="form-control" id="jabatan" name="jabatan" 
-                               placeholder="Jabatan/Posisi">
-                    </div>
-                    <div class="mb-3">
-                        <label for="departemen" class="form-label">Departemen</label>
-                        <input type="text" class="form-control" id="departemen" name="departemen" 
-                               placeholder="Departemen">
-                    </div>
-                </div>
-                
-                <!-- Dokter Hewan specific fields -->
-                <div id="doctorFields" class="doctor-fields" style="display: none;">
-                    <div class="section-title">Informasi Dokter Hewan</div>
-                    <div class="mb-3">
-                        <label for="nomor_sip" class="form-label">Nomor SIP (Surat Izin Praktik)</label>
-                        <input type="text" class="form-control" id="nomor_sip" name="nomor_sip" 
-                               placeholder="Nomor SIP">
-                    </div>
-                    <div class="mb-3">
-                        <label for="spesialisasi" class="form-label">Spesialisasi</label>
-                        <input type="text" class="form-control" id="spesialisasi" name="spesialisasi" 
-                               placeholder="Spesialisasi (contoh: Hewan Kecil, Hewan Besar, Eksotik)">
-                    </div>
-                    <div class="mb-3">
-                        <label for="pengalaman_tahun" class="form-label">Lama Pengalaman (Tahun)</label>
-                        <input type="number" class="form-control" id="pengalaman_tahun" name="pengalaman_tahun" 
-                               placeholder="Lama pengalaman dalam tahun">
-                    </div>
-                </div>
-                
-                <!-- Staff specific fields -->
-                <div id="staffFields" class="staff-fields" style="display: none;">
-                    <div class="section-title">Informasi Staff</div>
-                    <div class="mb-3">
-                        <label for="jabatan" class="form-label">Jabatan</label>
-                        <input type="text" class="form-control" id="jabatan" name="jabatan" 
-                               placeholder="Jabatan/Posisi">
-                    </div>
-                    <div class="mb-3">
-                        <label for="departemen" class="form-label">Departemen</label>
-                        <input type="text" class="form-control" id="departemen" name="departemen" 
-                               placeholder="Departemen">
-                    </div>
-                </div>
-                
-                <div class="mb-3">
-                    <label for="username" class="form-label">Username</label>
-                    <input type="text" class="form-control" id="username" name="username" 
-                           placeholder="Username" required>
-                </div>
-
-                <div class="mb-3">
-                    <label for="password" class="form-label">Password</label>
-                    <input type="password" class="form-control" id="password" name="password" 
-                           placeholder="Password" required>
-                </div>
-                
-                <div class="mb-4">
-                    <label for="password_confirmation" class="form-label">Konfirmasi Password</label>
-                    <input type="password" class="form-control" id="password_confirmation" 
-                           name="password_confirmation" placeholder="Konfirmasi password" required>
-                </div>
-                
-                <div class="d-grid gap-2 mt-4">
-                    <button type="submit" class="btn btn-register">DAFTAR</button>
-                </div>
-            </form>
-            
-            <div class="login-link">
-                <p>Sudah punya akun? <a href="{% url 'login' %}">Login di sini</a></p>
-            </div>
-        </div>
+  <div class="register-card">
+    <div class="register-header">
+      <h1>Daftar Akun</h1>
+      <p>Buat akun baru untuk mengakses sistem</p>
+      <div id="roleDisplay" class="role-indicator">Peran: <span id="roleName">Pengunjung</span></div>
     </div>
+    <div class="register-body">
+      <div class="change-role"><a href="{% url 'role' %}">← Kembali untuk mengubah peran</a></div>
+      <form method="POST" action="{% url 'register' %}">{% csrf_token %}
+        <input type="hidden" id="role" name="role" value="pengunjung" />
+        <!-- Nama fields -->
+        <div class="row mb-3">
+          <div class="col-md-6 mb-3 mb-md-0">
+            <label for="nama_depan" class="form-label">Nama Depan</label>
+            <input type="text" class="form-control" id="nama_depan" name="nama_depan" placeholder="Nama depan" required />
+          </div>
+          <div class="col-md-6">
+            <label for="nama_belakang" class="form-label">Nama Belakang</label>
+            <input type="text" class="form-control" id="nama_belakang" name="nama_belakang" placeholder="Nama belakang" required />
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="nama_tengah" class="form-label">Nama Tengah (Opsional)</label>
+          <input type="text" class="form-control" id="nama_tengah" name="nama_tengah" placeholder="Nama tengah (opsional)" />
+        </div>
+        <!-- Kontak -->
+        <div class="mb-3">
+          <label for="email" class="form-label">Email</label>
+          <input type="email" class="form-control" id="email" name="email" placeholder="Email" required />
+        </div>
+        <div class="mb-3">
+          <label for="no_telepon" class="form-label">No. Telepon</label>
+          <input type="tel" class="form-control" id="no_telepon" name="no_telepon" placeholder="No. telepon" required />
+        </div>
+        <!-- Pengunjung -->
+        <div id="pengunjungFields">
+          <div class="section-title">Informasi Pengunjung</div>
+          <div class="mb-3">
+            <label for="tanggal_lahir" class="form-label">Tanggal Lahir</label>
+            <input type="date" class="form-control" id="tanggal_lahir" name="tanggal_lahir" />
+          </div>
+          <div class="mb-3">
+            <label for="alamat_lengkap" class="form-label">Alamat Lengkap</label>
+            <textarea class="form-control" id="alamat_lengkap" name="alamat_lengkap" placeholder="Alamat lengkap" rows="3"></textarea>
+          </div>
+        </div>
+        <!-- Dokter -->
+        <div id="doctorFields" class="doctor-fields" style="display:none;">
+          <div class="section-title">Informasi Dokter Hewan</div>
+          <div class="mb-3">
+            <label for="nomor_sip" class="form-label">Nomor Sertifikasi Profesional</label>
+            <input type="text" class="form-control" id="nomor_sip" name="nomor_sip" placeholder="Nomor Sertifikasi" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Spesialisasi</label>
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="radio" name="spesialisasi" id="spesialisasi_mamalia" value="mamalia besar" required />
+              <label class="form-check-label" for="spesialisasi_mamalia">Mamalia Besar</label>
+            </div>
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="radio" name="spesialisasi" id="spesialisasi_reptil" value="reptil" />
+              <label class="form-check-label" for="spesialisasi_reptil">Reptil</label>
+            </div>
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="radio" name="spesialisasi" id="spesialisasi_burung" value="burung eksotis" />
+              <label class="form-check-label" for="spesialisasi_burung">Burung Eksotis</label>
+            </div>
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="radio" name="spesialisasi" id="spesialisasi_primata" value="primata" />
+              <label class="form-check-label" for="spesialisasi_primata">Primata</label>
+            </div>
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="radio" name="spesialisasi" id="spesialisasi_lainnya_radio" value="lainnya" />
+              <label class="form-check-label" for="spesialisasi_lainnya_radio">Lainnya</label>
+            </div>
+          </div>
+          <div id="form-check mb-2">
+            <label for="spesialisasi_lainnya_input" class="form-label">Spesialisasi Lainnya</label>
+            <input type="text" class="form-control" id="spesialisasi_lainnya_input" name="spesialisasi_lainnya" placeholder="Masukkan spesialisasi" />
+          </div>
+        </div>
+        <!-- Staff -->
+        <div id="staffFields" class="staff-fields" style="display:none;">
+          <div class="mb-3">
+            <label class="section-title">Peran</label>
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="radio" required />
+              <label class="form-check-label">Penjaga Hewan</label>
+            </div>
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="radio" />
+              <label class="form-check-label">Staff Administrasi</label>
+            </div>
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="radio" />
+              <label class="form-check-label">Pelatih Pertunjukkan</label>
+            </div>
+            <div id="form-check">
+              <label for="spesialisasi_lainnya_input" class="form-label">ID Staf</label>
+              <input type="text" class="form-control" id="spesialisasi_lainnya_input" name="spesialisasi_lainnya" placeholder="Aasda9123asd9asd198" />
+            </div>
+          </div>
+        </div>
+        <!-- Common -->
+        <div class="mb-3">
+          <label for="username" class="form-label">Username</label>
+          <input type="text" class="form-control" id="username" name="username" placeholder="Username" required />
+        </div>
+        <div class="mb-3">
+          <label for="password" class="form-label">Password</label>
+          <input type="password" class="form-control" id="password" name="password" placeholder="Password" required />
+        </div>
+        <div class="mb-4">
+          <label for="password_confirmation" class="form-label">Konfirmasi Password</label>
+          <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" placeholder="Konfirmasi password" required />
+        </div>
+        <div class="d-grid gap-2 mt-4"><button type="submit" class="btn btn-register">REGISTER</button></div>
+      </form>
+      <div class="login-link"><p>Sudah punya akun? <a href="{% url 'login' %}">Login di sini</a></p></div>
+    </div>
+  </div>
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Get role from URL parameter
-    const urlParams = new URLSearchParams(window.location.search);
-    const role = urlParams.get('role') || 'pengunjung';
-    
-    // Set role in hidden input
-    document.getElementById('role').value = role;
-    
-    // Update role display
-    const roleDisplay = document.getElementById('roleName');
-    let roleName = 'Pengunjung';
-    
-    // Show/hide fields based on role
-    if (role === 'dokter') {
-        roleName = 'Dokter Hewan';
-        document.getElementById('doctorFields').style.display = 'block';
-        // Make doctor-specific fields required
-        document.getElementById('nomor_sip').required = true;
-        document.getElementById('spesialisasi').required = true;
-        document.getElementById('pengalaman_tahun').required = true;
-    } else if (role === 'staff') {
-        roleName = 'Staff';
-        document.getElementById('staffFields').style.display = 'block';
-        // Make staff-specific fields required
-        document.getElementById('jabatan').required = true;
-        document.getElementById('departemen').required = true;
-    }
-    
-    roleDisplay.textContent = roleName;
-    
-    // Set min and max dates for date picker
-    const today = new Date();
-    const maxDate = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate()); // Min age 18 years
-    const minDate = new Date(today.getFullYear() - 100, today.getMonth(), today.getDate()); // Max age 100 years
-    
-    const datePickerElement = document.getElementById('tanggal_lahir');
-    datePickerElement.max = maxDate.toISOString().split('T')[0];
-    datePickerElement.min = minDate.toISOString().split('T')[0];
-    
-    // Auto-dismiss alert after 5 seconds
-    setTimeout(function() {
-        const alerts = document.querySelectorAll('.alert');
-        alerts.forEach(function(alert) {
-            const bsAlert = new bootstrap.Alert(alert);
-            bsAlert.close();
-        });
-    }, 5000);
-    
-    // Form validation
-    const form = document.querySelector('form');
-    form.addEventListener('submit', function(e) {
-        const password = document.getElementById('password').value;
-        const passwordConfirmation = document.getElementById('password_confirmation').value;
-        
-        if (password !== passwordConfirmation) {
-            e.preventDefault();
-            alert('Password dan konfirmasi password tidak sama!');
-        }
-        
+document.addEventListener('DOMContentLoaded', () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const role = urlParams.get('role') || 'pengunjung';
+  document.getElementById('role').value = role;
+  const roleDisplay = document.getElementById('roleName');
+  const sections = {
+  pengunjung: ['pengunjungFields'],
+  dokter: ['doctorFields'],
+  staff: ['staffFields']
+};
+  roleDisplay.textContent = role==='dokter'?'Dokter Hewan':role==='staff'?'Staff':'Pengunjung';
+  ['pengunjungFields','doctorFields','staffFields'].forEach(id => {
+    document.getElementById(id).style.display = sections[role].includes(id)?'block':'none';
+  });
+  const today=new Date();
+  const max=new Date(today.getFullYear()-18,today.getMonth(),today.getDate()).toISOString().split('T')[0];
+  const min=new Date(today.getFullYear()-100,today.getMonth(),today.getDate()).toISOString().split('T')[0];
+  const dp=document.getElementById('tanggal_lahir'); if(dp){dp.max=max;dp.min=min;dp.required=(role==='pengunjung');}
+  document.getElementById('alamat_lengkap').required=(role==='pengunjung');
+  const container=document.getElementById('spesialisasi_lainnya_container');
+  const input=document.getElementById('spesialisasi_lainnya_input');
+  document.querySelectorAll('input[name="spesialisasi"]').forEach(radio=>{
+    radio.addEventListener('change',()=>{
+      if(radio.value==='lainnya'){container.style.display='block';input.required=true;}else{container.style.display='none';input.required=false;input.value='';}
     });
+  });
+  const form=document.querySelector('form');
+  form.addEventListener('submit',e=>{
+    if(document.getElementById('password').value!==document.getElementById('password_confirmation').value){e.preventDefault();alert('Password dan konfirmasi password tidak sama!');}
+    if(role==='dokter'){const sel=document.querySelector('input[name="spesialisasi"]:checked');
+      if(sel&&sel.value==='lainnya'){const hidden=document.createElement('input');hidden.type='hidden';hidden.name='spesialisasi_final';hidden.value=input.value;form.appendChild(hidden);} }
+  });
 });
 </script>
 {% endblock %}
