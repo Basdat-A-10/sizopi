@@ -14,4 +14,16 @@ urlpatterns = [
     path('atraksi/tambah/', views.tambah_atraksi, name='tambah_atraksi'),
     path('atraksi/edit/<str:nama_atraksi>/', views.edit_atraksi, name='edit_atraksi'),
     path('atraksi/delete/<str:nama_atraksi>/', views.delete_atraksi, name='delete_atraksi'),
+    
+    # Reservasi URLs - Using separate HTML pages
+    path('reservasi/form/<str:nama_atraksi>/', views.tampil_form_reservasi, name='tampil_form_reservasi'),
+    path('reservasi/buat/', views.buat_reservasi, name='buat_reservasi'),
+    path('reservasi/detail/<str:username>/<str:nama_atraksi>/<str:tanggal_kunjungan>/', 
+         views.detail_reservasi, name='detail_reservasi'),
+    path('reservasi/edit/form/<str:username>/<str:nama_atraksi>/<str:tanggal_kunjungan>/', 
+         views.tampil_form_edit_reservasi, name='tampil_form_edit_reservasi'),
+    path('reservasi/edit/<str:username>/<str:nama_atraksi>/<str:tanggal_kunjungan>/', 
+         views.edit_reservasi, name='edit_reservasi'),
+    path('reservasi/batalkan/<str:username>/<str:nama_atraksi>/<str:tanggal_kunjungan>/', 
+         views.batalkan_reservasi, name='batalkan_reservasi'),
 ]

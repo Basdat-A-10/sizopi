@@ -205,6 +205,17 @@ CREATE TABLE ADOPSI (
     FOREIGN KEY (id_hewan) REFERENCES HEWAN(id)
 );
 
+CREATE TABLE RESERVASI (
+    username_p VARCHAR(50),
+    nama_atraksi VARCHAR(50),
+    tanggal_kunjungan DATE,
+    jumlah_tiket INT NOT NULL,
+    status VARCHAR(50) NOT NULL,
+    PRIMARY KEY (username_p, nama_atraksi, tanggal_kunjungan),
+    FOREIGN KEY (username_p) REFERENCES PENGUNJUNG(username_p),
+    FOREIGN KEY (nama_atraksi) REFERENCES ATRAKSI(nama_atraksi)
+);
+
 -- Insert datas for 1. PENGGUNA table
 -- 50 PENGUNJUNG
 INSERT INTO PENGGUNA (username, email, password, nama_depan, nama_tengah, nama_belakang, no_telepon)
@@ -713,3 +724,11 @@ VALUES
 ('d850ebe0-1504-4d57-b0f7-83ac23cfa6d9', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a38', 'Lunas', '2023-12-25', '2024-12-25', 2100000),
 ('82079cc0-e4a0-4376-9518-943e7f20cc3d', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a39', 'Lunas', '2024-03-19', '2025-03-19', 1900000),
 ('4f75b2d7-8de0-43a4-b39b-89d9b26006b5', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a40', 'Belum', '2024-05-01', '2025-05-01', 1500000);
+
+INSERT INTO RESERVASI (username_p, nama_atraksi, tanggal_kunjungan, jumlah_tiket, status)
+VALUES 
+    ('ahmad_fauzi', 'Zona Akuatik', '2025-05-15', 3, 'Confirmed'),
+    ('bayu_setiawan', 'Amphitheater Utama', '2025-05-16', 2, 'Pending'),
+    ('citra_sakila', 'Zona Harimau', '2025-05-17', 4, 'Confirmed'),
+    ('dian_sastro', 'Rumah Burung', '2025-05-18', 5, 'Cancelled'),
+    ('eko_patrio', 'Savana Afrika', '2025-05-20', 2, 'Confirmed');
