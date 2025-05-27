@@ -80,57 +80,8 @@ def rekam_medis(request):
                     })
     except Exception as e:
         rekam_medis_data = dummy_data  # data dummy jika db error (for test only)
-    context = {
-        'user_id': request.COOKIES.get('user_id'),
-        'user_fullname': request.COOKIES.get('user_fullname'),
-        'user_role': request.COOKIES.get('user_role'),
-        'rekam_medis_data': rekam_medis_data,
-    }
-    return render(request, 'kesehatan_perawatan_satwa/rekam_medis/index.html', context)
-
-def tambah_rekam_medis(request):
-    if 'user_id' not in request.COOKIES or request.COOKIES.get('user_role') != 'dokter_hewan':
-        return redirect('login')
     
-    username_dh = request.COOKIES.get('user_id')
-    
-    if request.method == 'POST':
-        try:
-            id_hewan = request.POST.get('id_hewan')
-            tanggal_pemeriksaan = request.POST.get('tanggal_pemeriksaan')
-            status_kesehatan = request.POST.get('status_kesehatan')
-            diagnosis = request.POST.get('diagnosis')
-            pengobatan = request.POST.get('pengobatan')
-            catatan_tindak_lanjut = request.POST.get('catatan_tindak_lanjut')
-            
-            with connection.cursor() as cursor:
-                cursor.execute("""
-                    SELECT 1
-                    FROM SIZOPI.CATATAN_MEDIS
-                    WHERE id_hewan = %s AND tanggal_pemeriksaan = %s
-                """, [id_hewan, tanggal_pemeriksaan])
-                
-                if cursor.fetchone():
-                    return redirect('kesehatan_perawatan_satwa:tambah_rekam_medis')
-                
-                cursor.execute("""
-                    INSERT INTO SIZOPI.CATATAN_MEDIS
-                    (id_hewan, username_dh, tanggal_pemeriksaan, diagnosis, pengobatan, status_kesehatan, catatan_tindak_lanjut)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s)
-                """, [id_hewan, username_dh, tanggal_pemeriksaan, diagnosis, pengobatan, status_kesehatan, catatan_tindak_lanjut])
-                
-                cursor.execute("""
-                    UPDATE SIZOPI.HEWAN
-                    SET status_kesehatan = %s
-                    WHERE id = %s
-                """, [status_kesehatan, id_hewan])
-            
-            return redirect('kesehatan_perawatan_satwa:rekam_medis')
-            
-        except Exception as e:
-            return redirect('kesehatan_perawatan_satwa:tambah_rekam_medis')
-    
-    # data hewan untuk dropdown
+    # data hewan untuk dropdown modal tambah
     hewan_data = []
     try:
         with connection.cursor() as cursor:
@@ -157,10 +108,56 @@ def tambah_rekam_medis(request):
         'user_id': request.COOKIES.get('user_id'),
         'user_fullname': request.COOKIES.get('user_fullname'),
         'user_role': request.COOKIES.get('user_role'),
+        'rekam_medis_data': rekam_medis_data,
         'hewan_data': hewan_data,
         'today': datetime.now().strftime('%Y-%m-%d')
     }
-    return render(request, 'kesehatan_perawatan_satwa/rekam_medis/tambah.html', context)
+    return render(request, 'kesehatan_perawatan_satwa/rekam_medis/index.html', context)
+
+def tambah_rekam_medis(request):
+    if 'user_id' not in request.COOKIES or request.COOKIES.get('user_role') != 'dokter_hewan':
+        return redirect('login')
+    
+    if request.method == 'POST':
+        username_dh = request.COOKIES.get('user_id')
+        
+        try:
+            id_hewan = request.POST.get('id_hewan')
+            tanggal_pemeriksaan = request.POST.get('tanggal_pemeriksaan')
+            status_kesehatan = request.POST.get('status_kesehatan')
+            diagnosis = request.POST.get('diagnosis')
+            pengobatan = request.POST.get('pengobatan')
+            catatan_tindak_lanjut = request.POST.get('catatan_tindak_lanjut')
+            
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    SELECT 1
+                    FROM SIZOPI.CATATAN_MEDIS
+                    WHERE id_hewan = %s AND tanggal_pemeriksaan = %s
+                """, [id_hewan, tanggal_pemeriksaan])
+                
+                if cursor.fetchone():
+                    return redirect('kesehatan_perawatan_satwa:rekam_medis')
+                
+                cursor.execute("""
+                    INSERT INTO SIZOPI.CATATAN_MEDIS
+                    (id_hewan, username_dh, tanggal_pemeriksaan, diagnosis, pengobatan, status_kesehatan, catatan_tindak_lanjut)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                """, [id_hewan, username_dh, tanggal_pemeriksaan, diagnosis, pengobatan, status_kesehatan, catatan_tindak_lanjut])
+                
+                cursor.execute("""
+                    UPDATE SIZOPI.HEWAN
+                    SET status_kesehatan = %s
+                    WHERE id = %s
+                """, [status_kesehatan, id_hewan])
+            
+            return redirect('kesehatan_perawatan_satwa:rekam_medis')
+            
+        except Exception as e:
+            return redirect('kesehatan_perawatan_satwa:rekam_medis')
+    
+    # Jika bukan POST, redirect ke halaman rekam medis
+    return redirect('kesehatan_perawatan_satwa:rekam_medis')
 
 def edit_rekam_medis(request, id):
     if 'user_id' not in request.COOKIES or request.COOKIES.get('user_role') != 'dokter_hewan':
@@ -358,11 +355,36 @@ def jadwal_pemeriksaan(request):
                 'status_kesehatan': row[5],
             })
 
+    # data hewan untuk dropdown filter dan modal tambah
+    hewan_data = []
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT 
+                    id, nama, spesies, status_kesehatan
+                FROM 
+                    SIZOPI.HEWAN
+                ORDER BY 
+                    nama
+            """)
+            
+            for row in cursor.fetchall():
+                hewan_data.append({
+                    'id': row[0],
+                    'nama': row[1],
+                    'spesies': row[2],
+                    'status_kesehatan': row[3],
+                })
+    except Exception as e:
+        pass
+
     context = {
         'user_id': request.COOKIES.get('user_id'),
         'user_fullname': request.COOKIES.get('user_fullname'),
         'user_role': request.COOKIES.get('user_role'),
-        'jadwal_pemeriksaan_data': jadwal_pemeriksaan_data
+        'jadwal_pemeriksaan_data': jadwal_pemeriksaan_data,
+        'hewan_data': hewan_data,
+        'default_date': datetime.now().strftime('%Y-%m-%d')
     }
     return render(request, 'kesehatan_perawatan_satwa/jadwal_pemeriksaan/index.html', context)
 
@@ -400,39 +422,10 @@ def tambah_jadwal_pemeriksaan(request):
             
         except Exception as e:
             print(f"Error: {str(e)}")
-            return redirect('kesehatan_perawatan_satwa:tambah_jadwal_pemeriksaan')
+            return redirect('kesehatan_perawatan_satwa:jadwal_pemeriksaan')
     
-    # data hewan untuk dropdown
-    hewan_data = []
-    try:
-        with connection.cursor() as cursor:
-            cursor.execute("""
-                SELECT 
-                    id, nama, spesies, status_kesehatan
-                FROM 
-                    SIZOPI.HEWAN
-                ORDER BY 
-                    nama
-            """)
-            
-            for row in cursor.fetchall():
-                hewan_data.append({
-                    'id': row[0],
-                    'nama': row[1],
-                    'spesies': row[2],
-                    'status_kesehatan': row[3],
-                })
-    except Exception as e:
-        print(f"Error: {str(e)}")
-    
-    context = {
-        'user_id': request.COOKIES.get('user_id'),
-        'user_fullname': request.COOKIES.get('user_fullname'),
-        'user_role': request.COOKIES.get('user_role'),
-        'hewan_data': hewan_data,
-        'default_date': (datetime.now()).strftime('%Y-%m-%d')
-    }
-    return render(request, 'kesehatan_perawatan_satwa/jadwal_pemeriksaan/tambah.html', context)
+    # Jika bukan POST, redirect ke halaman jadwal pemeriksaan
+    return redirect('kesehatan_perawatan_satwa:jadwal_pemeriksaan')
 
 def edit_jadwal_pemeriksaan(request, id):
     if 'user_id' not in request.COOKIES or request.COOKIES.get('user_role') != 'dokter_hewan':

@@ -10,7 +10,7 @@ SET search_path to SIZOPI;
 -- 1. PENGGUNA table
 CREATE TABLE PENGGUNA (
     username VARCHAR(50) PRIMARY KEY,
-    email VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(50) NOT NULL,
     nama_depan VARCHAR(50) NOT NULL,
     nama_tengah VARCHAR(50),
