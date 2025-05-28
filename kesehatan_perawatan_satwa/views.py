@@ -781,36 +781,89 @@ def pemberian_pakan(request):
         return redirect('login')
     
     username_jh = request.COOKIES.get('user_id')
-    pakan_data = []
+    selected_hewan = request.GET.get('hewan')
     
+    pakan_data = []
+    selected_hewan_info = None
+    
+    if selected_hewan:
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    SELECT 
+                        id, nama, spesies, status_kesehatan, asal_hewan, tanggal_lahir, url_foto
+                    FROM 
+                        SIZOPI.HEWAN
+                    WHERE 
+                        id = %s
+                """, [selected_hewan])
+                
+                hewan_result = cursor.fetchone()
+                if hewan_result:
+                    selected_hewan_info = {
+                        'id': hewan_result[0],
+                        'nama': hewan_result[1],
+                        'spesies': hewan_result[2],
+                        'status_kesehatan': hewan_result[3],
+                        'asal_hewan': hewan_result[4],
+                        'tanggal_lahir': hewan_result[5],
+                        'url_foto': hewan_result[6],
+                    }
+                
+                # Ambil data pakan untuk hewan yang dipilih
+                cursor.execute("""
+                    SELECT 
+                        p.id_hewan,
+                        h.nama,
+                        h.spesies,
+                        p.jenis,
+                        p.jumlah,
+                        p.jadwal,
+                        p.status
+                    FROM 
+                        SIZOPI.PAKAN p
+                        JOIN SIZOPI.HEWAN h ON p.id_hewan = h.id
+                    WHERE 
+                        p.id_hewan = %s
+                    ORDER BY 
+                        p.jadwal
+                """, [selected_hewan])
+                
+                for row in cursor.fetchall():
+                    pakan_data.append({
+                        'id_hewan': row[0],
+                        'nama_hewan': row[1],
+                        'spesies': row[2],
+                        'jenis_pakan': row[3],
+                        'jumlah_pakan': row[4],
+                        'jadwal': row[5],
+                        'status': row[6],
+                        'jadwal_str': row[5].strftime('%Y-%m-%d-%H-%M-%S') if row[5] else ''
+                    })
+        except Exception as e:
+            print(f"Error: {str(e)}")
+    
+    # Ambil daftar semua hewan untuk dropdown
+    hewan_data = []
     try:
         with connection.cursor() as cursor:
             cursor.execute("""
                 SELECT 
-                    p.id_hewan,
-                    h.nama,
-                    h.spesies,
-                    p.jenis,
-                    p.jumlah,
-                    p.jadwal,
-                    p.status
+                    id, nama, spesies, status_kesehatan
                 FROM 
-                    SIZOPI.PAKAN p
-                    JOIN SIZOPI.HEWAN h ON p.id_hewan = h.id
+                    SIZOPI.HEWAN
+                WHERE 
+                    status_kesehatan IN ('Sehat', 'Observasi', 'Pemulihan', 'Sakit')
                 ORDER BY 
-                    p.jadwal
+                    nama
             """)
             
             for row in cursor.fetchall():
-                pakan_data.append({
-                    'id_hewan': row[0],
-                    'nama_hewan': row[1],
+                hewan_data.append({
+                    'id': row[0],
+                    'nama': row[1],
                     'spesies': row[2],
-                    'jenis_pakan': row[3],
-                    'jumlah_pakan': row[4],
-                    'jadwal': row[5],
-                    'status': row[6],
-                    'jadwal_str': row[5].strftime('%Y-%m-%d-%H-%M-%S') if row[5] else ''
+                    'status_kesehatan': row[3],
                 })
     except Exception as e:
         print(f"Error: {str(e)}")
@@ -819,7 +872,10 @@ def pemberian_pakan(request):
         'user_id': request.COOKIES.get('user_id'),
         'user_fullname': request.COOKIES.get('user_fullname'),
         'user_role': request.COOKIES.get('user_role'),
-        'pakan_data': pakan_data
+        'pakan_data': pakan_data,
+        'hewan_data': hewan_data,
+        'selected_hewan': selected_hewan,
+        'selected_hewan_info': selected_hewan_info,
     }
     return render(request, 'kesehatan_perawatan_satwa/pemberian_pakan/index.html', context)
 
@@ -836,52 +892,34 @@ def tambah_pemberian_pakan(request):
             jumlah_pakan = request.POST.get('jumlah_pakan')
             jadwal = request.POST.get('jadwal')
             
+            filter_hewan = request.GET.get('hewan') or id_hewan
+            
             with connection.cursor() as cursor:
+                cursor.execute("""
+                    SELECT nama FROM SIZOPI.HEWAN WHERE id = %s
+                """, [id_hewan])
+                
+                nama_hewan = cursor.fetchone()[0] if cursor.rowcount > 0 else "Hewan"
+                
                 cursor.execute("""
                     INSERT INTO SIZOPI.PAKAN
                     (id_hewan, jadwal, jenis, jumlah, status)
                     VALUES (%s, %s, %s, %s, 'Terjadwal')
                 """, [id_hewan, jadwal, jenis_pakan, jumlah_pakan])
                 
-                print(f"Jadwal pemberian pakan berhasil ditambahkan: id_hewan={id_hewan}, jadwal={jadwal}")
+                messages.success(request, f"Jadwal pemberian pakan untuk {nama_hewan} berhasil ditambahkan")
             
-            return redirect('kesehatan_perawatan_satwa:pemberian_pakan')
+            if filter_hewan:
+                return redirect(f'/kesehatan-perawatan/pemberian-pakan/?hewan={filter_hewan}')
+            else:
+                return redirect('kesehatan_perawatan_satwa:pemberian_pakan')
             
         except Exception as e:
             print(f"Error saat tambah pemberian pakan: {str(e)}")
+            messages.error(request, f"Terjadi kesalahan: {str(e)}")
+            return redirect('kesehatan_perawatan_satwa:pemberian_pakan')
     
-    # Data hewan untuk dropdown
-    hewan_data = []
-    try:
-        with connection.cursor() as cursor:
-            cursor.execute("""
-                SELECT 
-                    id, nama, spesies
-                FROM 
-                    SIZOPI.HEWAN
-                ORDER BY 
-                    nama
-            """)
-            
-            for row in cursor.fetchall():
-                hewan_data.append({
-                    'id': row[0],
-                    'nama': row[1],
-                    'spesies': row[2]
-                })
-    except Exception as e:
-        print(f"Error saat mengambil data hewan: {str(e)}")
-    
-    from datetime import datetime, timedelta
-    
-    context = {
-        'user_id': request.COOKIES.get('user_id'),
-        'user_fullname': request.COOKIES.get('user_fullname'),
-        'user_role': request.COOKIES.get('user_role'),
-        'hewan_data': hewan_data,
-        'default_datetime': (datetime.now() + timedelta(hours=1)).strftime('%Y-%m-%dT%H:%M')
-    }
-    return render(request, 'kesehatan_perawatan_satwa/pemberian_pakan/tambah.html', context)
+    return redirect('kesehatan_perawatan_satwa:pemberian_pakan')
 
 def edit_pemberian_pakan(request, id):
     if 'user_id' not in request.COOKIES or request.COOKIES.get('user_role') != 'penjaga_hewan':
@@ -969,7 +1007,15 @@ def edit_pemberian_pakan(request, id):
             jumlah_pakan_baru = request.POST.get('jumlah_pakan')
             jadwal_baru = request.POST.get('jadwal')
             
+            filter_hewan = request.GET.get('hewan') or id_hewan
+            
             with connection.cursor() as cursor:
+                # Ambil nama hewan untuk pesan
+                cursor.execute("""
+                    SELECT nama FROM SIZOPI.HEWAN WHERE id = %s
+                """, [id_hewan])
+                nama_hewan = cursor.fetchone()[0] if cursor.rowcount > 0 else "Hewan"
+                
                 cursor.execute("""
                     UPDATE SIZOPI.PAKAN
                     SET jenis = %s, jumlah = %s, jadwal = %s
@@ -988,8 +1034,13 @@ def edit_pemberian_pakan(request, id):
                         SET jadwal = %s
                         WHERE id_hewan = %s AND jadwal = %s
                     """, [jadwal_baru, id_hewan, jadwal])
+                
+                messages.success(request, f"Jadwal pemberian pakan untuk {nama_hewan} berhasil diperbarui")
             
-            return redirect('kesehatan_perawatan_satwa:pemberian_pakan')
+            if filter_hewan:
+                return redirect(f'/kesehatan-perawatan/pemberian-pakan/?hewan={filter_hewan}')
+            else:
+                return redirect('kesehatan_perawatan_satwa:pemberian_pakan')
             
     except Exception as e:
         print(f"Error saat edit pemberian pakan: {str(e)}")
@@ -1085,7 +1136,15 @@ def hapus_pemberian_pakan(request, id):
                 }
     
         if request.method == 'POST':
+            filter_hewan = request.GET.get('hewan') or id_hewan
+            
             with connection.cursor() as cursor:
+                # Ambil nama hewan untuk pesan
+                cursor.execute("""
+                    SELECT nama FROM SIZOPI.HEWAN WHERE id = %s
+                """, [id_hewan])
+                nama_hewan = cursor.fetchone()[0] if cursor.rowcount > 0 else "Hewan"
+                
                 cursor.execute("""
                     DELETE FROM SIZOPI.MEMBERI
                     WHERE id_hewan = %s AND jadwal = %s
@@ -1097,8 +1156,13 @@ def hapus_pemberian_pakan(request, id):
                     WHERE id_hewan = %s AND jadwal = %s
                 """, [id_hewan, jadwal])
             
-            return redirect('kesehatan_perawatan_satwa:pemberian_pakan')
+            messages.success(request, f"Jadwal pemberian pakan untuk {nama_hewan} berhasil dihapus")
             
+            if filter_hewan:
+                return redirect(f'/kesehatan-perawatan/pemberian-pakan/?hewan={filter_hewan}')
+            else:
+                return redirect('kesehatan_perawatan_satwa:pemberian_pakan')
+    
     except Exception as e:
         print(f"Error saat hapus pemberian pakan: {str(e)}")
         return redirect('kesehatan_perawatan_satwa:pemberian_pakan')
@@ -1130,14 +1194,24 @@ def beri_pakan(request, id):
                 
                 result = cursor.fetchone()
                 if not result:
-                    print(f"Error: Tidak ditemukan jadwal pakan untuk {jadwal}")
+                    messages.error(request, "Jadwal pakan tidak ditemukan")
                     return redirect('kesehatan_perawatan_satwa:pemberian_pakan')
                 
                 id_hewan, status = result
                 
                 if status != 'Terjadwal':
-                    print(f"Error: Status pakan sudah {status}, bukan Terjadwal")
-                    return redirect('kesehatan_perawatan_satwa:pemberian_pakan')
+                    messages.warning(request, f"Pakan sudah berstatus {status}")
+                    filter_hewan = request.GET.get('hewan')
+                    if filter_hewan:
+                        return redirect(f'/kesehatan-perawatan/pemberian-pakan/?hewan={filter_hewan}')
+                    else:
+                        return redirect('kesehatan_perawatan_satwa:pemberian_pakan')
+                
+                # Ambil nama hewan untuk pesan
+                cursor.execute("""
+                    SELECT nama FROM SIZOPI.HEWAN WHERE id = %s
+                """, [id_hewan])
+                nama_hewan = cursor.fetchone()[0] if cursor.rowcount > 0 else "Hewan"
                 
                 # Update status di tabel PAKAN
                 cursor.execute("""
@@ -1157,18 +1231,26 @@ def beri_pakan(request, id):
                         SET username_jh = %s
                         WHERE id_hewan = %s AND jadwal = %s
                     """, [username_jh, id_hewan, jadwal])
-                    print(f"Data MEMBERI diupdate: id_hewan={id_hewan}, jadwal={jadwal}")
                 else:
                     cursor.execute("""
                         INSERT INTO SIZOPI.MEMBERI (id_hewan, jadwal, username_jh)
                         VALUES (%s, %s, %s)
                     """, [id_hewan, jadwal, username_jh])
-                    print(f"Data MEMBERI baru dibuat: id_hewan={id_hewan}, jadwal={jadwal}")
+                
+                messages.success(request, f"Pakan untuk {nama_hewan} berhasil diberikan")
+                
+                # Maintain filter state
+                filter_hewan = request.GET.get('hewan')
+                if filter_hewan:
+                    return redirect(f'/kesehatan-perawatan/pemberian-pakan/?hewan={filter_hewan}')
+                else:
+                    return redirect('kesehatan_perawatan_satwa:pemberian_pakan')
         else:
-            print(f"Format ID tidak didukung: {id}")
+            messages.error(request, "Format ID tidak valid")
             
     except Exception as e:
         print(f"Error saat beri pakan: {str(e)}")
+        messages.error(request, f"Terjadi kesalahan: {str(e)}")
     
     return redirect('kesehatan_perawatan_satwa:pemberian_pakan')
 

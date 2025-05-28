@@ -1,0 +1,244 @@
+{% extends 'base.html' %} 
+{% block title %}Riwayat Pemberian Pakan | Sizopi{% endblock %} 
+{% block content %}
+<style>
+  .riwayat-container {
+    max-width: 1600px; 
+    margin: 20px auto;
+    padding: 0 15px;
+  }
+
+  .riwayat-header {
+    background: linear-gradient(
+      135deg,
+      var(--charcoal) 0%,
+      var(--paynes-gray) 100%
+    );
+    color: white;
+    border-radius: 10px;
+    padding: 25px;
+    margin-bottom: 30px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .riwayat-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .riwayat-title i {
+    margin-right: 12px;
+    font-size: 1.9rem;
+  }
+
+  .table-container {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    padding: 25px;
+    margin-bottom: 20px;
+    overflow-x: auto;
+    width: 100%;
+  }
+
+  .table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: fixed;
+  }
+
+  .table th {
+    background-color: var(--charcoal);
+    color: white;
+    padding: 14px 18px;
+    font-weight: 500;
+    text-align: left;
+  }
+
+  .table th:first-child {
+    border-top-left-radius: 8px;
+  }
+
+  .table th:last-child {
+    border-top-right-radius: 8px;
+  }
+
+  .table td {
+    padding: 14px 18px;
+    border-bottom: 1px solid #f0f0f0;
+    color: var(--charcoal);
+    vertical-align: middle;
+  }
+
+  .table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .table tr:hover td {
+    background-color: #f9f9f9;
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-align: center;
+    background-color: #d4edda;
+    color: #155724;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 0;
+    color: var(--paynes-gray);
+    background-color: #f8f9fa;
+    border-radius: 8px;
+  }
+  
+  .empty-state i {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    opacity: 0.5;
+  }
+
+  .empty-state h3 {
+    color: var(--charcoal);
+    margin-bottom: 8px;
+    font-size: 1.1rem;
+    font-weight: 500;
+  }
+
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: white;
+    color: var(--charcoal);
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.2s;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+
+  .back-btn:hover {
+    background-color: #f8f9fa;
+    text-decoration: none;
+    color: var(--charcoal);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  }
+
+  .back-btn i {
+    margin-right: 8px;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .riwayat-container {
+      padding: 0 10px;
+    }
+
+    .riwayat-header {
+      flex-direction: column;
+      gap: 15px;
+      text-align: center;
+    }
+
+    .riwayat-title {
+      font-size: 1.5rem;
+    }
+
+    .table-container {
+      padding: 15px;
+    }
+
+    .table th,
+    .table td {
+      padding: 10px;
+      font-size: 0.9rem;
+    }
+  }
+</style>
+
+<div class="riwayat-container">
+  <!-- Header -->
+  <div class="riwayat-header">
+    <h1 class="riwayat-title">
+      <i class="fas fa-history"></i>
+      Riwayat Pemberian Pakan
+    </h1>
+    <a href="{% url 'kesehatan_perawatan_satwa:pemberian_pakan' %}" class="back-btn">
+      <i class="fas fa-arrow-left"></i>
+      Kembali ke Pemberian Pakan
+    </a>
+  </div>
+
+  {% if riwayat_pakan_data %}
+  <!-- Tabel Riwayat -->
+  <div class="table-container">
+    <h3 style="margin: 0 0 20px 0; color: var(--charcoal);">
+      <i class="fas fa-utensils"></i>
+      Riwayat Pakan yang Telah Anda Berikan
+    </h3>
+    
+    <table class="table">
+      <thead>
+        <tr>
+          <th style="width: 15%;">Nama Individu (Hewan)</th>
+          <th style="width: 15%;">Spesies</th>
+          <th style="width: 12%;">Asal Hewan</th>
+          <th style="width: 10%;">Tanggal Lahir</th>
+          <th style="width: 12%;">Habitat</th>
+          <th style="width: 8%;">Status Kesehatan</th>
+          <th style="width: 10%;">Jenis Pakan</th>
+          <th style="width: 8%;">Jumlah (gram)</th>
+          <th style="width: 10%;">Jadwal</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for riwayat in riwayat_pakan_data %}
+          <tr>
+            <td>{{ riwayat.nama_hewan }}</td>
+            <td>{{ riwayat.spesies }}</td>
+            <td>{{ riwayat.asal_hewan }}</td>
+            <td>{{ riwayat.tanggal_lahir }}</td>
+            <td>{{ riwayat.habitat }}</td>
+            <td>
+              <span class="status-badge {% if riwayat.status_kesehatan == 'Sehat' %}status-sehat{% else %}status-sakit{% endif %}">
+                {{ riwayat.status_kesehatan }}
+              </span>
+            </td>
+            <td>{{ riwayat.jenis_pakan }}</td>
+            <td style="text-align: center;">{{ riwayat.jumlah_pakan }}</td>
+            <td>{{ riwayat.jadwal }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <!-- Empty State -->
+  <div class="empty-state">
+    <i class="fas fa-utensils"></i>
+    <h3>Belum Ada Riwayat</h3>
+    <p>Anda belum memberikan pakan kepada hewan manapun.</p>
+    <a href="{% url 'kesehatan_perawatan_satwa:pemberian_pakan' %}" class="back-btn">
+      <i class="fas fa-arrow-left"></i>
+      Kembali ke Pemberian Pakan
+    </a>
+  </div>
+  {% endif %}
+</div>
+
+{% include 'kesehatan_perawatan_satwa/partials/toast_notification.html' %}
+{% endblock %} 
