@@ -2,8 +2,10 @@ SET search_path TO SIZOPI;
 
 -- Hapus trigger yang ada
 DROP TRIGGER IF EXISTS trigger_sync_medical_schedule ON CATATAN_MEDIS;
+DROP TRIGGER IF EXISTS trigger_cleanup_medical_schedule ON CATATAN_MEDIS;
 DROP TRIGGER IF EXISTS trigger_auto_generate_schedules ON JADWAL_PEMERIKSAAN_KESEHATAN;
 DROP FUNCTION IF EXISTS sync_medical_record_schedule();
+DROP FUNCTION IF EXISTS cleanup_medical_record_schedule();
 DROP FUNCTION IF EXISTS auto_generate_schedules();
 
 -- Fungsi untuk sinkronisasi catatan medis dan jadwal
@@ -73,6 +75,33 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Fungsi untuk membersihkan jadwal ketika rekam medis dihapus
+CREATE OR REPLACE FUNCTION cleanup_medical_record_schedule()
+RETURNS TRIGGER AS $$
+DECLARE
+    animal_name VARCHAR(100);
+    deleted_count INT;
+BEGIN
+    -- Ambil nama hewan untuk log
+    SELECT nama INTO animal_name FROM HEWAN WHERE id = OLD.id_hewan;
+    
+    -- Hapus semua jadwal pemeriksaan untuk hewan ini yang dibuat setelah tanggal rekam medis yang dihapus
+    DELETE FROM JADWAL_PEMERIKSAAN_KESEHATAN
+    WHERE id_hewan = OLD.id_hewan
+    AND tgl_pemeriksaan_selanjutnya >= OLD.tanggal_pemeriksaan + INTERVAL '7 days';
+    
+    GET DIAGNOSTICS deleted_count = ROW_COUNT;
+    
+    -- Kirim pesan jika ada jadwal yang dihapus
+    IF deleted_count > 0 THEN
+        RAISE NOTICE 'TRIGGER_MESSAGE: SUKSES: % jadwal pemeriksaan untuk hewan "%s" telah dihapus karena rekam medis terkait dihapus.', 
+            deleted_count, animal_name;
+    END IF;
+    
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
 -- Fungsi untuk menghasilkan jadwal pemeriksaan secara otomatis
 CREATE OR REPLACE FUNCTION auto_generate_schedules(p_id_hewan UUID, p_start_date DATE, p_freq_months INT)
 RETURNS VOID AS $$
@@ -119,6 +148,12 @@ CREATE TRIGGER trigger_sync_medical_schedule
 AFTER INSERT ON CATATAN_MEDIS
 FOR EACH ROW
 EXECUTE FUNCTION sync_medical_record_schedule();
+
+-- Trigger untuk membersihkan jadwal ketika rekam medis dihapus
+CREATE TRIGGER trigger_cleanup_medical_schedule
+AFTER DELETE ON CATATAN_MEDIS
+FOR EACH ROW
+EXECUTE FUNCTION cleanup_medical_record_schedule();
 
 -- Trigger untuk auto-generate jadwal ketika jadwal baru dibuat manual
 CREATE OR REPLACE FUNCTION trigger_auto_generate_schedules_func()

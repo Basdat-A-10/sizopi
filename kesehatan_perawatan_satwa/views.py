@@ -322,10 +322,29 @@ def hapus_rekam_medis(request, id):
     
         if request.method == 'POST':
             with connection.cursor() as cursor:
+                # Get animal name before deletion for message
+                cursor.execute("""
+                    SELECT h.nama FROM SIZOPI.HEWAN h
+                    JOIN SIZOPI.CATATAN_MEDIS cm ON h.id = cm.id_hewan
+                    WHERE cm.id_hewan = %s AND cm.tanggal_pemeriksaan = %s
+                """, [id_hewan, tanggal_pemeriksaan])
+                
+                result = cursor.fetchone()
+                nama_hewan = result[0] if result else "Hewan"
+                
+                # Delete medical record (this will trigger the cleanup)
                 cursor.execute("""
                     DELETE FROM SIZOPI.CATATAN_MEDIS
                     WHERE id_hewan = %s AND tanggal_pemeriksaan = %s
                 """, [id_hewan, tanggal_pemeriksaan])
+                
+                # Capture trigger messages
+                trigger_messages = capture_trigger_messages()
+                if trigger_messages:
+                    for msg in trigger_messages:
+                        messages.success(request, msg)
+                else:
+                    messages.success(request, f"Rekam medis untuk {nama_hewan} berhasil dihapus")
             
             return redirect('kesehatan_perawatan_satwa:rekam_medis')
     
