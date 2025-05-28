@@ -1,21 +1,12 @@
--- Set search path untuk schema SIZOPI
 SET search_path TO SIZOPI;
 
--- Hapus semua trigger terlebih dahulu untuk memastikan tidak ada konflik
+-- Hapus trigger yang ada
 DROP TRIGGER IF EXISTS trigger_sync_medical_schedule ON CATATAN_MEDIS;
-DROP TRIGGER IF EXISTS trigger_auto_schedule_checkup ON JADWAL_PEMERIKSAAN_KESEHATAN;
-DROP TRIGGER IF EXISTS trigger_update_health_status ON CATATAN_MEDIS;
-DROP TRIGGER IF EXISTS trigger_validate_feeding ON PAKAN;
-DROP TRIGGER IF EXISTS trigger_auto_assign_caretaker ON PAKAN;
+DROP TRIGGER IF EXISTS trigger_auto_generate_schedules ON JADWAL_PEMERIKSAAN_KESEHATAN;
 DROP FUNCTION IF EXISTS sync_medical_record_schedule();
-DROP FUNCTION IF EXISTS auto_schedule_next_checkup();
-DROP FUNCTION IF EXISTS update_animal_health_status();
-DROP FUNCTION IF EXISTS validate_feeding_schedule();
-DROP FUNCTION IF EXISTS auto_assign_caretaker();
+DROP FUNCTION IF EXISTS auto_generate_schedules();
 
--- =============================================================================
--- TRIGGER 1: Sinkronisasi Rekam Medis dan Penjadwalan Pemeriksaan Kesehatan
--- =============================================================================
+-- Fungsi untuk sinkronisasi catatan medis dan jadwal
 CREATE OR REPLACE FUNCTION sync_medical_record_schedule()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -48,9 +39,9 @@ BEGIN
                 ORDER BY tgl_pemeriksaan_selanjutnya DESC
                 LIMIT 1;
                 
-                -- Jika tidak ada, gunakan default 1 bulan
+                -- Jika tidak ada, gunakan default 3 bulan
                 IF last_freq IS NULL THEN
-                    last_freq := 1;
+                    last_freq := 3;
                 END IF;
                 
                 -- Buat jadwal baru dengan frekuensi yang ada
@@ -58,7 +49,18 @@ BEGIN
                     (id_hewan, tgl_pemeriksaan_selanjutnya, freq_pemeriksaan_rutin)
                 VALUES
                     (NEW.id_hewan, next_checkup_date, last_freq);
+                
+                -- Gunakan format pesan yang benar
+                RAISE NOTICE 'TRIGGER_MESSAGE: SUKSES: Jadwal pemeriksaan hewan "%s" telah diperbarui karena status kesehatan "Sakit".', 
+                    animal_name;
+                    
+                -- Trigger pembuatan jadwal lain dalam setahun
+                PERFORM auto_generate_schedules(NEW.id_hewan, next_checkup_date, last_freq);
             END;
+        ELSE
+            -- Format pesan untuk update jadwal
+            RAISE NOTICE 'TRIGGER_MESSAGE: SUKSES: Jadwal pemeriksaan hewan "%s" telah diperbarui karena status kesehatan "Sakit".', 
+                animal_name;
         END IF;
     END IF;
     
@@ -71,8 +73,77 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Buat trigger baru untuk sync medical schedule
+-- Fungsi untuk menghasilkan jadwal pemeriksaan secara otomatis
+CREATE OR REPLACE FUNCTION auto_generate_schedules(p_id_hewan UUID, p_start_date DATE, p_freq_months INT)
+RETURNS VOID AS $$
+DECLARE
+    next_date DATE := p_start_date;
+    curr_date DATE := CURRENT_DATE;
+    year_end DATE := (EXTRACT(YEAR FROM p_start_date) || '-12-31')::DATE;
+    animal_name VARCHAR(100);
+BEGIN
+    -- Ambil nama hewan
+    SELECT nama INTO animal_name FROM HEWAN WHERE id = p_id_hewan;
+    
+    -- Generate jadwal untuk satu tahun
+    WHILE next_date <= year_end LOOP
+        -- Tambahkan bulan sesuai frekuensi
+        next_date := next_date + (p_freq_months || ' months')::INTERVAL;
+        
+        -- Jika tanggal masih dalam tahun yang sama
+        IF next_date <= year_end THEN
+            -- Cek apakah jadwal sudah ada
+            IF NOT EXISTS (
+                SELECT 1 
+                FROM JADWAL_PEMERIKSAAN_KESEHATAN 
+                WHERE id_hewan = p_id_hewan 
+                AND tgl_pemeriksaan_selanjutnya = next_date
+            ) THEN
+                -- Insert jadwal baru
+                INSERT INTO JADWAL_PEMERIKSAAN_KESEHATAN 
+                    (id_hewan, tgl_pemeriksaan_selanjutnya, freq_pemeriksaan_rutin)
+                VALUES 
+                    (p_id_hewan, next_date, p_freq_months);
+            END IF;
+        END IF;
+    END LOOP;
+    
+    -- Kirim pesan sukses
+    RAISE NOTICE 'TRIGGER_MESSAGE: SUKSES: Jadwal pemeriksaan rutin hewan "%s" telah ditambahkan sesuai frekuensi.', 
+        animal_name;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger untuk pembuatan otomatis jadwal ketika rekam medis dibuat
 CREATE TRIGGER trigger_sync_medical_schedule
 AFTER INSERT ON CATATAN_MEDIS
 FOR EACH ROW
 EXECUTE FUNCTION sync_medical_record_schedule();
+
+-- Trigger untuk auto-generate jadwal ketika jadwal baru dibuat manual
+CREATE OR REPLACE FUNCTION trigger_auto_generate_schedules_func()
+RETURNS TRIGGER AS $$
+DECLARE
+    animal_name VARCHAR(100);
+BEGIN
+    -- Jangan eksekusi jika jadwal dibuat dari trigger lain
+    IF TG_NARGS > 0 AND TG_ARGV[0] = 'internal' THEN
+        RETURN NEW;
+    END IF;
+    
+    SELECT nama INTO animal_name FROM HEWAN WHERE id = NEW.id_hewan;
+    
+    -- Generate jadwal untuk tahun ini
+    PERFORM auto_generate_schedules(NEW.id_hewan, NEW.tgl_pemeriksaan_selanjutnya, NEW.freq_pemeriksaan_rutin);
+    
+    RAISE NOTICE 'TRIGGER_MESSAGE: SUKSES: Jadwal pemeriksaan rutin hewan "%s" telah ditambahkan sesuai frekuensi.', 
+        animal_name;
+        
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_auto_generate_schedules
+AFTER INSERT ON JADWAL_PEMERIKSAAN_KESEHATAN
+FOR EACH ROW
+EXECUTE FUNCTION trigger_auto_generate_schedules_func();

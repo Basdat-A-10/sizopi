@@ -838,7 +838,22 @@
       {% endfor %}
     ];
 
+    // Fungsi untuk mendapatkan parameter dari URL
+    function getUrlParameter(name) {
+      name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+      var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+      var results = regex.exec(location.search);
+      return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+    }
+
+    // Set filter hewan berdasarkan parameter URL jika ada
     const hewanFilter = document.getElementById('hewan-filter');
+    const selectedHewan = getUrlParameter('hewan');
+    if (selectedHewan) {
+      hewanFilter.value = selectedHewan;
+      filterHewan(); // Langsung jalankan filter
+    }
+
     if (hewanFilter.options.length <= 1) { 
       allJadwalData.forEach(jadwal => {
         if (!uniqueHewan.has(jadwal.id_hewan)) {
@@ -1253,4 +1268,4 @@
     }
   }
 </script>
-{% endblock %} 
+{% endblock %}

@@ -1,0 +1,75 @@
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100;">
+  <!-- Success toast -->
+  <div id="successToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000">
+    <div class="toast-header bg-success text-white">
+      <i class="fas fa-check-circle me-2"></i>
+      <strong class="me-auto">Sukses</strong>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body" id="successToastMessage"></div>
+  </div>
+
+  <!-- Error toast -->
+  <div id="errorToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000">
+    <div class="toast-header bg-danger text-white">
+      <i class="fas fa-exclamation-circle me-2"></i>
+      <strong class="me-auto">Error</strong>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body" id="errorToastMessage"></div>
+  </div>
+
+  <!-- Info toast -->
+  <div id="infoToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000">
+    <div class="toast-header bg-info text-white">
+      <i class="fas fa-info-circle me-2"></i>
+      <strong class="me-auto">Informasi</strong>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body" id="infoToastMessage"></div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    window.showToast = function(type, message) {
+      const toastId = type + 'Toast';
+      const messageId = type + 'ToastMessage';
+      
+      const toastElement = document.getElementById(toastId);
+      const messageElement = document.getElementById(messageId);
+      
+      if (toastElement && messageElement) {
+        messageElement.textContent = message;
+        const toast = new bootstrap.Toast(toastElement);
+        toast.show();
+      }
+    };
+
+    // Cek apakah ada pesan dari backend (via Django messages)
+    {% if messages %}
+      {% for message in messages %}
+        {% if message.tags == 'success' %}
+          showToast('success', "{{ message }}");
+        {% elif message.tags == 'error' %}
+          showToast('error', "{{ message }}");
+        {% else %}
+          showToast('info', "{{ message }}");
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+
+    // Cek apakah ada pesan dari trigger (via context variables)
+    {% if trigger_success %}
+      showToast('success', "{{ trigger_success }}");
+    {% endif %}
+    
+    {% if trigger_error %}
+      showToast('error', "{{ trigger_error }}");
+    {% endif %}
+    
+    {% if trigger_info %}
+      showToast('info', "{{ trigger_info }}");
+    {% endif %}
+  });
+</script>

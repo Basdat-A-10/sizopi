@@ -152,11 +152,11 @@ CREATE TABLE BERPARTISIPASI (
     FOREIGN KEY (id_hewan) REFERENCES HEWAN(id)
 );
 
--- 17. JADWAL_PEMERIKSAAN_KESEHATAN table
+-- 17. JADWAL_PEMERIKSAAN_KESEHATAN table dengan default constraint
 CREATE TABLE JADWAL_PEMERIKSAAN_KESEHATAN (
     id_hewan UUID,
     tgl_pemeriksaan_selanjutnya DATE,
-    freq_pemeriksaan_rutin INT NOT NULL,
+    freq_pemeriksaan_rutin INT NOT NULL DEFAULT 3,
     PRIMARY KEY (id_hewan, tgl_pemeriksaan_selanjutnya),
     FOREIGN KEY (id_hewan) REFERENCES HEWAN(id)
 );

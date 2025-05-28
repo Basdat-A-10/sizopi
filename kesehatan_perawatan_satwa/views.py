@@ -1,7 +1,10 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, Http404
 from django.db import connection
+from django.contrib import messages
 from datetime import datetime
+import json
+from .utils import capture_trigger_messages
 
 def index(request):
     if 'user_id' not in request.COOKIES or request.COOKIES.get('user_role') != 'dokter_hewan':
@@ -137,23 +140,31 @@ def tambah_rekam_medis(request):
                 """, [id_hewan, tanggal_pemeriksaan])
                 
                 if cursor.fetchone():
+                    messages.error(request, "Rekam medis untuk tanggal tersebut sudah ada")
                     return redirect('kesehatan_perawatan_satwa:rekam_medis')
+                
+                cursor.execute("""
+                    SELECT nama FROM SIZOPI.HEWAN WHERE id = %s
+                """, [id_hewan])
+                
+                nama_hewan = cursor.fetchone()[0] if cursor.rowcount > 0 else "Hewan"
                 
                 cursor.execute("""
                     INSERT INTO SIZOPI.CATATAN_MEDIS
                     (id_hewan, username_dh, tanggal_pemeriksaan, diagnosis, pengobatan, status_kesehatan, catatan_tindak_lanjut)
                     VALUES (%s, %s, %s, %s, %s, %s, %s)
+                    RETURNING id_hewan
                 """, [id_hewan, username_dh, tanggal_pemeriksaan, diagnosis, pengobatan, status_kesehatan, catatan_tindak_lanjut])
                 
-                cursor.execute("""
-                    UPDATE SIZOPI.HEWAN
-                    SET status_kesehatan = %s
-                    WHERE id = %s
-                """, [status_kesehatan, id_hewan])
-            
-            return redirect('kesehatan_perawatan_satwa:rekam_medis')
-            
+                trigger_messages = capture_trigger_messages()
+                for msg in trigger_messages:
+                    messages.success(request, msg)
+        
+                messages.success(request, f"Rekam medis untuk {nama_hewan} berhasil ditambahkan")
+                return redirect('kesehatan_perawatan_satwa:rekam_medis')
+    
         except Exception as e:
+            messages.error(request, f"Terjadi kesalahan: {str(e)}")
             return redirect('kesehatan_perawatan_satwa:rekam_medis')
     
     # Jika bukan POST, redirect ke halaman rekam medis
@@ -402,26 +413,38 @@ def tambah_jadwal_pemeriksaan(request):
                 cursor.execute("""
                     SELECT 1
                     FROM SIZOPI.JADWAL_PEMERIKSAAN_KESEHATAN
-                    WHERE id_hewan = %s
-                """, [id_hewan])
+                    WHERE id_hewan = %s AND tgl_pemeriksaan_selanjutnya = %s
+                """, [id_hewan, tgl_pemeriksaan_selanjutnya])
                 
                 if cursor.fetchone():
-                    cursor.execute("""
-                        UPDATE SIZOPI.JADWAL_PEMERIKSAAN_KESEHATAN
-                        SET tgl_pemeriksaan_selanjutnya = %s, freq_pemeriksaan_rutin = %s
-                        WHERE id_hewan = %s
-                    """, [tgl_pemeriksaan_selanjutnya, freq_pemeriksaan_rutin, id_hewan])
+                    messages.warning(request, "Jadwal pada tanggal tersebut sudah ada")
                 else:
+                    cursor.execute("""
+                        SELECT nama FROM SIZOPI.HEWAN WHERE id = %s
+                    """, [id_hewan])
+                    
+                    nama_hewan = cursor.fetchone()[0] if cursor.rowcount > 0 else "Hewan"
+                    
+                    # Insert jadwal baru
                     cursor.execute("""
                         INSERT INTO SIZOPI.JADWAL_PEMERIKSAAN_KESEHATAN
                         (id_hewan, tgl_pemeriksaan_selanjutnya, freq_pemeriksaan_rutin)
                         VALUES (%s, %s, %s)
                     """, [id_hewan, tgl_pemeriksaan_selanjutnya, freq_pemeriksaan_rutin])
+                    
+                    # Tangkap pesan trigger
+                    trigger_messages = capture_trigger_messages()
+                    for msg in trigger_messages:
+                        messages.success(request, msg)
+                    
+                    if not trigger_messages:
+                        messages.success(request, f"Jadwal pemeriksaan untuk {nama_hewan} berhasil ditambahkan")
             
-            return redirect('kesehatan_perawatan_satwa:jadwal_pemeriksaan')
+            return redirect(f'kesehatan_perawatan_satwa:jadwal_pemeriksaan?hewan={id_hewan}')
             
         except Exception as e:
             print(f"Error: {str(e)}")
+            messages.error(request, f"Terjadi kesalahan: {str(e)}")
             return redirect('kesehatan_perawatan_satwa:jadwal_pemeriksaan')
     
     # Jika bukan POST, redirect ke halaman jadwal pemeriksaan
@@ -470,8 +493,10 @@ def edit_jadwal_pemeriksaan(request, id):
                     SET tgl_pemeriksaan_selanjutnya = %s
                     WHERE id_hewan = %s
                 """, [tgl_pemeriksaan_selanjutnya, id])
-            
-            return redirect('kesehatan_perawatan_satwa:jadwal_pemeriksaan')
+                
+                messages.success(request, f"Jadwal pemeriksaan berhasil diperbarui")
+        
+            return redirect(f'/kesehatan-perawatan/jadwal-pemeriksaan/?hewan={id}')
             
     except Exception as e:
         print(f"Error: {str(e)}")
@@ -526,9 +551,11 @@ def edit_frekuensi_pemeriksaan(request, id):
                     SET freq_pemeriksaan_rutin = %s
                     WHERE id_hewan = %s
                 """, [freq_pemeriksaan_rutin, id])
-            
-            return redirect('kesehatan_perawatan_satwa:jadwal_pemeriksaan')
-            
+                
+                messages.success(request, f"Frekuensi pemeriksaan berhasil diperbarui")
+        
+        return redirect(f'/kesehatan-perawatan/jadwal-pemeriksaan/?hewan={id}')
+    
     except Exception as e:
         print(f"Error: {str(e)}")
         return redirect('kesehatan_perawatan_satwa:jadwal_pemeriksaan')

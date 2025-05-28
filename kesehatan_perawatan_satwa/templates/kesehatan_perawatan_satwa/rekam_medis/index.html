@@ -709,6 +709,8 @@
 <!-- Notification -->
 <div id="notification" class="notification"></div>
 
+{% include 'kesehatan_perawatan_satwa/partials/toast_notification.html' %}
+
 <script>
   let currentEditId = '';
   let currentDeleteId = '';
@@ -946,35 +948,20 @@
     form.submit();
   }
   
-  function showNotification(message) {
-    const notification = document.getElementById('notification');
-    notification.textContent = message;
-    notification.style.display = 'block';
-    
-    setTimeout(function() {
-      notification.style.display = 'none';
-    }, 3000);
-  }
-  
-  window.onclick = function(event) {
-    const editModal = document.getElementById('editModal');
-    const deleteModal = document.getElementById('deleteModal');
-    const tambahModal = document.getElementById('tambahModal');
-    
-    if (event.target == editModal) {
-      closeEditModal();
-    }
-    
-    if (event.target == deleteModal) {
-      closeDeleteModal();
-    }
-    
-    if (event.target == tambahModal) {
-      closeTambahModal();
-    }
-  }
-  
   document.addEventListener('DOMContentLoaded', function() {
+    // Fungsi untuk menampilkan notification yang sudah ada sebelumnya
+    function showNotification(message) {
+      const notification = document.getElementById('notification');
+      notification.textContent = message;
+      notification.style.display = 'block';
+      
+      setTimeout(function() {
+        notification.style.display = 'none';
+      }, 3000);
+      
+      showToast('info', message);
+    }
+    
     function toggleDiagnosisFields() {
       const selectedStatus = document.querySelector('input[name="status_kesehatan"]:checked');
       if (selectedStatus) {
