@@ -168,14 +168,47 @@
   
   .empty-state {
     text-align: center;
-    padding: 50px 0;
+    padding: 40px 0;
     color: var(--paynes-gray);
   }
   
   .empty-state i {
-    font-size: 4rem;
-    margin-bottom: 20px;
+    font-size: 3rem;
+    margin-bottom: 15px;
     opacity: 0.5;
+  }
+
+  .empty-state h3 {
+    color: var(--charcoal);
+    margin-bottom: 8px;
+    font-size: 1.1rem;
+    font-weight: 500;
+  }
+
+  .empty-state p {
+    color: #6c757d;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+  }
+
+  .empty-state .btn {
+    padding: 8px 16px;
+    font-size: 0.85rem;
+    border-radius: 5px;
+    font-weight: 400;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+  }
+
+  .empty-state .btn i {
+    font-size: 0.75rem;
+  }
+
+  .empty-state .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
   }
 
   @media (max-width: 992px) {
@@ -418,6 +451,92 @@
     padding-top: 20px;
     border-top: 1px dashed #dee2e6;
   }
+
+  /* Filter styles */
+  .filter-container {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    padding: 25px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+
+  .filter-label {
+    font-weight: 600;
+    color: var(--charcoal);
+    white-space: nowrap;
+  }
+
+  .filter-select {
+    flex-grow: 1;
+    padding: 10px 15px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23546E7A'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E");
+    background-position: right 15px center;
+    background-repeat: no-repeat;
+    background-size: 16px;
+    font-size: 1rem;
+  }
+
+  .filter-select:focus {
+    outline: none;
+    border-color: var(--paynes-gray);
+    box-shadow: 0 0 0 3px rgba(88, 111, 124, 0.15);
+  }
+
+  .hewan-info {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-left: 5px solid var(--paynes-gray);
+    display: none; 
+  }
+
+  .hewan-info h3 {
+    margin-top: 0;
+    color: var(--charcoal);
+    font-size: 1.4rem;
+    display: flex;
+    align-items: center;
+  }
+
+  .hewan-info h3 i {
+    margin-right: 10px;
+    color: var(--paynes-gray);
+  }
+
+  .hewan-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .hewan-detail {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .no-data-selected {
+    text-align: center;
+    padding: 40px 0;
+    color: #6c757d;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    font-size: 1.1rem;
+  }
+
+  .no-data-selected i {
+    display: block;
+    font-size: 3rem;
+    margin-bottom: 15px;
+    color: #adb5bd;
+  }
 </style>
 
 <div class="rekam-medis-container">
@@ -426,71 +545,131 @@
       <i class="fas fa-notes-medical"></i>
       Rekam Medis Hewan
     </h1>
-    <a href="#" class="btn btn-light" onclick="openTambahModal()">
-      <i class="fas fa-plus-circle me-2"></i>Tambah Rekam Medis
-    </a>
   </div>
 
-  <div class="table-container">
-    {% if rekam_medis_data %}
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Tanggal</th>
-            <th>Nama Dokter</th>
-            <th>Status</th>
-            <th>Diagnosis</th>
-            <th>Pengobatan</th>
-            <th>Catatan Tindak Lanjut</th>
-            <th>Aksi</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for rekam_medis in rekam_medis_data %}
-            <tr>
-              <td>{{ rekam_medis.tanggal_pemeriksaan|date:"d M Y" }}</td>
-              <td>{{ rekam_medis.nama_dokter }}</td>
-              <td>
-                <span class="status-badge 
-                    {% if rekam_medis.status_pemeriksaan == 'Sehat' %}status-sehat
-                    {% else %}status-sakit{% endif %}">
-                    {{ rekam_medis.status_pemeriksaan }}
-                </span>
-              </td>
-              <td>{% if rekam_medis.diagnosis %}{{ rekam_medis.diagnosis }}{% else %}-{% endif %}</td>
-              <td>{% if rekam_medis.pengobatan %}{{ rekam_medis.pengobatan }}{% else %}-{% endif %}</td>
-              <td>{% if rekam_medis.catatan_tindak_lanjut %}{{ rekam_medis.catatan_tindak_lanjut }}{% else %}-{% endif %}</td>
-              <td>
-                <div class="action-btn-container">
-                  {% if rekam_medis.id_hewan and rekam_medis.tanggal_str %}
-                    <!-- edit hanya muncul jika status hewan adalah Sakit -->
-                    {% if rekam_medis.status_pemeriksaan == 'Sakit' %}
-                    <a class="action-btn btn-edit" 
-                       onclick="openEditModal('{{ rekam_medis.id_hewan }}_{{ rekam_medis.tanggal_str }}', '{{ rekam_medis.nama_hewan }}', '{{ rekam_medis.spesies }}', '{{ rekam_medis.tanggal_pemeriksaan|date:"d M Y" }}', '{{ rekam_medis.status_pemeriksaan }}', '{{ rekam_medis.diagnosis }}', '{{ rekam_medis.pengobatan }}', '{{ rekam_medis.catatan_tindak_lanjut|default:"" }}')">
-                      <i class="fas fa-edit me-1"></i>Edit
-                    </a>
-                    {% endif %}
-                    <a class="action-btn btn-delete" 
-                       onclick="openDeleteModal('{{ rekam_medis.id_hewan }}_{{ rekam_medis.tanggal_str }}', '{{ rekam_medis.nama_hewan }}', '{{ rekam_medis.spesies }}', '{{ rekam_medis.tanggal_pemeriksaan|date:"d M Y" }}', '{{ rekam_medis.status_pemeriksaan }}', '{{ rekam_medis.diagnosis }}', '{{ rekam_medis.pengobatan }}', '{{ rekam_medis.catatan_tindak_lanjut|default:"" }}')">
-                      <i class="fas fa-trash-alt me-1"></i>Hapus
-                    </a>
-                  {% endif %}
-                  </div>
-              </td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    {% else %}
-      <div class="empty-state">
-        <i class="fas fa-folder-open"></i>
-        <p>Belum ada data rekam medis.</p>
-        <a href="#" class="btn btn-primary mt-3" onclick="openTambahModal()">
-          <i class="fas fa-plus-circle me-2"></i>Tambah Rekam Medis Pertama
-        </a>
-      </div>
-    {% endif %}
+  <!-- Filter Container -->
+  <div class="filter-container">
+    <label class="filter-label">
+      <i class="fas fa-filter"></i>
+      Pilih Hewan:
+    </label>
+    <select class="filter-select" id="hewanFilter" onchange="filterByHewan()">
+      <option value="">-- Pilih Hewan untuk Melihat Rekam Medis --</option>
+      {% for hewan in hewan_data %}
+        <option value="{{ hewan.id }}" {% if selected_hewan == hewan.id %}selected{% endif %}>
+          {{ hewan.nama }} - {{ hewan.spesies }} ({{ hewan.status_kesehatan }})
+        </option>
+      {% endfor %}
+    </select>
   </div>
+
+  {% if selected_hewan_info %}
+  <!-- Info Hewan yang Dipilih -->
+  <div class="hewan-info" style="display: block;">
+    <h3>
+      <i class="fas fa-paw"></i>
+      Informasi Hewan: {{ selected_hewan_info.nama }}
+    </h3>
+    <div class="hewan-details">
+      <div class="hewan-detail">
+        <strong>Spesies:</strong> {{ selected_hewan_info.spesies }}
+      </div>
+      <div class="hewan-detail">
+        <strong>Status Kesehatan:</strong> 
+        <span class="status-badge {% if selected_hewan_info.status_kesehatan == 'Sehat' %}status-sehat{% else %}status-sakit{% endif %}">
+          {{ selected_hewan_info.status_kesehatan }}
+        </span>
+      </div>
+      <div class="hewan-detail">
+        <strong>Asal:</strong> {{ selected_hewan_info.asal_hewan }}
+      </div>
+      {% if selected_hewan_info.tanggal_lahir %}
+      <div class="hewan-detail">
+        <strong>Tanggal Lahir:</strong> {{ selected_hewan_info.tanggal_lahir|date:"d M Y" }}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if not selected_hewan %}
+  <!-- Pesan ketika belum ada hewan yang dipilih -->
+  <div class="no-data-selected">
+    <i class="fas fa-search"></i>
+    <p>Silakan pilih hewan dari dropdown di atas untuk melihat rekam medis.</p>
+  </div>
+  {% elif selected_hewan and rekam_medis_data %}
+  <!-- Tabel Rekam Medis -->
+  <div class="table-container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <h3 style="margin: 0; color: var(--charcoal);">
+        <i class="fas fa-file-medical-alt"></i>
+        Rekam Medis - {{ selected_hewan_info.nama }}
+      </h3>
+      <button class="btn btn-primary" onclick="openTambahModal()">
+        <i class="fas fa-plus"></i>
+        Tambah Rekam Medis
+      </button>
+    </div>
+    
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Tanggal</th>
+          <th>Nama Dokter</th>
+          <th>Status</th>
+          <th>Diagnosis</th>
+          <th>Pengobatan</th>
+          <th>Catatan Tindak Lanjut</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for rekam_medis in rekam_medis_data %}
+          <tr>
+            <td>{{ rekam_medis.tanggal_pemeriksaan|date:"d M Y" }}</td>
+            <td>{{ rekam_medis.nama_dokter }}</td>
+            <td>
+              <span class="status-badge 
+                  {% if rekam_medis.status_pemeriksaan == 'Sehat' %}status-sehat
+                  {% else %}status-sakit{% endif %}">
+                  {{ rekam_medis.status_pemeriksaan }}
+              </span>
+            </td>
+            <td>{% if rekam_medis.diagnosis %}{{ rekam_medis.diagnosis }}{% else %}-{% endif %}</td>
+            <td>{% if rekam_medis.pengobatan %}{{ rekam_medis.pengobatan }}{% else %}-{% endif %}</td>
+            <td>{% if rekam_medis.catatan_tindak_lanjut %}{{ rekam_medis.catatan_tindak_lanjut }}{% else %}-{% endif %}</td>
+            <td>
+              <div class="action-btn-container">
+                {% if rekam_medis.id_hewan and rekam_medis.tanggal_str %}
+                  <a class="action-btn btn-edit" 
+                     onclick="openEditModal('{{ rekam_medis.id_hewan }}_{{ rekam_medis.tanggal_str }}', '{{ rekam_medis.nama_hewan }}', '{{ rekam_medis.spesies }}', '{{ rekam_medis.tanggal_pemeriksaan|date:"d M Y" }}', '{{ rekam_medis.status_pemeriksaan }}', '{{ rekam_medis.diagnosis }}', '{{ rekam_medis.pengobatan }}', '{{ rekam_medis.catatan_tindak_lanjut|default:"" }}')">
+                    <i class="fas fa-edit me-1"></i>Edit
+                  </a>
+                  <a class="action-btn btn-delete" 
+                     onclick="openDeleteModal('{{ rekam_medis.id_hewan }}_{{ rekam_medis.tanggal_str }}', '{{ rekam_medis.nama_hewan }}', '{{ rekam_medis.spesies }}', '{{ rekam_medis.tanggal_pemeriksaan|date:"d M Y" }}', '{{ rekam_medis.status_pemeriksaan }}', '{{ rekam_medis.diagnosis }}', '{{ rekam_medis.pengobatan }}', '{{ rekam_medis.catatan_tindak_lanjut|default:"" }}')">
+                    <i class="fas fa-trash-alt me-1"></i>Hapus
+                  </a>
+                {% endif %}
+                </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% elif selected_hewan and not rekam_medis_data %}
+  <!-- Pesan ketika hewan dipilih tapi tidak ada rekam medis -->
+  <div class="empty-state">
+    <i class="fas fa-file-medical"></i>
+    <h3>Belum Ada Rekam Medis</h3>
+    <p>Hewan {{ selected_hewan_info.nama }} belum memiliki rekam medis.</p>
+    <button class="btn btn-primary" onclick="openTambahModal()">
+      <i class="fas fa-plus"></i>
+      Tambah Rekam Medis Pertama
+    </button>
+  </div>
+  {% endif %}
 </div>
 
 <!-- Edit Modal -->
@@ -761,10 +940,18 @@
       document.getElementById('pengobatan').style.borderColor = '#dc3545';
       return;
     }
+
+    // Get current filter parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const hewanFilter = urlParams.get('hewan');
     
     const form = document.createElement('form');
     form.method = 'POST';
-    form.action = `/kesehatan-perawatan/rekam-medis/edit/${currentEditId}/`;
+    let actionUrl = `/kesehatan-perawatan/rekam-medis/edit/${currentEditId}/`;
+    if (hewanFilter) {
+      actionUrl += `?hewan=${hewanFilter}`;
+    }
+    form.action = actionUrl;
     
     const csrfToken = document.getElementById('editRekamMedisForm').querySelector('input[name="csrfmiddlewaretoken"]').value;
     const csrfInput = document.createElement('input');
@@ -840,9 +1027,17 @@
   }
   
   function submitDeleteForm() {
+    // Get current filter parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const hewanFilter = urlParams.get('hewan');
+    
     const form = document.createElement('form');
     form.method = 'POST';
-    form.action = `/kesehatan-perawatan/rekam-medis/hapus/${currentDeleteId}/`;
+    let actionUrl = `/kesehatan-perawatan/rekam-medis/hapus/${currentDeleteId}/`;
+    if (hewanFilter) {
+      actionUrl += `?hewan=${hewanFilter}`;
+    }
+    form.action = actionUrl;
     
     const csrfToken = document.getElementById('deleteRekamMedisForm').querySelector('input[name="csrfmiddlewaretoken"]').value;
     const csrfInput = document.createElement('input');
@@ -858,6 +1053,13 @@
   function openTambahModal() {
     document.getElementById('tambahModal').style.display = 'block';
     document.getElementById('tanggal_pemeriksaan').value = new Date().toISOString().split('T')[0];
+    
+    // Set hewan yang dipilih dari filter
+    const urlParams = new URLSearchParams(window.location.search);
+    const selectedHewan = urlParams.get('hewan');
+    if (selectedHewan) {
+      document.getElementById('id_hewan').value = selectedHewan;
+    }
   }
 
   function closeTambahModal() {
@@ -890,10 +1092,18 @@
         return;
       }
     }
+
+    // Get current filter parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const hewanFilter = urlParams.get('hewan');
     
     const form = document.createElement('form');
     form.method = 'POST';
-    form.action = "{% url 'kesehatan_perawatan_satwa:tambah_rekam_medis' %}";
+    let actionUrl = "{% url 'kesehatan_perawatan_satwa:tambah_rekam_medis' %}";
+    if (hewanFilter) {
+      actionUrl += `?hewan=${hewanFilter}`;
+    }
+    form.action = actionUrl;
     
     const csrfToken = document.getElementById('tambahRekamMedisForm').querySelector('input[name="csrfmiddlewaretoken"]').value;
     const csrfInput = document.createElement('input');
@@ -978,5 +1188,15 @@
       toggleDiagnosisFields();
     }
   });
+
+  // Filter function
+  function filterByHewan() {
+    const selectedHewan = document.getElementById('hewanFilter').value;
+    if (selectedHewan) {
+      window.location.href = `?hewan=${selectedHewan}`;
+    } else {
+      window.location.href = window.location.pathname;
+    }
+  }
 </script>
 {% endblock %}

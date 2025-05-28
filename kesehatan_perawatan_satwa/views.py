@@ -25,66 +25,77 @@ def rekam_medis(request):
     
     username_dh = request.COOKIES.get('user_id')
     
-    # Data dummy, fallback n test
-    dummy_data = [{
-        'id_hewan': 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
-        'nama_hewan': 'Raja',
-        'spesies': 'Panthera tigris sumatrae',
-        'tanggal_pemeriksaan': datetime.strptime('2023-09-15', '%Y-%m-%d'),
-        'tanggal_str': '2023-09-15',
-        'status_pemeriksaan': 'Pemulihan',
-        'diagnosis': 'Infeksi kulit ringan',
-        'pengobatan': 'Antibiotik dan salep antijamur',
-        'catatan_tindak_lanjut': 'Evaluasi ulang dalam 2 minggu, pantau perkembangan luka',
-        'nama_dokter': 'Ajeng Kusuma Pratiwi'
-    }]
+    selected_hewan = request.GET.get('hewan')
     
     rekam_medis_data = []
+    selected_hewan_info = None
     
-    try:
-        with connection.cursor() as cursor:
-            cursor.execute("""
-                SELECT 
-                    h.id,
-                    h.nama,
-                    h.spesies,
-                    cm.tanggal_pemeriksaan,
-                    cm.status_kesehatan,
-                    cm.diagnosis,
-                    cm.pengobatan,
-                    cm.catatan_tindak_lanjut,
-                    p.nama_depan || ' ' || COALESCE(p.nama_tengah || ' ', '') || p.nama_belakang as nama_dokter
-                FROM 
-                    SIZOPI.CATATAN_MEDIS cm
-                    JOIN SIZOPI.HEWAN h ON cm.id_hewan = h.id
-                    JOIN SIZOPI.DOKTER_HEWAN dh ON cm.username_dh = dh.username_DH
-                    JOIN SIZOPI.PENGGUNA p ON dh.username_DH = p.username
-                ORDER BY 
-                    cm.tanggal_pemeriksaan DESC
-            """)
-            
-            rows = cursor.fetchall()
-            for row in rows:
-                if row[0] and row[3]:  
-                    tanggal_obj = row[3]
-                    tanggal_str = tanggal_obj.strftime('%Y-%m-%d') if tanggal_obj else ''
-                    
-                    rekam_medis_data.append({
-                        'id_hewan': row[0],
-                        'nama_hewan': row[1],
-                        'spesies': row[2],
-                        'tanggal_pemeriksaan': tanggal_obj,
-                        'tanggal_str': tanggal_str,
-                        'status_pemeriksaan': row[4],
-                        'diagnosis': row[5],
-                        'pengobatan': row[6],
-                        'catatan_tindak_lanjut': row[7],
-                        'nama_dokter': row[8],
-                    })
-    except Exception as e:
-        rekam_medis_data = dummy_data  # data dummy jika db error (for test only)
+    if selected_hewan:
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    SELECT 
+                        id, nama, spesies, status_kesehatan, asal_hewan, tanggal_lahir
+                    FROM 
+                        SIZOPI.HEWAN
+                    WHERE 
+                        id = %s
+                """, [selected_hewan])
+                
+                hewan_result = cursor.fetchone()
+                if hewan_result:
+                    selected_hewan_info = {
+                        'id': hewan_result[0],
+                        'nama': hewan_result[1],
+                        'spesies': hewan_result[2],
+                        'status_kesehatan': hewan_result[3],
+                        'asal_hewan': hewan_result[4],
+                        'tanggal_lahir': hewan_result[5],
+                    }
+                
+                cursor.execute("""
+                    SELECT 
+                        h.id,
+                        h.nama,
+                        h.spesies,
+                        cm.tanggal_pemeriksaan,
+                        cm.status_kesehatan,
+                        cm.diagnosis,
+                        cm.pengobatan,
+                        cm.catatan_tindak_lanjut,
+                        p.nama_depan || ' ' || COALESCE(p.nama_tengah || ' ', '') || p.nama_belakang as nama_dokter
+                    FROM 
+                        SIZOPI.CATATAN_MEDIS cm
+                        JOIN SIZOPI.HEWAN h ON cm.id_hewan = h.id
+                        JOIN SIZOPI.DOKTER_HEWAN dh ON cm.username_dh = dh.username_DH
+                        JOIN SIZOPI.PENGGUNA p ON dh.username_DH = p.username
+                    WHERE 
+                        h.id = %s
+                    ORDER BY 
+                        cm.tanggal_pemeriksaan DESC
+                """, [selected_hewan])
+                
+                rows = cursor.fetchall()
+                for row in rows:
+                    if row[0] and row[3]:  
+                        tanggal_obj = row[3]
+                        tanggal_str = tanggal_obj.strftime('%Y-%m-%d') if tanggal_obj else ''
+                        
+                        rekam_medis_data.append({
+                            'id_hewan': row[0],
+                            'nama_hewan': row[1],
+                            'spesies': row[2],
+                            'tanggal_pemeriksaan': tanggal_obj,
+                            'tanggal_str': tanggal_str,
+                            'status_pemeriksaan': row[4],
+                            'diagnosis': row[5],
+                            'pengobatan': row[6],
+                            'catatan_tindak_lanjut': row[7],
+                            'nama_dokter': row[8],
+                        })
+        except Exception as e:
+            pass  
     
-    # data hewan untuk dropdown modal tambah
     hewan_data = []
     try:
         with connection.cursor() as cursor:
@@ -93,6 +104,8 @@ def rekam_medis(request):
                     id, nama, spesies, status_kesehatan
                 FROM 
                     SIZOPI.HEWAN
+                WHERE 
+                    status_kesehatan IN ('Sehat', 'Observasi', 'Pemulihan', 'Sakit')
                 ORDER BY 
                     nama
             """)
@@ -113,6 +126,8 @@ def rekam_medis(request):
         'user_role': request.COOKIES.get('user_role'),
         'rekam_medis_data': rekam_medis_data,
         'hewan_data': hewan_data,
+        'selected_hewan': selected_hewan,
+        'selected_hewan_info': selected_hewan_info,
         'today': datetime.now().strftime('%Y-%m-%d')
     }
     return render(request, 'kesehatan_perawatan_satwa/rekam_medis/index.html', context)
@@ -174,7 +189,11 @@ def tambah_rekam_medis(request):
                             messages.success(request, msg)
                     messages.success(request, f"Rekam medis untuk {nama_hewan} berhasil ditambahkan")
                 
-                return redirect('kesehatan_perawatan_satwa:rekam_medis')
+                filter_hewan = request.GET.get('hewan')
+                if filter_hewan:
+                    return redirect(f'/kesehatan-perawatan/rekam-medis/?hewan={filter_hewan}')
+                else:
+                    return redirect('kesehatan_perawatan_satwa:rekam_medis')
     
         except Exception as e:
             messages.error(request, f"Terjadi kesalahan: {str(e)}")
@@ -267,7 +286,11 @@ def edit_rekam_medis(request, id):
                 
                 messages.success(request, f"Rekam medis berhasil diperbarui. Dokter penanggung jawab diubah menjadi Anda.")
             
-            return redirect('kesehatan_perawatan_satwa:rekam_medis')
+            filter_hewan = request.GET.get('hewan')
+            if filter_hewan:
+                return redirect(f'/kesehatan-perawatan/rekam-medis/?hewan={filter_hewan}')
+            else:
+                return redirect('kesehatan_perawatan_satwa:rekam_medis')
             
         except Exception as e:
             print(f"Error saat update: {str(e)}")
@@ -358,7 +381,11 @@ def hapus_rekam_medis(request, id):
                 else:
                     messages.success(request, f"Rekam medis untuk {nama_hewan} berhasil dihapus")
             
-            return redirect('kesehatan_perawatan_satwa:rekam_medis')
+            filter_hewan = request.GET.get('hewan')
+            if filter_hewan:
+                return redirect(f'/kesehatan-perawatan/rekam-medis/?hewan={filter_hewan}')
+            else:
+                return redirect('kesehatan_perawatan_satwa:rekam_medis')
     
     except Exception as e:
         print(f"Error pada hapus_rekam_medis: {str(e)}")
@@ -379,34 +406,62 @@ def jadwal_pemeriksaan(request):
     if 'user_id' not in request.COOKIES or request.COOKIES.get('user_role') != 'dokter_hewan':
         return redirect('login')
 
-    with connection.cursor() as cursor:
-        cursor.execute("""
-            SELECT 
-                jpk.id_hewan,
-                h.nama,
-                h.spesies,
-                jpk.freq_pemeriksaan_rutin,
-                jpk.tgl_pemeriksaan_selanjutnya,
-                h.status_kesehatan
-            FROM 
-                SIZOPI.JADWAL_PEMERIKSAAN_KESEHATAN jpk
-                JOIN SIZOPI.HEWAN h ON jpk.id_hewan = h.id
-            ORDER BY 
-                jpk.tgl_pemeriksaan_selanjutnya
-        """)
-        
-        jadwal_pemeriksaan_data = []
-        for row in cursor.fetchall():
-            jadwal_pemeriksaan_data.append({
-                'id_hewan': row[0],
-                'nama_hewan': row[1],
-                'spesies': row[2],
-                'freq_pemeriksaan_rutin': row[3],
-                'tgl_pemeriksaan_selanjutnya': row[4],
-                'status_kesehatan': row[5],
-            })
+    selected_hewan = request.GET.get('hewan')
+    
+    jadwal_pemeriksaan_data = []
+    selected_hewan_info = None
+    
+    if selected_hewan:
+        with connection.cursor() as cursor:
+            # Ambil info hewan yang dipilih
+            cursor.execute("""
+                SELECT 
+                    id, nama, spesies, status_kesehatan, asal_hewan, tanggal_lahir
+                FROM 
+                    SIZOPI.HEWAN
+                WHERE 
+                    id = %s
+            """, [selected_hewan])
+            
+            hewan_result = cursor.fetchone()
+            if hewan_result:
+                selected_hewan_info = {
+                    'id': hewan_result[0],
+                    'nama': hewan_result[1],
+                    'spesies': hewan_result[2],
+                    'status_kesehatan': hewan_result[3],
+                    'asal_hewan': hewan_result[4],
+                    'tanggal_lahir': hewan_result[5],
+                }
+            
+            # Ambil jadwal pemeriksaan untuk hewan yang dipilih
+            cursor.execute("""
+                SELECT 
+                    jpk.id_hewan,
+                    h.nama,
+                    h.spesies,
+                    jpk.freq_pemeriksaan_rutin,
+                    jpk.tgl_pemeriksaan_selanjutnya,
+                    h.status_kesehatan
+                FROM 
+                    SIZOPI.JADWAL_PEMERIKSAAN_KESEHATAN jpk
+                    JOIN SIZOPI.HEWAN h ON jpk.id_hewan = h.id
+                WHERE 
+                    jpk.id_hewan = %s
+                ORDER BY 
+                    jpk.tgl_pemeriksaan_selanjutnya
+            """, [selected_hewan])
+            
+            for row in cursor.fetchall():
+                jadwal_pemeriksaan_data.append({
+                    'id_hewan': row[0],
+                    'nama_hewan': row[1],
+                    'spesies': row[2],
+                    'freq_pemeriksaan_rutin': row[3],
+                    'tgl_pemeriksaan_selanjutnya': row[4],
+                    'status_kesehatan': row[5],
+                })
 
-    # data hewan untuk dropdown filter dan modal tambah
     hewan_data = []
     try:
         with connection.cursor() as cursor:
@@ -415,6 +470,8 @@ def jadwal_pemeriksaan(request):
                     id, nama, spesies, status_kesehatan
                 FROM 
                     SIZOPI.HEWAN
+                WHERE 
+                    status_kesehatan IN ('Sehat', 'Observasi', 'Pemulihan', 'Sakit')
                 ORDER BY 
                     nama
             """)
@@ -435,6 +492,8 @@ def jadwal_pemeriksaan(request):
         'user_role': request.COOKIES.get('user_role'),
         'jadwal_pemeriksaan_data': jadwal_pemeriksaan_data,
         'hewan_data': hewan_data,
+        'selected_hewan': selected_hewan,
+        'selected_hewan_info': selected_hewan_info,
         'default_date': datetime.now().strftime('%Y-%m-%d')
     }
     return render(request, 'kesehatan_perawatan_satwa/jadwal_pemeriksaan/index.html', context)
