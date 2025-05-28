@@ -594,7 +594,13 @@ def edit_frekuensi_pemeriksaan(request, id):
                     WHERE id_hewan = %s
                 """, [freq_pemeriksaan_rutin, id])
                 
-                messages.success(request, f"Frekuensi pemeriksaan berhasil diperbarui")
+                # Tangkap pesan trigger
+                trigger_messages = capture_trigger_messages()
+                for msg in trigger_messages:
+                    messages.success(request, msg)
+                
+                if not trigger_messages:
+                    messages.success(request, f"Frekuensi pemeriksaan berhasil diperbarui")
         
         if request.method == 'POST':
             filter_hewan = request.GET.get('hewan') or id
