@@ -157,10 +157,19 @@ def tambah_rekam_medis(request):
                 """, [id_hewan, username_dh, tanggal_pemeriksaan, diagnosis, pengobatan, status_kesehatan, catatan_tindak_lanjut])
                 
                 trigger_messages = capture_trigger_messages()
-                for msg in trigger_messages:
-                    messages.success(request, msg)
-        
-                messages.success(request, f"Rekam medis untuk {nama_hewan} berhasil ditambahkan")
+                
+                if status_kesehatan == 'Sakit':
+                    if trigger_messages:
+                        for msg in trigger_messages:
+                            messages.success(request, msg)
+                    else:
+                        messages.success(request, f"SUKSES: Jadwal pemeriksaan hewan \"{nama_hewan}\" telah diperbarui karena status kesehatan \"Sakit\".")
+                else:
+                    if trigger_messages:
+                        for msg in trigger_messages:
+                            messages.success(request, msg)
+                    messages.success(request, f"Rekam medis untuk {nama_hewan} berhasil ditambahkan")
+                
                 return redirect('kesehatan_perawatan_satwa:rekam_medis')
     
         except Exception as e:
@@ -440,7 +449,7 @@ def tambah_jadwal_pemeriksaan(request):
                     if not trigger_messages:
                         messages.success(request, f"Jadwal pemeriksaan untuk {nama_hewan} berhasil ditambahkan")
             
-            return redirect(f'kesehatan_perawatan_satwa:jadwal_pemeriksaan?hewan={id_hewan}')
+            return redirect('/kesehatan-perawatan/jadwal-pemeriksaan/?hewan=' + id_hewan)
             
         except Exception as e:
             print(f"Error: {str(e)}")
