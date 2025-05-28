@@ -622,15 +622,8 @@
           {% csrf_token %}
           
           <div class="form-group">
-            <label class="form-label" for="freq_pemeriksaan_rutin">Frekuensi Pemeriksaan Rutin:</label>
-            <select class="form-select" id="freq_pemeriksaan_rutin" name="freq_pemeriksaan_rutin" required>
-              <option value="1">1 bulan sekali</option>
-              <option value="2">2 bulan sekali</option>
-              <option value="3">3 bulan sekali</option>
-              <option value="4">4 bulan sekali</option>
-              <option value="6">6 bulan sekali</option>
-              <option value="12">12 bulan sekali</option>
-            </select>
+            <label class="form-label" for="freq_pemeriksaan_rutin">Frekuensi Pemeriksaan Rutin (dalam bulan):</label>
+            <input type="number" class="form-control" id="freq_pemeriksaan_rutin" name="freq_pemeriksaan_rutin" min="1" max="12" required placeholder="Masukkan berapa bulan sekali">
           </div>
         </form>
       </div>
@@ -786,18 +779,6 @@
           <div class="form-group">
             <label class="form-label" for="tambah-tgl-pemeriksaan">Tanggal Pemeriksaan Selanjutnya:</label>
             <input type="date" class="form-control" id="tambah-tgl-pemeriksaan" name="tgl_pemeriksaan_selanjutnya" value="{{ default_date }}" required>
-          </div>
-          
-          <div class="form-group">
-            <label class="form-label" for="tambah-freq-pemeriksaan">Frekuensi Pemeriksaan (dalam bulan):</label>
-            <select class="form-select" id="tambah-freq-pemeriksaan" name="freq_pemeriksaan_rutin" required>
-              <option value="1">1 bulan sekali</option>
-              <option value="2">2 bulan sekali</option>
-              <option value="3" selected>3 bulan sekali</option>
-              <option value="4">4 bulan sekali</option>
-              <option value="6">6 bulan sekali</option>
-              <option value="12">12 bulan sekali</option>
-            </select>
           </div>
         </form>
       </div>
@@ -1185,7 +1166,6 @@
   function submitTambahForm() {
     const idHewan = document.getElementById('id_hewan').value;
     const tanggal = document.getElementById('tambah-tgl-pemeriksaan').value;
-    const frekuensi = document.getElementById('tambah-freq-pemeriksaan').value;
     
     if (!idHewan) {
       showNotification('Pilih hewan terlebih dahulu');
@@ -1194,11 +1174,6 @@
     
     if (!tanggal) {
       showNotification('Pilih tanggal pemeriksaan selanjutnya');
-      return;
-    }
-    
-    if (!frekuensi) {
-      showNotification('Pilih frekuensi pemeriksaan');
       return;
     }
     
@@ -1224,12 +1199,6 @@
     tanggalInput.name = 'tgl_pemeriksaan_selanjutnya';
     tanggalInput.value = tanggal;
     form.appendChild(tanggalInput);
-    
-    const frekuensiInput = document.createElement('input');
-    frekuensiInput.type = 'hidden';
-    frekuensiInput.name = 'freq_pemeriksaan_rutin';
-    frekuensiInput.value = frekuensi;
-    form.appendChild(frekuensiInput);
     
     document.body.appendChild(form);
     form.submit();

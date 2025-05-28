@@ -439,7 +439,6 @@ def tambah_jadwal_pemeriksaan(request):
         try:
             id_hewan = request.POST.get('id_hewan')
             tgl_pemeriksaan_selanjutnya = request.POST.get('tgl_pemeriksaan_selanjutnya')
-            freq_pemeriksaan_rutin = request.POST.get('freq_pemeriksaan_rutin')
             
             with connection.cursor() as cursor:
                 cursor.execute("""
@@ -457,12 +456,12 @@ def tambah_jadwal_pemeriksaan(request):
                     
                     nama_hewan = cursor.fetchone()[0] if cursor.rowcount > 0 else "Hewan"
                     
-                    # Insert jadwal baru
+                    # Insert jadwal baru (frekuensi akan menggunakan default dari SQL)
                     cursor.execute("""
                         INSERT INTO SIZOPI.JADWAL_PEMERIKSAAN_KESEHATAN
-                        (id_hewan, tgl_pemeriksaan_selanjutnya, freq_pemeriksaan_rutin)
-                        VALUES (%s, %s, %s)
-                    """, [id_hewan, tgl_pemeriksaan_selanjutnya, freq_pemeriksaan_rutin])
+                        (id_hewan, tgl_pemeriksaan_selanjutnya)
+                        VALUES (%s, %s)
+                    """, [id_hewan, tgl_pemeriksaan_selanjutnya])
                     
                     # Tangkap pesan trigger
                     trigger_messages = capture_trigger_messages()
