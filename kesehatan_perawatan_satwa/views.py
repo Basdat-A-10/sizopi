@@ -167,7 +167,7 @@ def tambah_rekam_medis(request):
                         for msg in trigger_messages:
                             messages.success(request, msg)
                     else:
-                        messages.success(request, f"SUKSES: Jadwal pemeriksaan hewan \"{nama_hewan}\" telah diperbarui karena status kesehatan \"Sakit\".")
+                        messages.success(request, f"Jadwal pemeriksaan hewan \"{nama_hewan}\" telah diperbarui karena status kesehatan \"Sakit\".")
                 else:
                     if trigger_messages:
                         for msg in trigger_messages:

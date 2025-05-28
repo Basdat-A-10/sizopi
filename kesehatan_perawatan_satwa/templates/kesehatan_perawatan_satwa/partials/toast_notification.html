@@ -46,31 +46,30 @@
       }
     };
 
-    const djangoMessages = [
-      {% for message in messages %}
-        {
-          type: "{% if message.tags == 'success' %}success{% elif message.tags == 'error' %}error{% else %}info{% endif %}",
-          text: "{{ message|escapejs }}"
-        }{% if not forloop.last %},{% endif %}
-      {% endfor %}
-    ];
+    // Process Django messages
+    {% for message in messages %}
+      {% if message.tags == 'success' %}
+        showToast('success', '{{ message|escapejs }}');
+      {% elif message.tags == 'error' %}
+        showToast('error', '{{ message|escapejs }}');
+      {% elif message.tags == 'warning' %}
+        showToast('info', '{{ message|escapejs }}');
+      {% else %}
+        showToast('info', '{{ message|escapejs }}');
+      {% endif %}
+    {% endfor %}
 
-    djangoMessages.forEach(function(msg) {
-      if (msg.text && msg.text.trim()) {
-        showToast(msg.type, msg.text);
-      }
-    });
-
+    // Process trigger messages
     {% if trigger_success %}
-      showToast('success', "{{ trigger_success|escapejs }}");
+      showToast('success', '{{ trigger_success|escapejs }}');
     {% endif %}
     
     {% if trigger_error %}
-      showToast('error', "{{ trigger_error|escapejs }}");
+      showToast('error', '{{ trigger_error|escapejs }}');
     {% endif %}
     
     {% if trigger_info %}
-      showToast('info', "{{ trigger_info|escapejs }}");
+      showToast('info', '{{ trigger_info|escapejs }}');
     {% endif %}
   });
 </script>
