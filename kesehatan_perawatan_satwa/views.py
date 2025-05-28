@@ -158,6 +158,10 @@ def tambah_rekam_medis(request):
                 
                 trigger_messages = capture_trigger_messages()
                 
+                if trigger_messages:
+                    for msg in trigger_messages:
+                        print(f"DEBUG - Trigger message captured: {repr(msg)}")
+                
                 if status_kesehatan == 'Sakit':
                     if trigger_messages:
                         for msg in trigger_messages:

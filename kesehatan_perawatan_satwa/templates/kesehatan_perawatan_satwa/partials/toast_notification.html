@@ -40,36 +40,37 @@
       const messageElement = document.getElementById(messageId);
       
       if (toastElement && messageElement) {
-        messageElement.textContent = message;
+        messageElement.innerHTML = message;
         const toast = new bootstrap.Toast(toastElement);
         toast.show();
       }
     };
 
-    // Cek apakah ada pesan dari backend (via Django messages)
-    {% if messages %}
+    const djangoMessages = [
       {% for message in messages %}
-        {% if message.tags == 'success' %}
-          showToast('success', "{{ message }}");
-        {% elif message.tags == 'error' %}
-          showToast('error', "{{ message }}");
-        {% else %}
-          showToast('info', "{{ message }}");
-        {% endif %}
+        {
+          type: "{% if message.tags == 'success' %}success{% elif message.tags == 'error' %}error{% else %}info{% endif %}",
+          text: "{{ message|escapejs }}"
+        }{% if not forloop.last %},{% endif %}
       {% endfor %}
-    {% endif %}
+    ];
 
-    // Cek apakah ada pesan dari trigger (via context variables)
+    djangoMessages.forEach(function(msg) {
+      if (msg.text && msg.text.trim()) {
+        showToast(msg.type, msg.text);
+      }
+    });
+
     {% if trigger_success %}
-      showToast('success', "{{ trigger_success }}");
+      showToast('success', "{{ trigger_success|escapejs }}");
     {% endif %}
     
     {% if trigger_error %}
-      showToast('error', "{{ trigger_error }}");
+      showToast('error', "{{ trigger_error|escapejs }}");
     {% endif %}
     
     {% if trigger_info %}
-      showToast('info', "{{ trigger_info }}");
+      showToast('info', "{{ trigger_info|escapejs }}");
     {% endif %}
   });
 </script>

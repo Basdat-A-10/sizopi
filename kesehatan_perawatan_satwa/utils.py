@@ -11,7 +11,8 @@ def capture_trigger_messages():
             for notice in connection.connection.notices:
                 if "TRIGGER_MESSAGE:" in notice:
                     message = notice.split("TRIGGER_MESSAGE:")[1].strip()
-                    messages.append(message)
+                    clean_message = html.unescape(message)
+                    messages.append(clean_message)
             
             connection.connection.notices.clear()
     
