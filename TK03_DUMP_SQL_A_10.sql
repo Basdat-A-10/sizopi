@@ -207,13 +207,13 @@ CREATE TABLE ADOPSI (
 
 CREATE TABLE RESERVASI (
     username_p VARCHAR(50),
-    nama_atraksi VARCHAR(50),
+    nama_fasilitas VARCHAR(50),
     tanggal_kunjungan DATE,
     jumlah_tiket INT NOT NULL,
     status VARCHAR(50) NOT NULL,
-    PRIMARY KEY (username_p, nama_atraksi, tanggal_kunjungan),
+    PRIMARY KEY (username_p, nama_fasilitas, tanggal_kunjungan),
     FOREIGN KEY (username_p) REFERENCES PENGUNJUNG(username_p),
-    FOREIGN KEY (nama_atraksi) REFERENCES ATRAKSI(nama_atraksi)
+    FOREIGN KEY (nama_fasilitas) REFERENCES FASILITAS(nama_fasilitas)
 );
 
 -- Insert datas for 1. PENGGUNA table
