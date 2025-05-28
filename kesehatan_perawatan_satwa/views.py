@@ -35,7 +35,7 @@ def rekam_medis(request):
             with connection.cursor() as cursor:
                 cursor.execute("""
                     SELECT 
-                        id, nama, spesies, status_kesehatan, asal_hewan, tanggal_lahir
+                        id, nama, spesies, status_kesehatan, asal_hewan, tanggal_lahir, url_foto
                     FROM 
                         SIZOPI.HEWAN
                     WHERE 
@@ -51,6 +51,7 @@ def rekam_medis(request):
                         'status_kesehatan': hewan_result[3],
                         'asal_hewan': hewan_result[4],
                         'tanggal_lahir': hewan_result[5],
+                        'url_foto': hewan_result[6],
                     }
                 
                 cursor.execute("""
@@ -416,7 +417,7 @@ def jadwal_pemeriksaan(request):
             # Ambil info hewan yang dipilih
             cursor.execute("""
                 SELECT 
-                    id, nama, spesies, status_kesehatan, asal_hewan, tanggal_lahir
+                    id, nama, spesies, status_kesehatan, asal_hewan, tanggal_lahir, url_foto
                 FROM 
                     SIZOPI.HEWAN
                 WHERE 
@@ -432,6 +433,7 @@ def jadwal_pemeriksaan(request):
                     'status_kesehatan': hewan_result[3],
                     'asal_hewan': hewan_result[4],
                     'tanggal_lahir': hewan_result[5],
+                    'url_foto': hewan_result[6],
                 }
             
             # Ambil jadwal pemeriksaan untuk hewan yang dipilih
@@ -532,13 +534,21 @@ def tambah_jadwal_pemeriksaan(request):
                         VALUES (%s, %s)
                     """, [id_hewan, tgl_pemeriksaan_selanjutnya])
                     
+                    print(f"DEBUG - Jadwal baru ditambahkan untuk hewan {nama_hewan}")
+                    
                     # Tangkap pesan trigger
                     trigger_messages = capture_trigger_messages()
-                    for msg in trigger_messages:
-                        messages.success(request, msg)
+                    print(f"DEBUG - Pesan trigger yang ditangkap: {trigger_messages}")
                     
-                    if not trigger_messages:
-                        messages.success(request, f"Jadwal pemeriksaan untuk {nama_hewan} berhasil ditambahkan")
+                    if trigger_messages:
+                        for msg in trigger_messages:
+                            messages.success(request, msg)
+                            print(f"DEBUG - Menambahkan pesan trigger: {msg}")
+                    else:
+                        # Fallback message dengan format yang konsisten
+                        fallback_message = f"SUKSES: Jadwal pemeriksaan untuk hewan \"{nama_hewan}\" berhasil ditambahkan."
+                        messages.success(request, fallback_message)
+                        print(f"DEBUG - Menggunakan fallback message: {fallback_message}")
             
             if filter_hewan:
                 return redirect(f'/kesehatan-perawatan/jadwal-pemeriksaan/?hewan={filter_hewan}')
@@ -635,6 +645,7 @@ def edit_frekuensi_pemeriksaan(request, id):
                     JOIN SIZOPI.HEWAN h ON jpk.id_hewan = h.id
                 WHERE 
                     jpk.id_hewan = %s
+                LIMIT 1
             """, [id])
             
             result = cursor.fetchone()
@@ -655,19 +666,34 @@ def edit_frekuensi_pemeriksaan(request, id):
             filter_hewan = request.GET.get('hewan') or id
             
             with connection.cursor() as cursor:
+                # Ambil nama hewan untuk pesan manual jika perlu
+                cursor.execute("""
+                    SELECT nama FROM SIZOPI.HEWAN WHERE id = %s
+                """, [id])
+                nama_hewan = cursor.fetchone()[0] if cursor.rowcount > 0 else "Hewan"
+                
+                # Update frekuensi - ini akan memicu trigger
                 cursor.execute("""
                     UPDATE SIZOPI.JADWAL_PEMERIKSAAN_KESEHATAN
                     SET freq_pemeriksaan_rutin = %s
                     WHERE id_hewan = %s
                 """, [freq_pemeriksaan_rutin, id])
                 
+                print(f"DEBUG - Frekuensi diupdate untuk hewan {nama_hewan}: {freq_pemeriksaan_rutin} bulan")
+                
                 # Tangkap pesan trigger
                 trigger_messages = capture_trigger_messages()
-                for msg in trigger_messages:
-                    messages.success(request, msg)
+                print(f"DEBUG - Pesan trigger yang ditangkap: {trigger_messages}")
                 
-                if not trigger_messages:
-                    messages.success(request, f"Frekuensi pemeriksaan berhasil diperbarui")
+                if trigger_messages:
+                    for msg in trigger_messages:
+                        messages.success(request, msg)
+                        print(f"DEBUG - Menambahkan pesan: {msg}")
+                else:
+                    # Fallback message jika trigger tidak mengirim pesan
+                    fallback_message = f"SUKSES: Jadwal pemeriksaan hewan \"{nama_hewan}\" telah diperbarui sesuai frekuensi baru {freq_pemeriksaan_rutin} bulan."
+                    messages.success(request, fallback_message)
+                    print(f"DEBUG - Menggunakan fallback message: {fallback_message}")
         
         if request.method == 'POST':
             filter_hewan = request.GET.get('hewan') or id

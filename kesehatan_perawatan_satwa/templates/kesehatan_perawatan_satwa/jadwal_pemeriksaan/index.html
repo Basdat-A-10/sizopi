@@ -97,14 +97,41 @@
   }
 
   .hewan-details {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
+    flex: 1;
+    min-width: 300px;
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e9ecef;
   }
 
   .hewan-detail {
-    flex: 1;
-    min-width: 200px;
+    margin-bottom: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid #f1f3f4;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .hewan-detail:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+  }
+
+  .hewan-detail strong {
+    color: var(--charcoal);
+    font-weight: 600;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+  }
+
+  .hewan-detail-value {
+    text-align: right;
+    font-size: 0.9rem;
+    color: #495057;
+    font-weight: 500;
   }
 
   .no-data-selected {
@@ -533,6 +560,118 @@
     font-weight: 500;
     max-width: 300px;
   }
+
+  /* Styling untuk foto hewan */
+  .hewan-profile-card {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 25px;
+    align-items: flex-start;
+  }
+
+  .hewan-photo-container {
+    flex: 0 0 280px;
+    max-width: 280px;
+    position: relative;
+  }
+
+  .hewan-photo {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+  }
+
+  .hewan-photo:hover {
+    transform: scale(1.02);
+  }
+
+  .hewan-photo-placeholder {
+    width: 100%;
+    height: 200px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 2px dashed #adb5bd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+  }
+
+  .hewan-photo-placeholder i {
+    font-size: 2.5rem;
+    margin-bottom: 12px;
+    opacity: 0.6;
+  }
+
+  .hewan-photo-placeholder span {
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  .hewan-details {
+    flex: 1;
+    min-width: 300px;
+  }
+
+  .hewan-detail {
+    margin-bottom: 15px;
+    padding: 12px 0;
+    border-bottom: 1px solid #e9ecef;
+    display: flex;
+    align-items: center;
+  }
+
+  .hewan-detail:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+  }
+
+  .hewan-detail strong {
+    color: var(--charcoal);
+    font-weight: 600;
+    min-width: 140px;
+    margin-right: 15px;
+  }
+
+  /* Responsive design untuk mobile */
+  @media (max-width: 768px) {
+    .hewan-profile-card {
+      flex-direction: column;
+      gap: 15px;
+    }
+    
+    .hewan-photo-container {
+      flex: none;
+      max-width: 100%;
+      align-self: center;
+      max-width: 250px;
+    }
+    
+    .hewan-details {
+      min-width: auto;
+      margin: 0;
+    }
+    
+    .hewan-detail {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      text-align: left;
+      padding: 10px 0;
+    }
+    
+    .hewan-detail strong {
+      font-size: 0.85rem;
+    }
+    
+    .hewan-detail-value {
+      font-size: 0.85rem;
+    }
+  }
 </style>
 
 <div class="jadwal-container">
@@ -566,24 +705,39 @@
       <i class="fas fa-paw"></i>
       Informasi Hewan: {{ selected_hewan_info.nama }}
     </h3>
-    <div class="hewan-details">
-      <div class="hewan-detail">
-        <strong>Spesies:</strong> {{ selected_hewan_info.spesies }}
+    <div class="hewan-profile-card">
+      <div class="hewan-photo-container">
+        {% if selected_hewan_info.url_foto %}
+          <img src="{{ selected_hewan_info.url_foto }}" alt="Foto {{ selected_hewan_info.nama }}" class="hewan-photo">
+        {% else %}
+          <div class="hewan-photo-placeholder">
+            <i class="fas fa-camera"></i>
+            <span>Foto tidak tersedia</span>
+          </div>
+        {% endif %}
       </div>
-      <div class="hewan-detail">
-        <strong>Status Kesehatan:</strong> 
-        <span class="status-badge {% if selected_hewan_info.status_kesehatan == 'Sehat' %}status-sehat{% else %}status-sakit{% endif %}">
-          {{ selected_hewan_info.status_kesehatan }}
-        </span>
+      <div class="hewan-details">
+        <div class="hewan-detail">
+          <strong>Spesies:</strong> 
+          <span class="hewan-detail-value">{{ selected_hewan_info.spesies }}</span>
+        </div>
+        <div class="hewan-detail">
+          <strong>Status Kesehatan:</strong> 
+          <span class="status-badge {% if selected_hewan_info.status_kesehatan == 'Sehat' %}status-sehat{% else %}status-sakit{% endif %}">
+            {{ selected_hewan_info.status_kesehatan }}
+          </span>
+        </div>
+        <div class="hewan-detail">
+          <strong>Asal:</strong> 
+          <span class="hewan-detail-value">{{ selected_hewan_info.asal_hewan }}</span>
+        </div>
+        {% if selected_hewan_info.tanggal_lahir %}
+        <div class="hewan-detail">
+          <strong>Tanggal Lahir:</strong> 
+          <span class="hewan-detail-value">{{ selected_hewan_info.tanggal_lahir|date:"d M Y" }}</span>
+        </div>
+        {% endif %}
       </div>
-      <div class="hewan-detail">
-        <strong>Asal:</strong> {{ selected_hewan_info.asal_hewan }}
-      </div>
-      {% if selected_hewan_info.tanggal_lahir %}
-      <div class="hewan-detail">
-        <strong>Tanggal Lahir:</strong> {{ selected_hewan_info.tanggal_lahir|date:"d M Y" }}
-      </div>
-      {% endif %}
     </div>
   </div>
   {% endif %}
