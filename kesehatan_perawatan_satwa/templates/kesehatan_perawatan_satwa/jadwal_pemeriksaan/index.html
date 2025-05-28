@@ -805,7 +805,7 @@
                 </a>
                 <a href="javascript:void(0)" 
                    class="action-btn btn-delete"
-                   onclick="openHapusModal('{{ jadwal.id_hewan }}', '{{ jadwal.nama_hewan }}', '{{ jadwal.spesies }}', '{{ jadwal.status_kesehatan }}', {{ jadwal.freq_pemeriksaan_rutin }}, '{{ jadwal.tgl_pemeriksaan_selanjutnya|date:"d M Y" }}')">
+                   onclick="openHapusModal('{{ jadwal.id_hewan }}', '{{ jadwal.nama_hewan }}', '{{ jadwal.spesies }}', '{{ jadwal.status_kesehatan }}', {{ jadwal.freq_pemeriksaan_rutin }}, '{{ jadwal.tgl_pemeriksaan_selanjutnya|date:"Y-m-d" }}')">
                   <i class="fas fa-trash"></i>
                   Hapus
                 </a>
@@ -1258,24 +1258,19 @@
   
   function openHapusModal(id, namaHewan, spesies, status, frekuensi, tanggal) {
     currentHapusId = id;
-    // Pastikan format tanggal konsisten - jika dalam format display "d M Y", konversi ke "Y-m-d"
-    if (tanggal.includes(' ')) {
-      // Format dari display adalah seperti "15 Mar 2024", perlu dikonversi ke "2024-03-15"
-      // Tapi sebenarnya kita butuh format yang sama dengan data dari server
-      // Mari ambil dari data yang sudah ada di JavaScript
-      const jadwalData = allJadwalData.find(j => j.id_hewan === id && j.tgl_pemeriksaan_formatted === tanggal);
-      if (jadwalData) {
-        currentHapusTanggalAsli = jadwalData.tgl_pemeriksaan_selanjutnya;
-      } else {
-        currentHapusTanggalAsli = tanggal;
-      }
-    } else {
-      currentHapusTanggalAsli = tanggal;
-    }
+    currentHapusTanggalAsli = tanggal;
+    
+    console.log('Debug - openHapusModal called');
+    console.log('Debug - id:', id);
+    console.log('Debug - tanggal:', tanggal);
+    console.log('Debug - currentHapusTanggalAsli:', currentHapusTanggalAsli);
     
     document.getElementById('hapus-nama-hewan').textContent = namaHewan;
     document.getElementById('hapus-spesies').textContent = spesies;
-    document.getElementById('hapus-tanggal').textContent = tanggal;
+    
+    // Format tanggal untuk display (konversi Y-m-d ke d M Y)
+    const displayDate = formatDateForDisplay(tanggal);
+    document.getElementById('hapus-tanggal').textContent = displayDate;
     document.getElementById('hapus-frekuensi').textContent = frekuensi + ' bulan sekali';
     
     const statusBadge = document.getElementById('hapus-status-badge');
@@ -1287,7 +1282,25 @@
       statusBadge.classList.add('status-sakit');
     }
     
-    document.getElementById('hapusModal').style.display = 'block';
+    document.getElementById('hapusModal').style.display = 'flex';
+  }
+  
+  function formatDateForDisplay(dateStr) {
+    // Konversi dari "2024-04-15" ke "15 Apr 2024"
+    if (dateStr && dateStr.includes('-')) {
+      const parts = dateStr.split('-');
+      if (parts.length === 3) {
+        const year = parts[0];
+        const month = parts[1];
+        const day = parts[2];
+        
+        const monthNames = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                           'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        
+        return `${parseInt(day)} ${monthNames[parseInt(month)]} ${year}`;
+      }
+    }
+    return dateStr;
   }
   
   function closeHapusModal() {
@@ -1295,10 +1308,22 @@
   }
   
   function submitHapusForm() {
+    // Validasi input
+    if (!currentHapusId) {
+      showNotification('ID hewan tidak valid');
+      return;
+    }
+    
+    if (!currentHapusTanggalAsli) {
+      showNotification('Tanggal jadwal tidak valid');
+      return;
+    }
+    
     // Get current filter parameter
     const urlParams = new URLSearchParams(window.location.search);
     const hewanFilter = urlParams.get('hewan');
     
+    console.log('Debug - submitHapusForm called');
     console.log('Debug - Current hewan filter:', hewanFilter);
     console.log('Debug - Current hapus ID:', currentHapusId);
     console.log('Debug - Current hapus tanggal asli:', currentHapusTanggalAsli);
@@ -1322,7 +1347,7 @@
     
     form.action = actionUrl;
     
-    console.log('Debug - Action URL:', actionUrl);
+    console.log('Debug - Final action URL:', actionUrl);
     
     const csrfToken = document.getElementById('hapusForm').querySelector('input[name="csrfmiddlewaretoken"]').value;
     const csrfInput = document.createElement('input');

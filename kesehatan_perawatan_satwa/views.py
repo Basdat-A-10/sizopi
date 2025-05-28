@@ -675,13 +675,11 @@ def edit_frekuensi_pemeriksaan(request, id):
             filter_hewan = request.GET.get('hewan') or id
             
             with connection.cursor() as cursor:
-                # Ambil nama hewan untuk pesan manual jika perlu
                 cursor.execute("""
                     SELECT nama FROM SIZOPI.HEWAN WHERE id = %s
                 """, [id])
                 nama_hewan = cursor.fetchone()[0] if cursor.rowcount > 0 else "Hewan"
                 
-                # Update frekuensi - ini akan memicu trigger
                 cursor.execute("""
                     UPDATE SIZOPI.JADWAL_PEMERIKSAAN_KESEHATAN
                     SET freq_pemeriksaan_rutin = %s
@@ -728,8 +726,13 @@ def hapus_jadwal_pemeriksaan(request, id):
         return redirect('login')
     
     try:
-        # Ambil tanggal asli dari URL parameter
         tanggal_asli = request.GET.get('tanggal_asli')
+        
+        print(f"Debug - hapus_jadwal_pemeriksaan called with id: {id}, tanggal_asli: {tanggal_asli}")
+        
+        if not tanggal_asli:
+            messages.error(request, "Parameter tanggal tidak valid")
+            return redirect('kesehatan_perawatan_satwa:jadwal_pemeriksaan')
         
         with connection.cursor() as cursor:
             cursor.execute("""
@@ -749,7 +752,8 @@ def hapus_jadwal_pemeriksaan(request, id):
             
             result = cursor.fetchone()
             if not result:
-                messages.error(request, "Jadwal pemeriksaan tidak ditemukan")
+                print(f"Debug - Jadwal tidak ditemukan untuk id_hewan: {id}, tanggal: {tanggal_asli}")
+                messages.error(request, f"Jadwal pemeriksaan tidak ditemukan untuk tanggal {tanggal_asli}")
                 return redirect('kesehatan_perawatan_satwa:jadwal_pemeriksaan')
             
             jadwal = {
@@ -760,9 +764,13 @@ def hapus_jadwal_pemeriksaan(request, id):
                 'tgl_pemeriksaan_selanjutnya': result[4],
                 'status_kesehatan': result[5],
             }
+            
+            print(f"Debug - Jadwal ditemukan: {jadwal['nama_hewan']}, tanggal: {jadwal['tgl_pemeriksaan_selanjutnya']}")
     
         if request.method == 'POST':
             filter_hewan = request.GET.get('hewan') or id
+            
+            print(f"Debug - POST request, akan menghapus jadwal id_hewan: {id}, tanggal: {tanggal_asli}")
             
             with connection.cursor() as cursor:
                 # Hapus jadwal spesifik berdasarkan id_hewan dan tanggal asli
@@ -771,10 +779,14 @@ def hapus_jadwal_pemeriksaan(request, id):
                     WHERE id_hewan = %s AND tgl_pemeriksaan_selanjutnya = %s
                 """, [id, tanggal_asli])
                 
+                print(f"Debug - Rows affected by DELETE: {cursor.rowcount}")
+                
                 if cursor.rowcount == 0:
                     messages.error(request, "Jadwal pemeriksaan tidak ditemukan atau sudah dihapus")
                 else:
-                    messages.success(request, f"Jadwal pemeriksaan berhasil dihapus")
+                    messages.success(request, f"Jadwal pemeriksaan untuk {jadwal['nama_hewan']} pada tanggal {tanggal_asli} berhasil dihapus")
+            
+            print(f"Debug - Redirecting with filter_hewan: {filter_hewan}")
             
             if filter_hewan:
                 return redirect(f'/kesehatan-perawatan/jadwal-pemeriksaan/?hewan={filter_hewan}')
@@ -782,8 +794,10 @@ def hapus_jadwal_pemeriksaan(request, id):
                 return redirect('kesehatan_perawatan_satwa:jadwal_pemeriksaan')
     
     except Exception as e:
-        print(f"Error: {str(e)}")
-        messages.error(request, "Terjadi kesalahan saat menghapus jadwal pemeriksaan")
+        print(f"Error in hapus_jadwal_pemeriksaan: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        messages.error(request, f"Terjadi kesalahan saat menghapus jadwal pemeriksaan: {str(e)}")
         return redirect('kesehatan_perawatan_satwa:jadwal_pemeriksaan')
     
     context = {
@@ -863,7 +877,6 @@ def pemberian_pakan(request):
         except Exception as e:
             print(f"Error: {str(e)}")
     
-    # Ambil daftar semua hewan untuk dropdown
     hewan_data = []
     try:
         with connection.cursor() as cursor:
@@ -1030,7 +1043,6 @@ def edit_pemberian_pakan(request, id):
             filter_hewan = request.GET.get('hewan') or id_hewan
             
             with connection.cursor() as cursor:
-                # Ambil nama hewan untuk pesan
                 cursor.execute("""
                     SELECT nama FROM SIZOPI.HEWAN WHERE id = %s
                 """, [id_hewan])
@@ -1159,7 +1171,6 @@ def hapus_pemberian_pakan(request, id):
             filter_hewan = request.GET.get('hewan') or id_hewan
             
             with connection.cursor() as cursor:
-                # Ambil nama hewan untuk pesan
                 cursor.execute("""
                     SELECT nama FROM SIZOPI.HEWAN WHERE id = %s
                 """, [id_hewan])
@@ -1170,7 +1181,6 @@ def hapus_pemberian_pakan(request, id):
                     WHERE id_hewan = %s AND jadwal = %s
                 """, [id_hewan, jadwal])
                 
-                # Hapus dari tabel PAKAN
                 cursor.execute("""
                     DELETE FROM SIZOPI.PAKAN
                     WHERE id_hewan = %s AND jadwal = %s
@@ -1227,13 +1237,11 @@ def beri_pakan(request, id):
                     else:
                         return redirect('kesehatan_perawatan_satwa:pemberian_pakan')
                 
-                # Ambil nama hewan untuk pesan
                 cursor.execute("""
                     SELECT nama FROM SIZOPI.HEWAN WHERE id = %s
                 """, [id_hewan])
                 nama_hewan = cursor.fetchone()[0] if cursor.rowcount > 0 else "Hewan"
                 
-                # Update status di tabel PAKAN
                 cursor.execute("""
                     UPDATE SIZOPI.PAKAN
                     SET status = 'Selesai Diberikan'
@@ -1259,7 +1267,6 @@ def beri_pakan(request, id):
                 
                 messages.success(request, f"Pakan untuk {nama_hewan} berhasil diberikan")
                 
-                # Maintain filter state
                 filter_hewan = request.GET.get('hewan')
                 if filter_hewan:
                     return redirect(f'/kesehatan-perawatan/pemberian-pakan/?hewan={filter_hewan}')
