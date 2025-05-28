@@ -1028,14 +1028,22 @@
   
   function submitEditFrekuensiForm() {
     const frekuensi = document.getElementById('freq_pemeriksaan_rutin').value;
-    if (!frekuensi) {
-      showNotification('Pilih frekuensi pemeriksaan');
+    if (!frekuensi || frekuensi <= 0) {
+      showNotification('Masukkan frekuensi pemeriksaan yang valid');
       return;
     }
     
+    // Get current filter parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const hewanFilter = urlParams.get('hewan');
+    
     const form = document.createElement('form');
     form.method = 'POST';
-    form.action = `/kesehatan-perawatan/jadwal-pemeriksaan/edit-frekuensi/${currentEditFrekuensiId}/`;
+    let actionUrl = `/kesehatan-perawatan/jadwal-pemeriksaan/edit-frekuensi/${currentEditFrekuensiId}/`;
+    if (hewanFilter) {
+      actionUrl += `?hewan=${hewanFilter}`;
+    }
+    form.action = actionUrl;
     
     const csrfToken = document.getElementById('editFrekuensiForm').querySelector('input[name="csrfmiddlewaretoken"]').value;
     const csrfInput = document.createElement('input');
@@ -1086,9 +1094,17 @@
       return;
     }
     
+    // Get current filter parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const hewanFilter = urlParams.get('hewan');
+    
     const form = document.createElement('form');
     form.method = 'POST';
-    form.action = `/kesehatan-perawatan/jadwal-pemeriksaan/edit/${currentEditJadwalId}/`;
+    let actionUrl = `/kesehatan-perawatan/jadwal-pemeriksaan/edit/${currentEditJadwalId}/`;
+    if (hewanFilter) {
+      actionUrl += `?hewan=${hewanFilter}`;
+    }
+    form.action = actionUrl;
     
     const csrfToken = document.getElementById('editJadwalForm').querySelector('input[name="csrfmiddlewaretoken"]').value;
     const csrfInput = document.createElement('input');
@@ -1132,9 +1148,17 @@
   }
   
   function submitHapusForm() {
+    // Get current filter parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const hewanFilter = urlParams.get('hewan');
+    
     const form = document.createElement('form');
     form.method = 'POST';
-    form.action = `/kesehatan-perawatan/jadwal-pemeriksaan/hapus/${currentHapusId}/`;
+    let actionUrl = `/kesehatan-perawatan/jadwal-pemeriksaan/hapus/${currentHapusId}/`;
+    if (hewanFilter) {
+      actionUrl += `?hewan=${hewanFilter}`;
+    }
+    form.action = actionUrl;
     
     const csrfToken = document.getElementById('hapusForm').querySelector('input[name="csrfmiddlewaretoken"]').value;
     const csrfInput = document.createElement('input');
@@ -1177,9 +1201,17 @@
       return;
     }
     
+    // Get current filter parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const hewanFilter = urlParams.get('hewan');
+    
     const form = document.createElement('form');
     form.method = 'POST';
-    form.action = "{% url 'kesehatan_perawatan_satwa:tambah_jadwal_pemeriksaan' %}";
+    let actionUrl = "{% url 'kesehatan_perawatan_satwa:tambah_jadwal_pemeriksaan' %}";
+    if (hewanFilter) {
+      actionUrl += `?hewan=${hewanFilter}`;
+    }
+    form.action = actionUrl;
     
     const csrfToken = document.getElementById('tambahForm').querySelector('input[name="csrfmiddlewaretoken"]').value;
     const csrfInput = document.createElement('input');

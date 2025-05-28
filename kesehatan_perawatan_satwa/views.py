@@ -440,6 +440,8 @@ def tambah_jadwal_pemeriksaan(request):
             id_hewan = request.POST.get('id_hewan')
             tgl_pemeriksaan_selanjutnya = request.POST.get('tgl_pemeriksaan_selanjutnya')
             
+            filter_hewan = request.GET.get('hewan') or id_hewan
+            
             with connection.cursor() as cursor:
                 cursor.execute("""
                     SELECT 1
@@ -471,14 +473,16 @@ def tambah_jadwal_pemeriksaan(request):
                     if not trigger_messages:
                         messages.success(request, f"Jadwal pemeriksaan untuk {nama_hewan} berhasil ditambahkan")
             
-            return redirect('/kesehatan-perawatan/jadwal-pemeriksaan/?hewan=' + id_hewan)
+            if filter_hewan:
+                return redirect(f'/kesehatan-perawatan/jadwal-pemeriksaan/?hewan={filter_hewan}')
+            else:
+                return redirect('kesehatan_perawatan_satwa:jadwal_pemeriksaan')
             
         except Exception as e:
             print(f"Error: {str(e)}")
             messages.error(request, f"Terjadi kesalahan: {str(e)}")
             return redirect('kesehatan_perawatan_satwa:jadwal_pemeriksaan')
     
-    # Jika bukan POST, redirect ke halaman jadwal pemeriksaan
     return redirect('kesehatan_perawatan_satwa:jadwal_pemeriksaan')
 
 def edit_jadwal_pemeriksaan(request, id):
@@ -518,6 +522,8 @@ def edit_jadwal_pemeriksaan(request, id):
         if request.method == 'POST':
             tgl_pemeriksaan_selanjutnya = request.POST.get('tgl_pemeriksaan_selanjutnya')
             
+            filter_hewan = request.GET.get('hewan') or id
+            
             with connection.cursor() as cursor:
                 cursor.execute("""
                     UPDATE SIZOPI.JADWAL_PEMERIKSAAN_KESEHATAN
@@ -527,7 +533,10 @@ def edit_jadwal_pemeriksaan(request, id):
                 
                 messages.success(request, f"Jadwal pemeriksaan berhasil diperbarui")
         
-            return redirect(f'/kesehatan-perawatan/jadwal-pemeriksaan/?hewan={id}')
+            if filter_hewan:
+                return redirect(f'/kesehatan-perawatan/jadwal-pemeriksaan/?hewan={filter_hewan}')
+            else:
+                return redirect('kesehatan_perawatan_satwa:jadwal_pemeriksaan')
             
     except Exception as e:
         print(f"Error: {str(e)}")
@@ -576,6 +585,8 @@ def edit_frekuensi_pemeriksaan(request, id):
         if request.method == 'POST':
             freq_pemeriksaan_rutin = request.POST.get('freq_pemeriksaan_rutin')
             
+            filter_hewan = request.GET.get('hewan') or id
+            
             with connection.cursor() as cursor:
                 cursor.execute("""
                     UPDATE SIZOPI.JADWAL_PEMERIKSAAN_KESEHATAN
@@ -585,7 +596,12 @@ def edit_frekuensi_pemeriksaan(request, id):
                 
                 messages.success(request, f"Frekuensi pemeriksaan berhasil diperbarui")
         
-        return redirect(f'/kesehatan-perawatan/jadwal-pemeriksaan/?hewan={id}')
+        if request.method == 'POST':
+            filter_hewan = request.GET.get('hewan') or id
+            if filter_hewan:
+                return redirect(f'/kesehatan-perawatan/jadwal-pemeriksaan/?hewan={filter_hewan}')
+            else:
+                return redirect('kesehatan_perawatan_satwa:jadwal_pemeriksaan')
     
     except Exception as e:
         print(f"Error: {str(e)}")
@@ -634,14 +650,19 @@ def hapus_jadwal_pemeriksaan(request, id):
             }
     
         if request.method == 'POST':
+            filter_hewan = request.GET.get('hewan') or id
+            
             with connection.cursor() as cursor:
                 cursor.execute("""
                     DELETE FROM SIZOPI.JADWAL_PEMERIKSAAN_KESEHATAN
                     WHERE id_hewan = %s
                 """, [id])
             
-            return redirect('kesehatan_perawatan_satwa:jadwal_pemeriksaan')
-            
+            if filter_hewan:
+                return redirect(f'/kesehatan-perawatan/jadwal-pemeriksaan/?hewan={filter_hewan}')
+            else:
+                return redirect('kesehatan_perawatan_satwa:jadwal_pemeriksaan')
+    
     except Exception as e:
         print(f"Error: {str(e)}")
         return redirect('kesehatan_perawatan_satwa:jadwal_pemeriksaan')
