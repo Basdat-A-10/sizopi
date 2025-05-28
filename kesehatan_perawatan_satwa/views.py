@@ -245,25 +245,33 @@ def edit_rekam_medis(request, id):
             diagnosis = request.POST.get('diagnosis')
             pengobatan = request.POST.get('pengobatan')
             
+            # Ambil username dokter yang sedang login
+            username_dh_login = request.COOKIES.get('user_id')
+            
             with connection.cursor() as cursor:
                 cursor.execute("""
                     UPDATE SIZOPI.CATATAN_MEDIS
                     SET catatan_tindak_lanjut = %s,
                         diagnosis = %s,
-                        pengobatan = %s
+                        pengobatan = %s,
+                        username_dh = %s
                     WHERE id_hewan = %s AND tanggal_pemeriksaan = %s
                 """, [
                     catatan_tindak_lanjut,
                     diagnosis,
                     pengobatan,
+                    username_dh_login,
                     id_hewan, 
                     tanggal_pemeriksaan
                 ])
+                
+                messages.success(request, f"Rekam medis berhasil diperbarui. Dokter penanggung jawab diubah menjadi Anda.")
             
             return redirect('kesehatan_perawatan_satwa:rekam_medis')
             
         except Exception as e:
             print(f"Error saat update: {str(e)}")
+            messages.error(request, f"Terjadi kesalahan: {str(e)}")
             pass
     
     context = {

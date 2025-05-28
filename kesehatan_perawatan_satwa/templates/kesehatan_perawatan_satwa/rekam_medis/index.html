@@ -60,35 +60,33 @@
   
   .table th:first-child {
     border-top-left-radius: 8px;
-    width: 9%; 
+    width: 12%; 
   }
   
   .table th:nth-child(2) {
-    width: 11%; 
+    width: 15%; 
   }
   
   .table th:nth-child(3) {
-    width: 11%; 
+    width: 10%; 
   }
   
   .table th:nth-child(4) {
-    width: 8%; 
+    width: 18%; 
   }
   
-  .table th:nth-child(5),
-  .table th:nth-child(6),
-  .table th:nth-child(7) {
-    width: 14%; 
+  .table th:nth-child(5) {
+    width: 18%; 
   }
   
-  .table th:nth-child(8) {
-    width: 10%; 
+  .table th:nth-child(6) {
+    width: 20%; 
   }
   
   .table th:last-child {
     border-top-right-radius: 8px;
     text-align: center;
-    width: 10%; 
+    width: 12%; 
   }
   
   .table td {
@@ -439,13 +437,11 @@
         <thead>
           <tr>
             <th>Tanggal</th>
-            <th>Nama Hewan</th>
-            <th>Spesies</th>
+            <th>Nama Dokter</th>
             <th>Status</th>
             <th>Diagnosis</th>
             <th>Pengobatan</th>
             <th>Catatan Tindak Lanjut</th>
-            <th>Dokter</th>
             <th>Aksi</th>
           </tr>
         </thead>
@@ -453,8 +449,7 @@
           {% for rekam_medis in rekam_medis_data %}
             <tr>
               <td>{{ rekam_medis.tanggal_pemeriksaan|date:"d M Y" }}</td>
-              <td>{{ rekam_medis.nama_hewan }}</td>
-              <td>{{ rekam_medis.spesies }}</td>
+              <td>{{ rekam_medis.nama_dokter }}</td>
               <td>
                 <span class="status-badge 
                     {% if rekam_medis.status_pemeriksaan == 'Sehat' %}status-sehat
@@ -465,7 +460,6 @@
               <td>{% if rekam_medis.diagnosis %}{{ rekam_medis.diagnosis }}{% else %}-{% endif %}</td>
               <td>{% if rekam_medis.pengobatan %}{{ rekam_medis.pengobatan }}{% else %}-{% endif %}</td>
               <td>{% if rekam_medis.catatan_tindak_lanjut %}{{ rekam_medis.catatan_tindak_lanjut }}{% else %}-{% endif %}</td>
-              <td>{{ rekam_medis.nama_dokter }}</td>
               <td>
                 <div class="action-btn-container">
                   {% if rekam_medis.id_hewan and rekam_medis.tanggal_str %}

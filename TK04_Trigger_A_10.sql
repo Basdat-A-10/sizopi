@@ -237,7 +237,7 @@ BEGIN
     GET DIAGNOSTICS deleted_count = ROW_COUNT;
     
     -- Update frekuensi pada SEMUA jadwal yang tersisa untuk hewan ini
-    UPDATE JADWAL_PEMERIKSAAN_KESEHATAN
+    UPDATE SIZOPI.JADWAL_PEMERIKSAAN_KESEHATAN
     SET freq_pemeriksaan_rutin = NEW.freq_pemeriksaan_rutin
     WHERE id_hewan = NEW.id_hewan;
     
