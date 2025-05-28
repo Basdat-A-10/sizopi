@@ -1041,7 +1041,9 @@
 <script>
   let currentEditFrekuensiId = '';
   let currentEditJadwalId = '';
+  let currentEditJadwalTanggalAsli = '';
   let currentHapusId = '';
+  let currentHapusTanggalAsli = '';
   let allJadwalData = [];
   let uniqueHewan = new Set();
   let hewanMap = new Map();
@@ -1177,6 +1179,7 @@
   
   function openEditJadwalModal(id, namaHewan, spesies, status, frekuensi, tanggal) {
     currentEditJadwalId = id;
+    currentEditJadwalTanggalAsli = tanggal;
     
     document.getElementById('edit-jadwal-nama-hewan').textContent = namaHewan;
     document.getElementById('edit-jadwal-spesies').textContent = spesies;
@@ -1213,13 +1216,25 @@
     
     console.log('Debug - Current hewan filter:', hewanFilter);
     console.log('Debug - Current edit jadwal ID:', currentEditJadwalId);
+    console.log('Debug - Current edit jadwal tanggal asli:', currentEditJadwalTanggalAsli);
     
     const form = document.createElement('form');
     form.method = 'POST';
     let actionUrl = `/kesehatan-perawatan/jadwal-pemeriksaan/edit/${currentEditJadwalId}/`;
-    if (hewanFilter) {
-      actionUrl += `?hewan=${hewanFilter}`;
+    
+    // Tambahkan parameter tanggal_asli dan hewan filter
+    const params = new URLSearchParams();
+    if (currentEditJadwalTanggalAsli) {
+      params.append('tanggal_asli', currentEditJadwalTanggalAsli);
     }
+    if (hewanFilter) {
+      params.append('hewan', hewanFilter);
+    }
+    
+    if (params.toString()) {
+      actionUrl += `?${params.toString()}`;
+    }
+    
     form.action = actionUrl;
     
     console.log('Debug - Action URL:', actionUrl);
@@ -1243,6 +1258,20 @@
   
   function openHapusModal(id, namaHewan, spesies, status, frekuensi, tanggal) {
     currentHapusId = id;
+    // Pastikan format tanggal konsisten - jika dalam format display "d M Y", konversi ke "Y-m-d"
+    if (tanggal.includes(' ')) {
+      // Format dari display adalah seperti "15 Mar 2024", perlu dikonversi ke "2024-03-15"
+      // Tapi sebenarnya kita butuh format yang sama dengan data dari server
+      // Mari ambil dari data yang sudah ada di JavaScript
+      const jadwalData = allJadwalData.find(j => j.id_hewan === id && j.tgl_pemeriksaan_formatted === tanggal);
+      if (jadwalData) {
+        currentHapusTanggalAsli = jadwalData.tgl_pemeriksaan_selanjutnya;
+      } else {
+        currentHapusTanggalAsli = tanggal;
+      }
+    } else {
+      currentHapusTanggalAsli = tanggal;
+    }
     
     document.getElementById('hapus-nama-hewan').textContent = namaHewan;
     document.getElementById('hapus-spesies').textContent = spesies;
@@ -1272,13 +1301,25 @@
     
     console.log('Debug - Current hewan filter:', hewanFilter);
     console.log('Debug - Current hapus ID:', currentHapusId);
+    console.log('Debug - Current hapus tanggal asli:', currentHapusTanggalAsli);
     
     const form = document.createElement('form');
     form.method = 'POST';
     let actionUrl = `/kesehatan-perawatan/jadwal-pemeriksaan/hapus/${currentHapusId}/`;
-    if (hewanFilter) {
-      actionUrl += `?hewan=${hewanFilter}`;
+    
+    // Tambahkan parameter tanggal_asli dan hewan filter
+    const params = new URLSearchParams();
+    if (currentHapusTanggalAsli) {
+      params.append('tanggal_asli', currentHapusTanggalAsli);
     }
+    if (hewanFilter) {
+      params.append('hewan', hewanFilter);
+    }
+    
+    if (params.toString()) {
+      actionUrl += `?${params.toString()}`;
+    }
+    
     form.action = actionUrl;
     
     console.log('Debug - Action URL:', actionUrl);

@@ -567,6 +567,9 @@ def edit_jadwal_pemeriksaan(request, id):
         return redirect('login')
     
     try:
+        # Ambil tanggal asli dari URL parameter
+        tanggal_asli = request.GET.get('tanggal_asli')
+        
         with connection.cursor() as cursor:
             cursor.execute("""
                 SELECT 
@@ -580,12 +583,13 @@ def edit_jadwal_pemeriksaan(request, id):
                     SIZOPI.JADWAL_PEMERIKSAAN_KESEHATAN jpk
                     JOIN SIZOPI.HEWAN h ON jpk.id_hewan = h.id
                 WHERE 
-                    jpk.id_hewan = %s
-            """, [id])
+                    jpk.id_hewan = %s AND jpk.tgl_pemeriksaan_selanjutnya = %s
+            """, [id, tanggal_asli])
             
             result = cursor.fetchone()
             if not result:
-                raise Http404("Jadwal pemeriksaan tidak ditemukan")
+                messages.error(request, "Jadwal pemeriksaan tidak ditemukan")
+                return redirect('kesehatan_perawatan_satwa:jadwal_pemeriksaan')
             
             jadwal = {
                 'id_hewan': result[0],
@@ -602,13 +606,17 @@ def edit_jadwal_pemeriksaan(request, id):
             filter_hewan = request.GET.get('hewan') or id
             
             with connection.cursor() as cursor:
+                # Update jadwal spesifik berdasarkan id_hewan dan tanggal asli
                 cursor.execute("""
                     UPDATE SIZOPI.JADWAL_PEMERIKSAAN_KESEHATAN
                     SET tgl_pemeriksaan_selanjutnya = %s
-                    WHERE id_hewan = %s
-                """, [tgl_pemeriksaan_selanjutnya, id])
+                    WHERE id_hewan = %s AND tgl_pemeriksaan_selanjutnya = %s
+                """, [tgl_pemeriksaan_selanjutnya, id, tanggal_asli])
                 
-                messages.success(request, f"Jadwal pemeriksaan berhasil diperbarui")
+                if cursor.rowcount == 0:
+                    messages.error(request, "Jadwal pemeriksaan tidak ditemukan atau sudah diubah")
+                else:
+                    messages.success(request, f"Jadwal pemeriksaan berhasil diperbarui")
         
             if filter_hewan:
                 return redirect(f'/kesehatan-perawatan/jadwal-pemeriksaan/?hewan={filter_hewan}')
@@ -617,6 +625,7 @@ def edit_jadwal_pemeriksaan(request, id):
             
     except Exception as e:
         print(f"Error: {str(e)}")
+        messages.error(request, "Terjadi kesalahan saat mengedit jadwal pemeriksaan")
         return redirect('kesehatan_perawatan_satwa:jadwal_pemeriksaan')
     
     context = {
@@ -719,6 +728,9 @@ def hapus_jadwal_pemeriksaan(request, id):
         return redirect('login')
     
     try:
+        # Ambil tanggal asli dari URL parameter
+        tanggal_asli = request.GET.get('tanggal_asli')
+        
         with connection.cursor() as cursor:
             cursor.execute("""
                 SELECT 
@@ -732,12 +744,13 @@ def hapus_jadwal_pemeriksaan(request, id):
                     SIZOPI.JADWAL_PEMERIKSAAN_KESEHATAN jpk
                     JOIN SIZOPI.HEWAN h ON jpk.id_hewan = h.id
                 WHERE 
-                    jpk.id_hewan = %s
-            """, [id])
+                    jpk.id_hewan = %s AND jpk.tgl_pemeriksaan_selanjutnya = %s
+            """, [id, tanggal_asli])
             
             result = cursor.fetchone()
             if not result:
-                raise Http404("Jadwal pemeriksaan tidak ditemukan")
+                messages.error(request, "Jadwal pemeriksaan tidak ditemukan")
+                return redirect('kesehatan_perawatan_satwa:jadwal_pemeriksaan')
             
             jadwal = {
                 'id_hewan': result[0],
@@ -752,10 +765,16 @@ def hapus_jadwal_pemeriksaan(request, id):
             filter_hewan = request.GET.get('hewan') or id
             
             with connection.cursor() as cursor:
+                # Hapus jadwal spesifik berdasarkan id_hewan dan tanggal asli
                 cursor.execute("""
                     DELETE FROM SIZOPI.JADWAL_PEMERIKSAAN_KESEHATAN
-                    WHERE id_hewan = %s
-                """, [id])
+                    WHERE id_hewan = %s AND tgl_pemeriksaan_selanjutnya = %s
+                """, [id, tanggal_asli])
+                
+                if cursor.rowcount == 0:
+                    messages.error(request, "Jadwal pemeriksaan tidak ditemukan atau sudah dihapus")
+                else:
+                    messages.success(request, f"Jadwal pemeriksaan berhasil dihapus")
             
             if filter_hewan:
                 return redirect(f'/kesehatan-perawatan/jadwal-pemeriksaan/?hewan={filter_hewan}')
@@ -764,6 +783,7 @@ def hapus_jadwal_pemeriksaan(request, id):
     
     except Exception as e:
         print(f"Error: {str(e)}")
+        messages.error(request, "Terjadi kesalahan saat menghapus jadwal pemeriksaan")
         return redirect('kesehatan_perawatan_satwa:jadwal_pemeriksaan')
     
     context = {
