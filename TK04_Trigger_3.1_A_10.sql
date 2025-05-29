@@ -53,48 +53,38 @@ BEGIN
         -- Set jadwal 7 hari dari tanggal pemeriksaan
         next_checkup_date := NEW.tanggal_pemeriksaan + INTERVAL '7 days';
         
-        -- Periksa apakah ada jadwal pemeriksaan setelah tanggal ini
-        UPDATE JADWAL_PEMERIKSAAN_KESEHATAN
-        SET tgl_pemeriksaan_selanjutnya = next_checkup_date
+        -- Hapus jadwal yang ada setelah tanggal pemeriksaan, mencegah duplicate key
+        DELETE FROM JADWAL_PEMERIKSAAN_KESEHATAN
         WHERE id_hewan = NEW.id_hewan
         AND tgl_pemeriksaan_selanjutnya >= NEW.tanggal_pemeriksaan;
         
-        -- Jika tidak ada jadwal yang diupdate, buat jadwal baru
-        IF NOT FOUND THEN
-            -- Cari frekuensi terakhir untuk hewan ini
-            DECLARE
-                last_freq INT;
-            BEGIN
-                SELECT freq_pemeriksaan_rutin INTO last_freq
-                FROM JADWAL_PEMERIKSAAN_KESEHATAN
-                WHERE id_hewan = NEW.id_hewan
-                ORDER BY tgl_pemeriksaan_selanjutnya DESC
-                LIMIT 1;
-                
-                -- Jika tidak ada, gunakan default 3 bulan
-                IF last_freq IS NULL THEN
-                    last_freq := 3;
-                END IF;
-                
-                -- Buat jadwal baru dengan frekuensi yang ada
-                INSERT INTO JADWAL_PEMERIKSAAN_KESEHATAN
-                    (id_hewan, tgl_pemeriksaan_selanjutnya, freq_pemeriksaan_rutin)
-                VALUES
-                    (NEW.id_hewan, next_checkup_date, last_freq);
-                
-                -- Output pesan sukses sesuai format yang diminta soal
-                RAISE NOTICE 'TRIGGER_MESSAGE: SUKSES: Jadwal pemeriksaan hewan "%s" telah diperbarui karena status kesehatan "Sakit".', 
-                    animal_name;
-                -- Backup: Set session variable
-                PERFORM set_config('custom.last_trigger_message', format('SUKSES: Jadwal pemeriksaan hewan "%s" telah diperbarui karena status kesehatan "Sakit".', animal_name), false);
-            END;
-        ELSE
-            -- Format pesan untuk update jadwal
+        -- Selalu buat jadwal baru (agar tidak ada risiko duplicate)
+        DECLARE
+            last_freq INT;
+        BEGIN
+            SELECT freq_pemeriksaan_rutin INTO last_freq
+            FROM JADWAL_PEMERIKSAAN_KESEHATAN
+            WHERE id_hewan = NEW.id_hewan
+            ORDER BY tgl_pemeriksaan_selanjutnya DESC
+            LIMIT 1;
+            
+            -- Jika tidak ada, gunakan default 3 bulan
+            IF last_freq IS NULL THEN
+                last_freq := 3;
+            END IF;
+            
+            -- Buat jadwal baru (aman karena sudah dihapus yang conflict)
+            INSERT INTO JADWAL_PEMERIKSAAN_KESEHATAN
+                (id_hewan, tgl_pemeriksaan_selanjutnya, freq_pemeriksaan_rutin)
+            VALUES
+                (NEW.id_hewan, next_checkup_date, last_freq);
+            
+            -- Output pesan sukses sesuai format yang diminta soal
             RAISE NOTICE 'TRIGGER_MESSAGE: SUKSES: Jadwal pemeriksaan hewan "%s" telah diperbarui karena status kesehatan "Sakit".', 
                 animal_name;
             -- Backup: Set session variable
             PERFORM set_config('custom.last_trigger_message', format('SUKSES: Jadwal pemeriksaan hewan "%s" telah diperbarui karena status kesehatan "Sakit".', animal_name), false);
-        END IF;
+        END;
     END IF;
     
     -- Update status kesehatan hewan
