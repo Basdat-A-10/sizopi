@@ -955,41 +955,54 @@ def delete_atraksi(request, nama_atraksi):
         with connection.cursor() as cursor:
             cursor.execute("SET search_path TO SIZOPI;")
             
-            # CEK APAKAH INI BENAR-BENAR ATRAKSI (bukan wahana)
+            # CEK APAKAH ADA DI TABEL ATRAKSI
             cursor.execute("SELECT nama_atraksi FROM ATRAKSI WHERE nama_atraksi = %s", [nama_atraksi])
             if not cursor.fetchone():
                 messages.error(request, f"'{nama_atraksi}' tidak ditemukan di tabel ATRAKSI")
                 return redirect('daftar_wahana_dan_atraksi')
             
-            # CEK APAKAH JUGA ADA DI WAHANA
-            cursor.execute("SELECT nama_wahana FROM WAHANA WHERE nama_wahana = %s", [nama_atraksi])
-            ada_di_wahana = cursor.fetchone()
-            
-            if ada_di_wahana:
-                messages.error(request, f"ERROR: '{nama_atraksi}' ada di kedua tabel ATRAKSI dan WAHANA. Tidak bisa dihapus sampai duplikasi ini diperbaiki!")
-                return redirect('daftar_wahana_dan_atraksi')
-            
             cursor.execute("BEGIN;")
             
             try:
-                # 1. Hapus referensi
-                cursor.execute("DELETE FROM RESERVASI WHERE nama_fasilitas = %s", [nama_atraksi])
+                print(f"Menghapus ATRAKSI: '{nama_atraksi}'")
+                
+                # 1. Hapus referensi yang spesifik untuk ATRAKSI
                 cursor.execute("DELETE FROM BERPARTISIPASI WHERE nama_fasilitas = %s", [nama_atraksi])
+                deleted_berpartisipasi = cursor.rowcount
+                print(f"Deleted from BERPARTISIPASI: {deleted_berpartisipasi} rows")
+                
                 cursor.execute("DELETE FROM JADWAL_PENUGASAN WHERE nama_atraksi = %s", [nama_atraksi])
+                deleted_jadwal = cursor.rowcount
+                print(f"Deleted from JADWAL_PENUGASAN: {deleted_jadwal} rows")
                 
-                # 2. Hapus dari ATRAKSI saja (bukan WAHANA)
+                # 2. Hapus dari ATRAKSI saja
                 cursor.execute("DELETE FROM ATRAKSI WHERE nama_atraksi = %s", [nama_atraksi])
+                deleted_atraksi = cursor.rowcount
+                print(f"Deleted from ATRAKSI: {deleted_atraksi} rows")
                 
-                # 3. JANGAN hapus dari FASILITAS kalau masih ada di WAHANA
+                # 3. CEK apakah masih ada di WAHANA sebelum hapus FASILITAS
+                cursor.execute("SELECT nama_wahana FROM WAHANA WHERE nama_wahana = %s", [nama_atraksi])
+                masih_ada_wahana = cursor.fetchone()
+                
+                if not masih_ada_wahana:
+                    # Kalau tidak ada di wahana, hapus dari FASILITAS juga
+                    cursor.execute("DELETE FROM FASILITAS WHERE nama = %s", [nama_atraksi])
+                    deleted_fasilitas = cursor.rowcount
+                    print(f"Deleted from FASILITAS: {deleted_fasilitas} rows")
+                    messages.success(request, f"ATRAKSI '{nama_atraksi}' berhasil dihapus sepenuhnya!")
+                else:
+                    # Kalau masih ada di wahana, jangan hapus FASILITAS
+                    print(f"FASILITAS '{nama_atraksi}' tidak dihapus karena masih digunakan WAHANA")
+                    messages.success(request, f"ATRAKSI '{nama_atraksi}' berhasil dihapus")
+                
                 cursor.execute("COMMIT;")
-                
-                messages.success(request, f"Atraksi '{nama_atraksi}' berhasil dihapus!")
                 
             except Exception as inner_e:
                 cursor.execute("ROLLBACK;")
                 raise inner_e
                 
     except Exception as e:
+        print(f"Error deleting atraksi: {str(e)}")
         messages.error(request, f"Error: {str(e)}")
         
     return redirect('daftar_wahana_dan_atraksi')
