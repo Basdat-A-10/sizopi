@@ -317,7 +317,7 @@
                     <tbody>
                     {% for hewan in hewans %}
                         <tr>
-                            <td><strong>{{ hewan.nama_individu }}</strong></td>
+                            <td><strong>{{ hewan.nama }}</strong></td>
                             <td class="species-name">{{ hewan.spesies }}</td>
                             <td>{{ hewan.asal_hewan }}</td>
                             <td>{{ hewan.tanggal_lahir }}</td>
@@ -332,9 +332,9 @@
                                     {{ hewan.status_kesehatan }}
                                 {% endif %}
                             </td>
-                            <td class="habitat-cell">{{ hewan.habitat.nama_habitat }}</td>
+                            <td class="habitat-cell">{{ hewan.habitat_nama }}</td>
                             <td>
-                                <img src="{{ hewan.foto_url }}" alt="{{ hewan.nama_individu }}" class="animal-img">
+                                <img src="{{ hewan.url_foto }}" alt="{{ hewan.nama_individu }}" class="animal-img">
                             </td>
                             <td>
                                 <div class="action-buttons">

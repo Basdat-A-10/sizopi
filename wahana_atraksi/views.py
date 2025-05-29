@@ -302,30 +302,36 @@ def edit_wahana(request, nama_wahana):
         kapasitas_max = request.POST.get('kapasitas_max')
         jadwal_time = request.POST.get('jadwal')
         
-        # Konversi format jadwal ke timestamp
         import datetime
         today = datetime.date.today().strftime('%Y-%m-%d')
         jadwal_timestamp = f"{today} {jadwal_time}:00"
-        
-        peraturan = request.POST.getlist('peraturan[]')
-        peraturan_str = "\n".join([f"{i+1}. {p}" for i, p in enumerate(peraturan) if p])
 
         with connection.cursor() as cursor:
             cursor.execute("SET search_path TO SIZOPI;")
+            
             cursor.execute("""
                 UPDATE FASILITAS SET kapasitas_max = %s, jadwal = %s WHERE nama = %s
             """, [kapasitas_max, jadwal_timestamp, nama_wahana])
 
-            cursor.execute("""
-                UPDATE WAHANA SET peraturan = %s WHERE nama_wahana = %s
-            """, [peraturan_str, nama_wahana])
+            if 'peraturan[]' in request.POST:
+                peraturan = request.POST.getlist('peraturan[]')
+                peraturan_clean = [p.strip() for p in peraturan if p.strip()]
+                
+                if peraturan_clean:
+                    peraturan_str = "\n".join([f"{i+1}. {p}" for i, p in enumerate(peraturan_clean)])
+                else:
+                    peraturan_str = ""
+                
+                cursor.execute("""
+                    UPDATE WAHANA SET peraturan = %s WHERE nama_wahana = %s
+                """, [peraturan_str, nama_wahana])
 
+        messages.success(request, f'Wahana "{nama_wahana}" berhasil diupdate.')
         return redirect('daftar_wahana_dan_atraksi')
+    
     else:
-        # Data wahana
         wahana = {}
         
-        # Gunakan satu blok with untuk semua operasi database
         with connection.cursor() as cursor:
             cursor.execute("SET search_path TO SIZOPI;")
             cursor.execute("""
@@ -346,15 +352,12 @@ def edit_wahana(request, nama_wahana):
             if not row:
                 raise Http404("Wahana tidak ditemukan")
             
-            # Ekstrak time dari timestamp jika perlu
             import datetime
             jadwal = row[2]
             if isinstance(jadwal, datetime.datetime):
                 jadwal_time = jadwal.strftime('%H:%M')
             else:
-                # Jika jadwal sudah dalam bentuk string, coba ekstrak waktu
                 try:
-                    from datetime import datetime
                     parsed_datetime = datetime.strptime(str(jadwal), '%Y-%m-%d %H:%M:%S')
                     jadwal_time = parsed_datetime.strftime('%H:%M')
                 except:
@@ -364,20 +367,24 @@ def edit_wahana(request, nama_wahana):
                 'nama_wahana': row[0],
                 'kapasitas_max': row[1],
                 'jadwal': jadwal_time,
-                'peraturan': row[3],
-                'peraturan_list': []  # Inisialisasi dengan list kosong
+                'peraturan': row[3] or "",
+                'peraturan_list': []
             }
             
-            # Parse peraturan menjadi list
-            if wahana['peraturan']:
-                for line in wahana['peraturan'].split('\n'):
-                    # Hapus nomor dan titik di awal
-                    if '.' in line:
-                        wahana['peraturan_list'].append(line.split('.', 1)[1].strip())
-                    else:
-                        wahana['peraturan_list'].append(line.strip())
+            if wahana['peraturan'] and wahana['peraturan'].strip():
+                peraturan_lines = wahana['peraturan'].strip().split('\n')
+                for line in peraturan_lines:
+                    line = line.strip()
+                    if line:
+                        if '. ' in line:
+                            parts = line.split('. ', 1)
+                            if len(parts) == 2 and parts[0].isdigit():
+                                wahana['peraturan_list'].append(parts[1].strip())
+                            else:
+                                wahana['peraturan_list'].append(line)
+                        else:
+                            wahana['peraturan_list'].append(line)
         
-        # Render template dengan data wahana
         return render(request, 'wahana_atraksi/edit_wahana.html', {
             'wahana': wahana
         })
@@ -948,41 +955,54 @@ def delete_atraksi(request, nama_atraksi):
         with connection.cursor() as cursor:
             cursor.execute("SET search_path TO SIZOPI;")
             
-            # CEK APAKAH INI BENAR-BENAR ATRAKSI (bukan wahana)
+            # CEK APAKAH ADA DI TABEL ATRAKSI
             cursor.execute("SELECT nama_atraksi FROM ATRAKSI WHERE nama_atraksi = %s", [nama_atraksi])
             if not cursor.fetchone():
                 messages.error(request, f"'{nama_atraksi}' tidak ditemukan di tabel ATRAKSI")
                 return redirect('daftar_wahana_dan_atraksi')
             
-            # CEK APAKAH JUGA ADA DI WAHANA
-            cursor.execute("SELECT nama_wahana FROM WAHANA WHERE nama_wahana = %s", [nama_atraksi])
-            ada_di_wahana = cursor.fetchone()
-            
-            if ada_di_wahana:
-                messages.error(request, f"ERROR: '{nama_atraksi}' ada di kedua tabel ATRAKSI dan WAHANA. Tidak bisa dihapus sampai duplikasi ini diperbaiki!")
-                return redirect('daftar_wahana_dan_atraksi')
-            
             cursor.execute("BEGIN;")
             
             try:
-                # 1. Hapus referensi
-                cursor.execute("DELETE FROM RESERVASI WHERE nama_fasilitas = %s", [nama_atraksi])
+                print(f"Menghapus ATRAKSI: '{nama_atraksi}'")
+                
+                # 1. Hapus referensi yang spesifik untuk ATRAKSI
                 cursor.execute("DELETE FROM BERPARTISIPASI WHERE nama_fasilitas = %s", [nama_atraksi])
+                deleted_berpartisipasi = cursor.rowcount
+                print(f"Deleted from BERPARTISIPASI: {deleted_berpartisipasi} rows")
+                
                 cursor.execute("DELETE FROM JADWAL_PENUGASAN WHERE nama_atraksi = %s", [nama_atraksi])
+                deleted_jadwal = cursor.rowcount
+                print(f"Deleted from JADWAL_PENUGASAN: {deleted_jadwal} rows")
                 
-                # 2. Hapus dari ATRAKSI saja (bukan WAHANA)
+                # 2. Hapus dari ATRAKSI saja
                 cursor.execute("DELETE FROM ATRAKSI WHERE nama_atraksi = %s", [nama_atraksi])
+                deleted_atraksi = cursor.rowcount
+                print(f"Deleted from ATRAKSI: {deleted_atraksi} rows")
                 
-                # 3. JANGAN hapus dari FASILITAS kalau masih ada di WAHANA
+                # 3. CEK apakah masih ada di WAHANA sebelum hapus FASILITAS
+                cursor.execute("SELECT nama_wahana FROM WAHANA WHERE nama_wahana = %s", [nama_atraksi])
+                masih_ada_wahana = cursor.fetchone()
+                
+                if not masih_ada_wahana:
+                    # Kalau tidak ada di wahana, hapus dari FASILITAS juga
+                    cursor.execute("DELETE FROM FASILITAS WHERE nama = %s", [nama_atraksi])
+                    deleted_fasilitas = cursor.rowcount
+                    print(f"Deleted from FASILITAS: {deleted_fasilitas} rows")
+                    messages.success(request, f"ATRAKSI '{nama_atraksi}' berhasil dihapus sepenuhnya!")
+                else:
+                    # Kalau masih ada di wahana, jangan hapus FASILITAS
+                    print(f"FASILITAS '{nama_atraksi}' tidak dihapus karena masih digunakan WAHANA")
+                    messages.success(request, f"ATRAKSI '{nama_atraksi}' berhasil dihapus")
+                
                 cursor.execute("COMMIT;")
-                
-                messages.success(request, f"Atraksi '{nama_atraksi}' berhasil dihapus!")
                 
             except Exception as inner_e:
                 cursor.execute("ROLLBACK;")
                 raise inner_e
                 
     except Exception as e:
+        print(f"Error deleting atraksi: {str(e)}")
         messages.error(request, f"Error: {str(e)}")
         
     return redirect('daftar_wahana_dan_atraksi')
