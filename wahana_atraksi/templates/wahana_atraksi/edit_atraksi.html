@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-warning text-dark text-center">
+            <h2>FORM EDIT ATRAKSI</h2>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{% url 'edit_atraksi' atraksi.nama_atraksi %}">
+                {% csrf_token %}
+                
+                <!-- Nama Atraksi - Readonly -->
+                <div class="mb-3">
+                    <label for="nama_atraksi" class="form-label">Nama Atraksi:</label>
+                    <input type="text" class="form-control" id="nama_atraksi" value="{{ atraksi.nama_atraksi }}" readonly>
+                </div>
+                
+                <!-- Lokasi - Readonly -->
+                <div class="mb-3">
+                    <label for="lokasi" class="form-label">Lokasi:</label>
+                    <input type="text" class="form-control" id="lokasi" value="{{ atraksi.lokasi }}" readonly>
+                </div>
+                
+                <!-- Kapasitas Maksimum - Editable -->
+                <div class="mb-3">
+                    <label for="kapasitas_max" class="form-label">Kapasitas Maksimum: <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <input type="number" class="form-control" id="kapasitas_max" name="kapasitas_max" min="1" value="{{ atraksi.kapasitas_max }}" required>
+                        <span class="input-group-text">orang</span>
+                    </div>
+                </div>
+                
+                <!-- Jadwal - Editable dengan datetime picker -->
+                <div class="mb-3">
+                    <label for="jadwal" class="form-label">Tanggal & Waktu Jadwal: <span class="text-danger">*</span></label>
+                    <input type="datetime-local" class="form-control" id="jadwal" name="jadwal" value="{{ atraksi.jadwal }}" required>
+                    <small class="form-text text-muted">Pilih tanggal dan waktu untuk jadwal atraksi (bisa masa lampau atau masa depan)</small>
+                </div>
+                
+                <!-- Pelatih - Readonly untuk info saja -->
+                <div class="mb-3">
+                    <label class="form-label">Pelatih yang Bertugas:</label>
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            {% if atraksi.current_pelatih %}
+                                {% for pelatih in atraksi.current_pelatih %}
+                                <div class="mb-2">
+                                    <span class="badge bg-primary">{{ pelatih.nama }}</span>
+                                    <small class="text-muted d-block">Ditugaskan: {{ pelatih.tgl_penugasan }}</small>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <p class="mb-0 text-muted">Tidak ada pelatih yang ditugaskan</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <small class="form-text text-info">
+                        <i class="fas fa-info-circle"></i> 
+                        Sistem akan otomatis menangani rotasi pelatih jika sudah bertugas lebih dari 90 hari
+                    </small>
+                </div>
+                
+                <!-- Hewan - Readonly untuk info saja -->
+                <div class="mb-3">
+                    <label class="form-label">Hewan yang Terlibat:</label>
+                    <div class="card bg-light">
+                        <div class="card-body" style="max-height: 200px; overflow-y: auto;">
+                            {% if atraksi.current_hewan %}
+                                {% for hewan in atraksi.current_hewan %}
+                                <div class="mb-1">
+                                    <span class="badge bg-secondary">{{ hewan.nama }} ({{ hewan.spesies }})</span>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <p class="mb-0 text-muted">Tidak ada hewan yang terlibat</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <small class="form-text text-muted">Daftar hewan tidak dapat diubah melalui form edit</small>
+                </div>
+                
+                <div class="text-center">
+                    <button type="submit" class="btn btn-warning me-2">
+                        <i class="fas fa-save"></i> SIMPAN PERUBAHAN
+                    </button>
+                    <a href="{% url 'daftar_wahana_dan_atraksi' %}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> BATAL
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Styling untuk field yang tidak bisa diedit */
+input[readonly] {
+    background-color: #f8f9fa;
+    cursor: not-allowed;
+}
+
+/* Styling untuk field yang bisa diedit */
+input[name="kapasitas_max"], input[name="jadwal"] {
+    border: 2px solid #fffbf0;
+    background-color: #fffbf0;
+}
+
+input[name="kapasitas_max"]:focus, input[name="jadwal"]:focus {
+    border-color: #ffc107;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+}
+
+/* Badge styling */
+.badge {
+    margin-right: 0.5rem;
+    margin-bottom: 0.25rem;
+    font-size: 0.875rem;
+}
+
+/* Datetime-local input styling */
+input[type="datetime-local"] {
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    background-color: #ffc107;
+    color: white;
+    border-radius: 3px;
+    padding: 2px;
+}
+
+/* FontAwesome icon styling */
+.fas {
+    width: 16px;
+    text-align: center;
+    margin-right: 4px;
+}
+
+/* Card styling */
+.card {
+    border-radius: 8px;
+}
+
+.card-header {
+    border-radius: 8px 8px 0 0 !important;
+}
+</style>
+
+<!-- FontAwesome untuk icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+{% endblock %}

@@ -1,0 +1,293 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    /* Custom CSS untuk detail reservasi */
+    .card {
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        margin-bottom: 30px;
+    }
+    
+    .card-header {
+        padding: 1.2rem;
+        font-weight: bold;
+        letter-spacing: 1px;
+    }
+    
+    .card-body {
+        padding: 2rem;
+    }
+    
+    .btn {
+        border-radius: 8px;
+        font-weight: 600;
+        padding: 0.75rem 2rem;
+        transition: all 0.3s ease;
+        margin-right: 0.5rem;
+    }
+    
+    .btn-warning {
+        background-color: #ffc107;
+        border-color: #ffc107;
+        color: #212529;
+        box-shadow: 0 4px 15px rgba(255, 193, 7, 0.2);
+    }
+    
+    .btn-warning:hover {
+        background-color: #e0a800;
+        border-color: #d39e00;
+        box-shadow: 0 6px 20px rgba(255, 193, 7, 0.3);
+        transform: translateY(-2px);
+        color: #212529;
+    }
+    
+    .btn-danger {
+        background-color: #dc3545;
+        border-color: #dc3545;
+        box-shadow: 0 4px 15px rgba(220, 53, 69, 0.2);
+    }
+    
+    .btn-danger:hover {
+        background-color: #c82333;
+        border-color: #bd2130;
+        box-shadow: 0 6px 20px rgba(220, 53, 69, 0.3);
+        transform: translateY(-2px);
+    }
+    
+    .btn-secondary {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        box-shadow: 0 4px 15px rgba(108, 117, 125, 0.2);
+    }
+    
+    .btn-secondary:hover {
+        background-color: #545b62;
+        border-color: #4e555b;
+        box-shadow: 0 6px 20px rgba(108, 117, 125, 0.3);
+        transform: translateY(-2px);
+    }
+    
+    /* Header animasi */
+    .page-header {
+        background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+        color: white;
+        padding: 40px 0;
+        text-align: center;
+        margin-bottom: 30px;
+        border-radius: 0 0 50px 50px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .page-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .detail-item {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .detail-item:last-child {
+        border-bottom: none;
+    }
+    
+    .detail-label {
+        font-weight: 600;
+        color: #495057;
+        min-width: 180px;
+        margin-right: 1rem;
+    }
+    
+    .detail-value {
+        color: #212529;
+        flex: 1;
+    }
+    
+    .badge {
+        padding: 0.5em 0.8em;
+        border-radius: 30px;
+        font-weight: 500;
+        font-size: 0.85rem;
+    }
+    
+    .badge-confirmed {
+        background-color: #28a745;
+        color: white;
+    }
+    
+    .badge-pending {
+        background-color: #ffc107;
+        color: #212529;
+    }
+    
+    .badge-cancelled {
+        background-color: #dc3545;
+        color: white;
+    }
+    
+    .peraturan-text {
+        white-space: pre-line;
+        background-color: #f8f9fa;
+        padding: 1rem;
+        border-radius: 8px;
+        border-left: 4px solid #007bff;
+    }
+    
+    /* Animasi untuk tampilan awal */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .animate-fade-in {
+        animation: fadeIn 0.8s ease forwards;
+    }
+    
+    /* Responsif untuk mobile */
+    @media (max-width: 768px) {
+        .page-header {
+            padding: 30px 0;
+        }
+        
+        .page-header h1 {
+            font-size: 2rem;
+        }
+        
+        .detail-item {
+            flex-direction: column;
+        }
+        
+        .detail-label {
+            min-width: auto;
+            margin-right: 0;
+            margin-bottom: 0.25rem;
+        }
+        
+        .btn {
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+    }
+</style>
+
+<!-- Header Section -->
+<div class="page-header">
+    <div class="container">
+        <h1>DETAIL RESERVASI</h1>
+        <p>Informasi Lengkap Reservasi Anda</p>
+    </div>
+</div>
+
+<div class="container mt-4">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show mb-4" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card animate-fade-in">
+                <div class="card-header bg-info text-white text-center">
+                    <h3>DETAIL RESERVASI</h3>
+                </div>
+                <div class="card-body">
+                    {% if reservasi.jenis_fasilitas == 'atraksi' %}
+                        <!-- Detail Reservasi Atraksi -->
+                        <div class="detail-item">
+                            <div class="detail-label">Nama Atraksi:</div>
+                            <div class="detail-value"><strong>{{ reservasi.nama_fasilitas }}</strong></div>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <div class="detail-label">Lokasi:</div>
+                            <div class="detail-value">{{ reservasi.lokasi }}</div>
+                        </div>
+                    {% elif reservasi.jenis_fasilitas == 'wahana' %}
+                        <!-- Detail Reservasi Wahana -->
+                        <div class="detail-item">
+                            <div class="detail-label">Nama Wahana:</div>
+                            <div class="detail-value"><strong>{{ reservasi.nama_fasilitas }}</strong></div>
+                        </div>
+                        
+                        {% if reservasi.peraturan %}
+                        <div class="detail-item">
+                            <div class="detail-label">Peraturan:</div>
+                            <div class="detail-value">
+                                <div class="peraturan-text">{{ reservasi.peraturan }}</div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endif %}
+                    
+                    <div class="detail-item">
+                        <div class="detail-label">Jam:</div>
+                        <div class="detail-value">{{ reservasi.jadwal|time:"H:i" }}</div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <div class="detail-label">Tanggal:</div>
+                        <div class="detail-value">{{ reservasi.tanggal_kunjungan|date:"d F Y" }}</div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <div class="detail-label">Jumlah tiket yang ingin dibeli:</div>
+                        <div class="detail-value">{{ reservasi.jumlah_tiket }}</div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <div class="detail-label">Status:</div>
+                        <div class="detail-value">
+                            {% if reservasi.status == 'Confirmed' %}
+                                <span class="badge badge-confirmed">Terjadwal</span>
+                            {% elif reservasi.status == 'Pending' %}
+                                <span class="badge badge-pending">Pending</span>
+                            {% else %}
+                                <span class="badge badge-cancelled">Dibatalkan</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        {% if reservasi.status != 'Cancelled' %}
+                        <a href="{% url 'tampil_form_edit_reservasi' username=reservasi.username_p nama_fasilitas=reservasi.nama_fasilitas tanggal_kunjungan=reservasi.tanggal_kunjungan %}" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> EDIT
+                        </a>
+                        
+                        <a href="{% url 'batalkan_reservasi' username=reservasi.username_p nama_fasilitas=reservasi.nama_fasilitas tanggal_kunjungan=reservasi.tanggal_kunjungan %}" 
+                           class="btn btn-danger"
+                           onclick="return confirm('Apakah anda yakin ingin membatalkan reservasi ini?');">
+                            <i class="fas fa-times"></i> BATALKAN RESERVASI
+                        </a>
+                        {% endif %}
+                        
+                        <a href="{% url 'daftar_wahana_dan_atraksi' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> KEMBALI
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animasi saat halaman dimuat
+    const card = document.querySelector('.card');
+    card.classList.add('animate-fade-in');
+});
+</script>
+{% endblock %}

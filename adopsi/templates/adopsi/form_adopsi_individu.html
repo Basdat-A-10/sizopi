@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Form Adopsi Satwa{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <div class="card mb-4">
+    <div class="card-header text-center py-3">
+      <h4 class="mb-0">FORM ADOPSI SATWA - INDIVIDU</h4>
+    </div>
+    <div class="card-body">
+      <form>
+        <p>Pihak di bawah ini,</p>
+        <div class="mb-3">
+          <label for="namaIndividu" class="form-label">Nama:</label>
+          <input type="text" class="form-control" id="namaIndividu" placeholder="Nama Depan Pengguna">
+        </div>
+        
+        <div class="mb-3">
+          <label for="nikIndividu" class="form-label">NIK:</label>
+          <input type="text" class="form-control" id="nikIndividu">
+        </div>
+        
+        <div class="mb-3">
+          <label for="alamatIndividu" class="form-label">Alamat:</label>
+          <textarea class="form-control" id="alamatIndividu" rows="2" placeholder="Alamat Pengunjung"></textarea>
+        </div>
+        
+        <div class="mb-3">
+          <label for="telpIndividu" class="form-label">Nomor Telepon:</label>
+          <input type="text" class="form-control" id="telpIndividu" placeholder="No. Telepon">
+        </div>
+        
+        <p>(selanjutnya disebut sebagai Adopter)</p>
+        <p>dengan ini menyatakan kepedulian dan minat untuk mengadopsi secara simbolis satwa</p>
+        
+        <div class="mb-3">
+          <label for="namaHewanIndividu" class="form-label">Nama Hewan:</label>
+          <input type="text" class="form-control" id="namaHewanIndividu">
+        </div>
+        
+        <div class="mb-3">
+          <label for="jenisHewanIndividu" class="form-label">Jenis Hewan:</label>
+          <input type="text" class="form-control" id="jenisHewanIndividu">
+        </div>
+        
+        <p>Adopter juga bersedia memberikan kontribusi finansial kepada pihak taman safari sebagai dukungan untuk pemeliharaan satwa:</p>
+        
+        <div class="mb-3">
+          <label for="nominalIndividu" class="form-label">Nominal Kontribusi:</label>
+          <input type="text" class="form-control" id="nominalIndividu">
+        </div>
+        
+        <div class="mb-3">
+          <label for="periodeIndividu" class="form-label">Periode Adopsi:</label>
+          <select class="form-select" id="periodeIndividu">
+            <option value="3">3 Bulan</option>
+            <option value="6">6 Bulan</option>
+            <option value="12">12 Bulan</option>
+          </select>
+        </div>
+        
+        <div class="text-center mt-4">
+          <button type="submit" class="btn btn-primary mx-2">Submit Form</button>
+          <button type="button" class="btn btn-secondary mx-2">Batal</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

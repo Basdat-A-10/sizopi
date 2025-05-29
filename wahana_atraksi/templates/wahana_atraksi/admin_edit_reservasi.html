@@ -1,0 +1,293 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    /* Custom CSS untuk admin edit reservasi */
+    .card {
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        margin-bottom: 30px;
+    }
+    
+    .card-header {
+        padding: 1.2rem;
+        font-weight: bold;
+        letter-spacing: 1px;
+    }
+    
+    .card-body {
+        padding: 2rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #495057;
+    }
+    
+    .form-control {
+        border-radius: 8px;
+        border: 2px solid #e9ecef;
+        padding: 0.75rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+    
+    .btn {
+        border-radius: 8px;
+        font-weight: 600;
+        padding: 0.75rem 2rem;
+        transition: all 0.3s ease;
+        margin-right: 0.5rem;
+    }
+    
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+        box-shadow: 0 4px 15px rgba(0, 123, 255, 0.2);
+    }
+    
+    .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #004085;
+        box-shadow: 0 6px 20px rgba(0, 123, 255, 0.3);
+        transform: translateY(-2px);
+    }
+    
+    .btn-secondary {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        box-shadow: 0 4px 15px rgba(108, 117, 125, 0.2);
+    }
+    
+    .btn-secondary:hover {
+        background-color: #545b62;
+        border-color: #4e555b;
+        box-shadow: 0 6px 20px rgba(108, 117, 125, 0.3);
+        transform: translateY(-2px);
+    }
+    
+    /* Header animasi */
+    .page-header {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        color: white;
+        padding: 40px 0;
+        text-align: center;
+        margin-bottom: 30px;
+        border-radius: 0 0 50px 50px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .page-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .admin-info {
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border-left: 5px solid #007bff;
+    }
+    
+    .admin-info h4 {
+        color: #1565c0;
+        margin-bottom: 1rem;
+    }
+    
+    .info-item {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 0.5rem;
+    }
+    
+    .info-item i {
+        width: 20px;
+        margin-right: 10px;
+        color: #1565c0;
+        margin-top: 2px;
+    }
+    
+    /* Animasi untuk tampilan awal */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .animate-fade-in {
+        animation: fadeIn 0.8s ease forwards;
+    }
+    
+    /* Responsif untuk mobile */
+    @media (max-width: 768px) {
+        .page-header {
+            padding: 30px 0;
+        }
+        
+        .page-header h1 {
+            font-size: 2rem;
+        }
+        
+        .btn {
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+    }
+</style>
+
+<!-- Header Section -->
+<div class="page-header">
+    <div class="container">
+        <h1>ADMIN - EDIT RESERVASI</h1>
+        <p>Edit Reservasi Pengunjung</p>
+    </div>
+</div>
+
+<div class="container mt-4">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show mb-4" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- Informasi Admin -->
+            <div class="admin-info animate-fade-in">
+                <h4><i class="fas fa-user-shield"></i> Mode Admin</h4>
+                <p>Anda sedang mengedit reservasi sebagai administrator. Perubahan akan langsung mengkonfirmasi reservasi.</p>
+            </div>
+
+            <!-- Form Edit Reservasi -->
+            <div class="card animate-fade-in">
+                <div class="card-header bg-primary text-white text-center">
+                    <h3>EDIT RESERVASI PENGUNJUNG</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="username">Username Pengunjung:</label>
+                            <input type="text" class="form-control" id="username" value="{{ reservasi.username_p }}" readonly>
+                        </div>
+                        
+                        {% if reservasi.jenis_fasilitas == 'atraksi' %}
+                        <!-- Form untuk Atraksi -->
+                        <div class="form-group">
+                            <label class="form-label" for="nama_fasilitas">Nama Atraksi:</label>
+                            <input type="text" class="form-control" id="nama_fasilitas" value="{{ reservasi.nama_fasilitas }}" readonly>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="lokasi">Lokasi:</label>
+                            <input type="text" class="form-control" id="lokasi" value="{{ reservasi.lokasi }}" readonly>
+                        </div>
+                        {% elif reservasi.jenis_fasilitas == 'wahana' %}
+                        <!-- Form untuk Wahana -->
+                        <div class="form-group">
+                            <label class="form-label" for="nama_fasilitas">Nama Wahana:</label>
+                            <input type="text" class="form-control" id="nama_fasilitas" value="{{ reservasi.nama_fasilitas }}" readonly>
+                        </div>
+                        
+                        {% if reservasi.peraturan %}
+                        <div class="form-group">
+                            <label class="form-label" for="peraturan">Peraturan:</label>
+                            <textarea class="form-control" id="peraturan" rows="4" readonly>{{ reservasi.peraturan }}</textarea>
+                        </div>
+                        {% endif %}
+                        {% endif %}
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="jadwal">Jam:</label>
+                            <input type="text" class="form-control" id="jadwal" value="{{ reservasi.jadwal|time:"H:i" }}" readonly>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="tanggal">Tanggal Kunjungan:</label>
+                            <input type="date" class="form-control" id="tanggal" name="tanggal_kunjungan" 
+                                   min="{{ today|date:"Y-m-d" }}" 
+                                   value="{{ reservasi.tanggal_kunjungan|date:"Y-m-d" }}" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="jumlah_tiket">Jumlah Tiket:</label>
+                            <input type="number" class="form-control" id="jumlah_tiket" name="jumlah_tiket" 
+                                   min="1" value="{{ reservasi.jumlah_tiket }}" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="status">Status Saat Ini:</label>
+                            <input type="text" class="form-control" id="status" value="{{ reservasi.status }}" readonly>
+                            <small class="text-info">Status akan berubah menjadi "Confirmed" setelah disimpan</small>
+                        </div>
+                        
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> SIMPAN & KONFIRMASI
+                            </button>
+                            <a href="{% url 'daftar_wahana_dan_atraksi' %}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> BATAL
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animasi saat halaman dimuat
+    const elements = document.querySelectorAll('.animate-fade-in');
+    elements.forEach((element, index) => {
+        element.style.animationDelay = `${index * 0.2}s`;
+    });
+    
+    // Validasi form
+    const form = document.querySelector('form');
+    const jumlahTiketInput = document.getElementById('jumlah_tiket');
+    const tanggalInput = document.getElementById('tanggal');
+    
+    form.addEventListener('submit', function(e) {
+        const jumlahTiket = parseInt(jumlahTiketInput.value);
+        const tanggal = new Date(tanggalInput.value);
+        const today = new Date();
+        
+        if (jumlahTiket <= 0) {
+            e.preventDefault();
+            alert('Jumlah tiket harus lebih dari 0');
+            return;
+        }
+        
+        if (tanggal < today) {
+            e.preventDefault();
+            alert('Tanggal kunjungan tidak boleh di masa lalu');
+            return;
+        }
+        
+        // Konfirmasi admin
+        if (!confirm('Apakah Anda yakin ingin mengubah reservasi ini? Status akan berubah menjadi Confirmed.')) {
+            e.preventDefault();
+        }
+    });
+});
+</script>
+{% endblock %}

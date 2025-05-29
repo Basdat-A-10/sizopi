@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 from decouple import config
 import dj_database_url
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,8 +28,9 @@ SECRET_KEY = 'django-insecure-q)aqior8u4+*zd*kv%*ry5(0_#_v6&7@2q)sq-fuhwxmiaa2+3
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+ALLOWED_HOSTS = ['*']
 
+CSRF_TRUSTED_ORIGINS = ['https://sizopi-production-2896.up.railway.app',]
 
 # Application definition
 
@@ -41,7 +43,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # A-10 APPS
     'main',
-    'kesehatan_perawatan_satwa'
+    'kesehatan_perawatan_satwa',
+    'wahana_atraksi',
+    'authentication',
+    'satwa_habitat',
+    'dashboard',
+    'adopsi',
 ]
 
 MIDDLEWARE = [
@@ -59,9 +66,7 @@ ROOT_URLCONF = 'sizopi.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-            BASE_DIR / 'templates', 
-        ],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -69,6 +74,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'authentication.context_processors.user_info',  
             ],
         },
     },
@@ -125,4 +131,7 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Konfigurasi messages
+MESSAGE_STORAGE = 'django.contrib.messages.storage.cookie.CookieStorage'
 

@@ -1,0 +1,355 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    /* Custom CSS untuk form reservasi */
+    .card {
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        margin-bottom: 30px;
+    }
+    
+    .card-header {
+        padding: 1.2rem;
+        font-weight: bold;
+        letter-spacing: 1px;
+    }
+    
+    .card-body {
+        padding: 2rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #495057;
+    }
+    
+    .form-control {
+        border-radius: 8px;
+        border: 2px solid #e9ecef;
+        padding: 0.75rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+    
+    .btn {
+        border-radius: 8px;
+        font-weight: 600;
+        padding: 0.75rem 2rem;
+        transition: all 0.3s ease;
+        margin-right: 0.5rem;
+    }
+    
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+        box-shadow: 0 4px 15px rgba(0, 123, 255, 0.2);
+    }
+    
+    .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #004085;
+        box-shadow: 0 6px 20px rgba(0, 123, 255, 0.3);
+        transform: translateY(-2px);
+    }
+    
+    .btn-secondary {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        box-shadow: 0 4px 15px rgba(108, 117, 125, 0.2);
+    }
+    
+    .btn-secondary:hover {
+        background-color: #545b62;
+        border-color: #4e555b;
+        box-shadow: 0 6px 20px rgba(108, 117, 125, 0.3);
+        transform: translateY(-2px);
+    }
+    
+    /* Header animasi */
+    .page-header {
+        background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+        color: white;
+        padding: 40px 0;
+        text-align: center;
+        margin-bottom: 30px;
+        border-radius: 0 0 50px 50px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .page-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .atraksi-info {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border-left: 5px solid #007bff;
+    }
+    
+    .atraksi-info h4 {
+        color: #007bff;
+        margin-bottom: 1rem;
+    }
+    
+    .info-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+    
+    .info-item i {
+        width: 20px;
+        margin-right: 10px;
+        color: #007bff;
+    }
+    
+    /* Alert styling */
+    .alert-danger {
+        border-left: 4px solid #dc3545;
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+        animation: shake 0.5s ease-in-out;
+    }
+    
+    .alert-success {
+        border-left: 4px solid #28a745;
+        background-color: #d1e7dd;
+        border-color: #badbcc;
+    }
+    
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+    }
+    
+    /* Animasi untuk tampilan awal */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .animate-fade-in {
+        animation: fadeIn 0.8s ease forwards;
+    }
+    
+    /* Responsif untuk mobile */
+    @media (max-width: 768px) {
+        .page-header {
+            padding: 30px 0;
+        }
+        
+        .page-header h1 {
+            font-size: 2rem;
+        }
+        
+        .btn {
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+    }
+</style>
+
+<!-- Header Section -->
+<div class="page-header">
+    <div class="container">
+        <h1>FORM RESERVASI</h1>
+        <p>Pemesanan Tiket Atraksi</p>
+    </div>
+</div>
+
+<div class="container mt-4">
+    <!-- Tampilkan pesan error kapasitas jika ada -->
+    {% if error_message %}
+    <div class="alert alert-danger alert-dismissible fade show mb-4 animate-fade-in" role="alert">
+        <i class="fas fa-exclamation-triangle"></i>
+        <strong>Kapasitas Tidak Mencukupi!</strong><br>
+        {{ error_message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+    
+    <!-- Tampilkan pesan Django messages jika ada -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show mb-4 animate-fade-in" role="alert">
+                {% if message.tags == 'success' %}
+                    <i class="fas fa-check-circle"></i>
+                {% else %}
+                    <i class="fas fa-info-circle"></i>
+                {% endif %}
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- Informasi Atraksi -->
+            <div class="atraksi-info animate-fade-in">
+                <h4><i class="fas fa-star"></i> Informasi Atraksi</h4>
+                <div class="info-item">
+                    <i class="fas fa-ticket-alt"></i>
+                    <strong>Nama Atraksi:</strong> {{ atraksi.nama_atraksi }}
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <strong>Lokasi:</strong> {{ atraksi.lokasi }}
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-users"></i>
+                    <strong>Kapasitas Maksimum:</strong> {{ atraksi.kapasitas_max }} orang
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-clock"></i>
+                    <strong>Jam:</strong> {{ atraksi.jadwal|time:"H:i" }}
+                </div>
+            </div>
+
+            <!-- Form Reservasi -->
+            <div class="card animate-fade-in">
+                <div class="card-header bg-primary text-white text-center">
+                    <h3>FORM RESERVASI</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'buat_reservasi' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="nama_atraksi" value="{{ atraksi.nama_atraksi }}">
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="nama_atraksi_display">Nama Atraksi:</label>
+                            <select class="form-control" id="nama_atraksi_display" disabled>
+                                <option>{{ atraksi.nama_atraksi }}</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="lokasi">Lokasi:</label>
+                            <input type="text" class="form-control" id="lokasi" value="{{ atraksi.lokasi }}" readonly>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="jam">Jam:</label>
+                            <input type="text" class="form-control" id="jam" value="{{ atraksi.jadwal|time:"H:i" }}" readonly>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="tanggal">Tanggal:</label>
+                            <input type="date" class="form-control" id="tanggal" name="tanggal_kunjungan" 
+                                   min="{{ today|date:"Y-m-d" }}" 
+                                   value="{{ form_data.tanggal_kunjungan|default:'' }}" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="jumlah_tiket">Jumlah tiket yang ingin dibeli:</label>
+                            <input type="number" class="form-control" id="jumlah_tiket" name="jumlah_tiket" 
+                                   min="1"
+                                   value="{{ form_data.jumlah_tiket|default:'1' }}" required>
+                            <small class="form-text text-muted">
+                                <i class="fas fa-info-circle"></i>
+                                Sistem akan mengecek ketersediaan kapasitas secara otomatis
+                            </small>
+                            {% if tiket_tersedia %}
+                                <small class="text-info d-block">Tiket tersedia: {{ tiket_tersedia }}</small>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-ticket-alt"></i> BUAT RESERVASI
+                            </button>
+                            <a href="{% url 'daftar_wahana_dan_atraksi' %}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> BATAL
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Info Panel Kapasitas -->
+            <div class="card mt-3 animate-fade-in">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle"></i> Informasi Kapasitas</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-0">
+                        <strong>Atraksi:</strong> {{ atraksi.nama_atraksi }}<br>
+                        <strong>Kapasitas Maksimum:</strong> {{ atraksi.kapasitas_max }} orang per sesi<br>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animasi saat halaman dimuat
+    const elements = document.querySelectorAll('.animate-fade-in');
+    elements.forEach((element, index) => {
+        element.style.animationDelay = `${index * 0.2}s`;
+    });
+    
+    // Validasi form
+    const form = document.querySelector('form');
+    const jumlahTiketInput = document.getElementById('jumlah_tiket');
+    const tanggalInput = document.getElementById('tanggal');
+    
+    form.addEventListener('submit', function(e) {
+        const jumlahTiket = parseInt(jumlahTiketInput.value);
+        const tanggal = new Date(tanggalInput.value);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Reset waktu untuk perbandingan tanggal saja
+        
+        if (jumlahTiket <= 0) {
+            e.preventDefault();
+            alert('Jumlah tiket harus lebih dari 0');
+            jumlahTiketInput.focus();
+            return;
+        }
+        
+        if (tanggal < today) {
+            e.preventDefault();
+            alert('Tanggal kunjungan tidak boleh di masa lalu');
+            tanggalInput.focus();
+            return;
+        }
+        
+        // Konfirmasi sebelum submit
+        const confirmMessage = `Apakah Anda yakin ingin memesan ${jumlahTiket} tiket untuk atraksi ${document.getElementById('nama_atraksi_display').value} pada tanggal ${tanggalInput.value}?`;
+        if (!confirm(confirmMessage)) {
+            e.preventDefault();
+            return;
+        }
+    });
+    
+    // Auto-dismiss alerts after 5 seconds
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+        setTimeout(() => {
+            if (alert.querySelector('.btn-close')) {
+                alert.querySelector('.btn-close').click();
+            }
+        }, 5000);
+    });
+});
+</script>
+{% endblock %}

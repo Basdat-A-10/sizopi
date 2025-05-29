@@ -10,7 +10,7 @@ SET search_path to SIZOPI;
 -- 1. PENGGUNA table
 CREATE TABLE PENGGUNA (
     username VARCHAR(50) PRIMARY KEY,
-    email VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(50) NOT NULL,
     nama_depan VARCHAR(50) NOT NULL,
     nama_tengah VARCHAR(50),
@@ -110,10 +110,12 @@ CREATE TABLE PAKAN (
 
 -- 12. MEMBERI table
 CREATE TABLE MEMBERI (
-    id_hewan UUID PRIMARY KEY,
+    id_hewan UUID,
     jadwal TIMESTAMP NOT NULL,
     username_jh VARCHAR(50),
+    PRIMARY KEY (id_hewan, jadwal),
     FOREIGN KEY (id_hewan) REFERENCES HEWAN(id),
+    FOREIGN KEY (id_hewan, jadwal) REFERENCES PAKAN(id_hewan, jadwal),
     FOREIGN KEY (username_jh) REFERENCES PENJAGA_HEWAN(username_jh)
 );
 
@@ -150,11 +152,11 @@ CREATE TABLE BERPARTISIPASI (
     FOREIGN KEY (id_hewan) REFERENCES HEWAN(id)
 );
 
--- 17. JADWAL_PEMERIKSAAN_KESEHATAN table
+-- 17. JADWAL_PEMERIKSAAN_KESEHATAN table dengan default constraint
 CREATE TABLE JADWAL_PEMERIKSAAN_KESEHATAN (
     id_hewan UUID,
     tgl_pemeriksaan_selanjutnya DATE,
-    freq_pemeriksaan_rutin INT NOT NULL,
+    freq_pemeriksaan_rutin INT NOT NULL DEFAULT 3,
     PRIMARY KEY (id_hewan, tgl_pemeriksaan_selanjutnya),
     FOREIGN KEY (id_hewan) REFERENCES HEWAN(id)
 );
@@ -202,6 +204,28 @@ CREATE TABLE ADOPSI (
     FOREIGN KEY (id_adopter) REFERENCES ADOPTER(id_adopter),
     FOREIGN KEY (id_hewan) REFERENCES HEWAN(id)
 );
+
+CREATE TABLE RESERVASI (
+    username_p VARCHAR(50),
+    nama_fasilitas VARCHAR(50),
+    tanggal_kunjungan DATE,
+    jumlah_tiket INT NOT NULL,
+    status VARCHAR(50) NOT NULL,
+    PRIMARY KEY (username_p, nama_fasilitas, tanggal_kunjungan),
+    FOREIGN KEY (username_p) REFERENCES PENGUNJUNG(username_p),
+    FOREIGN KEY (nama_fasilitas) REFERENCES FASILITAS(nama_fasilitas)
+);
+
+CREATE TABLE IF NOT EXISTS RIWAYAT_SATWA (
+    id SERIAL PRIMARY KEY,
+    id_hewan UUID NOT NULL,
+    old_status_kesehatan VARCHAR(50),
+    new_status_kesehatan VARCHAR(50),
+    old_nama_habitat VARCHAR(100),
+    new_nama_habitat VARCHAR(100),
+    waktu_perubahan TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 
 -- Insert datas for 1. PENGGUNA table
 -- 50 PENGUNJUNG
@@ -334,7 +358,7 @@ VALUES
 ('putri_maharani', 'STR-DH-2020-01456789'),
 ('rizky_pratama', 'STR-DH-2022-01567890');
 
--- Insert 10 datas for 4. SPESIALISASI table (jumlah dikurangi dari 17 menjadi 10)
+-- Insert 10 datas for 4. SPESIALISASI table 
 INSERT INTO SPESIALISASI (username_SH, nama_spesialisasi)
 VALUES 
 ('ajeng_pratiwi', 'Bedah Hewan Kecil'),
@@ -377,13 +401,13 @@ VALUES
 -- Insert 40 datas into 8. HEWAN table 
 INSERT INTO HEWAN (id, nama, spesies, asal_hewan, tanggal_lahir, status_kesehatan, nama_habitat, url_foto)
 VALUES 
-('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'Raja', 'Panthera tigris sumatrae', 'Sumatera, Indonesia', '2018-03-12', 'Sehat', 'Hutan Hujan Tropis', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRdBHMhY_ICwg4ta5lg9JkF0ADznhYlJbt0JA&s'),
+('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'Raja', 'Panthera tigris sumatrae', 'Sumatera, Indonesia', '2018-03-12', 'Sakit', 'Hutan Hujan Tropis', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRdBHMhY_ICwg4ta5lg9JkF0ADznhYlJbt0JA&s'),
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12', 'Kiko', 'Pongo pygmaeus', 'Kalimantan, Indonesia', '2016-07-23', 'Sehat', 'Hutan Hujan Tropis', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTu_8lN2BoofoWQgpYfVt5XvQqPoGyiqRqvxA&s'),
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13', 'Luna', 'Elephas maximus sumatranus', 'Sumatera, Indonesia', '2014-05-17', 'Sehat', 'Hutan Hujan Tropis', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRm-beLgPGJKth2krKGtsKVyUniV5FuzevuVA&s'),
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a14', 'Simba', 'Panthera leo', 'Tanzania, Afrika', '2019-01-28', 'Sehat', 'Savana', 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Lion_waiting_in_Namibia.jpg/1200px-Lion_waiting_in_Namibia.jpg'),
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a15', 'Bolt', 'Acinonyx jubatus', 'Kenya, Afrika', '2020-04-05', 'Sehat', 'Savana', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSDK5pfJ34gxt_6SVC1rgdyCChW2mriEjiLeA&s'),
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a16', 'Miko', 'Hylobates moloch', 'Jawa, Indonesia', '2017-11-30', 'Sehat', 'Hutan Hujan Tropis', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT82ZTpZW85LefM57CB17cj9xc4OWGgnRlirg&s'),
-('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a17', 'Kiwi', 'Nasalis larvatus', 'Kalimantan, Indonesia', '2018-08-14', 'Observasi', 'Hutan Bakau', 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Proboscis_monkey_%28Nasalis_larvatus%29_male_head.jpg/250px-Proboscis_monkey_%28Nasalis_larvatus%29_male_head.jpg'),
+('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a17', 'Kiwi', 'Nasalis larvatus', 'Kalimantan, Indonesia', '2018-08-14', 'Sakit', 'Hutan Bakau', 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Proboscis_monkey_%28Nasalis_larvatus%29_male_head.jpg/250px-Proboscis_monkey_%28Nasalis_larvatus%29_male_head.jpg'),
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a18', 'Goku', 'Macaca nigra', 'Sulawesi, Indonesia', '2019-06-22', 'Sehat', 'Hutan Hujan Tropis', 'https://upload.wikimedia.org/wikipedia/commons/d/d4/Crested_Black_Macaque_%28Macaca_nigra%29.jpg'),
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a19', 'Rio', 'Paradisaea apoda', 'Papua, Indonesia', '2020-02-11', 'Sehat', 'Hutan Hujan Tropis', 'https://upload.wikimedia.org/wikipedia/commons/c/c1/Paradisaea_apoda_-Bali_Bird_Park-5.jpg'),
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a20', 'Blu', 'Cacatua sulphurea', 'Nusa Tenggara, Indonesia', '2017-12-15', 'Sehat', 'Hutan Hujan Tropis', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRJmV4q0-CVbdJ85zBUB3g7A1ZAoUmPX6eMeA&s'),
@@ -398,21 +422,21 @@ VALUES
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a29', 'Dotty', 'Giraffa camelopardalis', 'Kenya, Afrika', '2017-07-21', 'Sehat', 'Savana', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1LBOAqJBIE1mB6IX7cGkwZaH7H-ksUa5hIg&s'),
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a30', 'Stripes', 'Equus quagga', 'Tanzania, Afrika', '2018-10-11', 'Sehat', 'Savana', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSJAFJ2cCC3gFAubQ8mFa77Oj8KFexvUJkM0A&s'),
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a31', 'Bruno', 'Ursus arctos', 'Kanada, Amerika Utara', '2016-05-15', 'Sehat', 'Pegunungan', 'https://upload.wikimedia.org/wikipedia/commons/7/79/2010-brown-bear.jpghttps://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTVqK1DBnGuqtHFqW6P2r7aSKsHphFk049cgA&s'),
-('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a32', 'Felix', 'Panthera onca', 'Brasil, Amerika Selatan', '2018-09-07', 'Observasi', 'Hutan Hujan Tropis', 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Jaguar_%28Panthera_onca_palustris%29_male_Three_Brothers_River_2_%28cropped%29.jpg/1200px-Jaguar_%28Panthera_onca_palustris%29_male_Three_Brothers_River_2_%28cropped%29.jpg'),
+('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a32', 'Felix', 'Panthera onca', 'Brasil, Amerika Selatan', '2018-09-07', 'Sakit', 'Hutan Hujan Tropis', 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Jaguar_%28Panthera_onca_palustris%29_male_Three_Brothers_River_2_%28cropped%29.jpg/1200px-Jaguar_%28Panthera_onca_palustris%29_male_Three_Brothers_River_2_%28cropped%29.jpg'),
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a33', 'Rocky', 'Rhinoceros unicornis', 'Nepal, Asia', '2015-12-03', 'Sehat', 'Padang Rumput', 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Indian_Rhino_%28Rhinoceros_unicornis%291_-_Relic38.jpg/2560px-Indian_Rhino_%28Rhinoceros_unicornis%291_-_Relic38.jpg'),
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a34', 'Sandy', 'Camelus dromedarius', 'Mesir, Afrika', '2016-08-25', 'Sehat', 'Gurun', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS_svbhARlCQHlXZnDRtuEKxvFwmfIDlyaBiA&s'),
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a35', 'Spiky', 'Hystrix cristata', 'Afrika Utara', '2019-03-16', 'Sehat', 'Gurun', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQzJ1uAnTuxPWpaoAPQyUQwKEOh4eGuiZ4Xw&s'),
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a36', 'Slinky', 'Uromastyx aegyptia', 'Timur Tengah', '2020-01-17', 'Sehat', 'Gurun', 'https://upload.wikimedia.org/wikipedia/commons/c/cc/Uromastyx_aegyptia_2.jpg'),
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a37', 'Putih', 'Tyto alba', 'Jawa, Indonesia', '2019-02-28', 'Sehat', 'Padang Rumput', 'https://www.asianagri.com/wp-content/uploads/2019/03/Asian_Agri_Tyto_Alba_-_Natural_Pest_Management_1.jpg'),
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a38', 'Banteng', 'Bos javanicus', 'Jawa, Indonesia', '2017-06-14', 'Sehat', 'Padang Rumput', 'https://upload.wikimedia.org/wikipedia/commons/5/5a/Banteng_Alas_Purwo.jpg'),
-('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a39', 'Badak', 'Rhinoceros sondaicus', 'Jawa, Indonesia', '2014-11-22', 'Observasi', 'Hutan Hujan Tropis', 'https://cdn-gonef.nitrocdn.com/UbWAxHlpDDRAfYTBoCBfYvGZgzkfyWTb/assets/images/optimized/rev-c08d0b4/seethewild.org/wp-content/uploads/2022/09/javan-rhinoceros-768x432-1.jpg'),
+('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a39', 'Badak', 'Rhinoceros sondaicus', 'Jawa, Indonesia', '2014-11-22', 'Sakit', 'Hutan Hujan Tropis', 'https://cdn-gonef.nitrocdn.com/UbWAxHlpDDRAfYTBoCBfYvGZgzkfyWTb/assets/images/optimized/rev-c08d0b4/seethewild.org/wp-content/uploads/2022/09/javan-rhinoceros-768x432-1.jpg'),
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a40', 'Komo', 'Babyrousa babyrussa', 'Sulawesi, Indonesia', '2018-04-19', 'Sehat', 'Hutan Hujan Tropis', 'https://upload.wikimedia.org/wikipedia/commons/c/cd/Hirscheber1a.jpg'),
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a41', 'Poky', 'Echidna aculeatus', 'Australia', '2019-12-12', 'Sehat', 'Padang Rumput', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRivds8jSfrZG4d9n1wnvAB0kz2uBsrcdrTRQ&s'),
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a42', 'Hopper', 'Macropus rufus', 'Australia', '2018-07-30', 'Sehat', 'Padang Rumput', 'https://upload.wikimedia.org/wikipedia/commons/f/f1/Red_kangaroo_-_melbourne_zoo.jpg'),
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a43', 'Sleepy', 'Phascolarctos cinereus', 'Australia', '2017-05-05', 'Sehat', 'Hutan Hujan Tropis', 'https://upload.wikimedia.org/wikipedia/commons/4/49/Koala_climbing_tree.jpg'),
-('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a44', 'Bubbles', 'Tursiops truncatus', 'Laut Indonesia', '2016-09-18', 'Sehat', 'Terumbu Karang', 'https://upload.wikimedia.org/wikipedia/commons/b/bc/Tursiops_truncatus_01-cropped.jpg'),
+('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a44', 'Bubbles', 'Tursiops truncatus', 'Laut Indonesia', '2016-09-18', 'Sakit', 'Terumbu Karang', 'https://upload.wikimedia.org/wikipedia/commons/b/bc/Tursiops_truncatus_01-cropped.jpg'),
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a45', 'Nemo', 'Amphiprion ocellaris', 'Laut Indonesia', '2020-03-28', 'Sehat', 'Terumbu Karang', 'https://upload.wikimedia.org/wikipedia/commons/a/a7/Amphiprion_ocellaris_%281%29.jpg'),
-('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a46', 'Shelly', 'Eretmochelys imbricata', 'Laut Indonesia', '2015-08-07', 'Sehat', 'Terumbu Karang', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRV4VIllNN694xVvh7hFNx5X1hOHy_W78GUOg&s'),
+('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a46', 'Shelly', 'Eretmochelys imbricata', 'Laut Indonesia', '2015-08-07', 'Sakit', 'Terumbu Karang', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRV4VIllNN694xVvh7hFNx5X1hOHy_W78GUOg&s'),
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a47', 'Fleecy', 'Capra aegagrus hircus', 'Pegunungan Himalaya', '2019-01-03', 'Sehat', 'Pegunungan', 'https://upload.wikimedia.org/wikipedia/commons/b/b2/Hausziege_04.jpg'),
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a48', 'Snowy', 'Pantholops hodgsonii', 'Tibet', '2018-11-15', 'Sehat', 'Pegunungan', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS_hqUukI5jeYqWgzNRIp5U97VYSSJPW0C4JUSgUAcq4RvQc84OhCLuZhrq-PFnXYhQX-M&usqp=CAU'),
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a49', 'Alpine', 'Rupicapra rupicapra', 'Alpen, Eropa', '2017-10-10', 'Sehat', 'Pegunungan', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTzBU2KN_a9XYNdmU0U9mr9Dfbyw1MLSVwSQ&s'),
@@ -421,25 +445,32 @@ VALUES
 -- Insert 10 datas for 9. CATATAN_MEDIS table
 INSERT INTO CATATAN_MEDIS (id_hewan, username_dh, tanggal_pemeriksaan, diagnosis, pengobatan, status_kesehatan, catatan_tindak_lanjut)
 VALUES 
-('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'ajeng_pratiwi', '2023-09-15', 'Infeksi kulit ringan', 'Antibiotik dan salep antijamur', 'Pemulihan', 'Evaluasi ulang dalam 2 minggu, pantau perkembangan luka'),
+('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'ajeng_pratiwi', '2023-09-15', 'Infeksi kulit ringan', 'Antibiotik dan salep antijamur', 'Sakit', 'Evaluasi ulang dalam 2 minggu, pantau perkembangan luka'),
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12', 'budi_santoso', '2023-10-03', 'Pemeriksaan rutin', 'Vitamin dan suplemen', 'Sehat', 'Pemeriksaan berikutnya dalam 6 bulan'),
-('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a17', 'dewi_anggraini', '2023-11-21', 'Infeksi saluran pernapasan', 'Antibiotik dan terapi inhalasi', 'Observasi', 'Pemantauan harian selama seminggu'),
+('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a17', 'dewi_anggraini', '2023-11-21', 'Infeksi saluran pernapasan', 'Antibiotik dan terapi inhalasi', 'Sakit', 'Pemantauan harian selama seminggu'),
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a26', 'eko_prasetyo', '2023-12-07', 'Infeksi pada kaki', 'Antibiotik spektrum luas dan perawatan luka', 'Sakit', 'Perawatan luka harian dan evaluasi ulang dalam 5 hari'),
-('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a32', 'fitri_wulandari', '2024-01-18', 'Penurunan nafsu makan', 'Stimulan nafsu makan dan vitamin', 'Observasi', 'Pantau pola makan selama 10 hari'),
-('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a39', 'gilang_ramadhan', '2024-02-05', 'Parasit internal', 'Obat cacing dan probiotik', 'Observasi', 'Pemeriksaan feses ulang dalam 2 minggu'),
+('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a32', 'fitri_wulandari', '2024-01-18', 'Penurunan nafsu makan', 'Stimulan nafsu makan dan vitamin', 'Sakit', 'Pantau pola makan selama 10 hari'),
+('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a39', 'gilang_ramadhan', '2024-02-05', 'Parasit internal', 'Obat cacing dan probiotik', 'Sakit', 'Pemeriksaan feses ulang dalam 2 minggu'),
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13', 'hendra_wijaya', '2024-02-22', 'Masalah gigi', 'Pembersihan gigi dan pengikisan', 'Sehat', 'Pemeriksaan gigi rutin setiap 3 bulan'),
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a14', 'intan_permata', '2024-03-10', 'Vaksinasi rutin', 'Vaksin rabies dan distemper', 'Sehat', 'Vaksinasi berikutnya tahun depan'),
-('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a44', 'joko_susilo', '2024-03-25', 'Lesi kulit', 'Pengobatan antibiotik dan terapi air', 'Pemulihan', 'Evaluasi kondisi kulit setiap 3 hari'),
-('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a46', 'kartika_sari', '2024-04-12', 'Retak pada cangkang', 'Penutupan retak dengan resin khusus', 'Pemulihan', 'Pemantauan kesembuhan cangkang selama 4 minggu');
+('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a44', 'joko_susilo', '2024-03-25', 'Lesi kulit', 'Pengobatan antibiotik dan terapi air', 'Sakit', 'Evaluasi kondisi kulit setiap 3 hari'),
+('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a46', 'kartika_sari', '2024-04-12', 'Retak pada cangkang', 'Penutupan retak dengan resin khusus', 'Sakit', 'Pemantauan kesembuhan cangkang selama 4 minggu');
 
--- Insert 5 datas for 11. PAKAN table
+-- Insert datas for 11. PAKAN table
 INSERT INTO PAKAN (id_hewan, jadwal, jenis, jumlah, status)
 VALUES 
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', '2024-04-25 08:00:00', 'Daging Sapi', 8, 'Terjadwal'),
-('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12', '2024-04-25 09:30:00', 'Buah-buahan Segar', 5, 'Selesai'),
-('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13', '2024-04-25 10:15:00', 'Rumput dan Sayuran', 25, 'Selesai'),
+('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12', '2024-04-25 09:30:00', 'Buah-buahan Segar', 5, 'Selesai Diberikan'),
+('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13', '2024-04-25 10:15:00', 'Rumput dan Sayuran', 25, 'Selesai Diberikan'),
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a43', '2024-04-25 13:45:00', 'Daun Eucalyptus', 3, 'Terjadwal'),
-('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a44', '2024-04-25 15:30:00', 'Ikan Segar', 12, 'Terjadwal');
+('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a44', '2024-04-25 15:30:00', 'Ikan Segar', 12, 'Terjadwal'),
+('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a14', '2024-04-26 08:30:00', 'Daging Sapi', 7, 'Selesai Diberikan'),
+('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a15', '2024-04-26 09:45:00', 'Daging Rusa', 5, 'Selesai Diberikan'),
+('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a25', '2024-04-26 11:15:00', 'Daging Ayam', 3, 'Selesai Diberikan'),
+('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a43', '2024-04-26 13:45:00', 'Daun Eucalyptus', 4, 'Selesai Diberikan'),
+('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a44', '2024-04-26 15:30:00', 'Ikan Segar', 10, 'Selesai Diberikan'),
+('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a45', '2024-04-27 10:00:00', 'Pakan Ikan', 2, 'Selesai Diberikan'),
+('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a29', '2024-04-27 11:30:00', 'Rumput dan Daun', 15, 'Selesai Diberikan');
 
 -- Insert 5 datas for 12. MEMBERI table
 INSERT INTO MEMBERI (id_hewan, jadwal, username_jh)
@@ -480,7 +511,10 @@ VALUES
 ('Rumah Burung', '2025-05-01 13:00:00', 120),
 ('Savana Afrika', '2025-05-01 14:00:00', 250),
 ('Hutan Hujan', '2025-05-01 15:00:00', 180),
-('Taman Kupu-kupu', '2025-05-01 16:00:00', 50);
+('Taman Kupu-kupu', '2025-05-01 16:00:00', 50),
+('Zona Edukasi Satwa', '2025-05-01 12:00:00', 90),
+('Kebun Binatang Mini', '2025-05-01 13:30:00', 110),
+('Teater Alam Terbuka', '2025-05-01 17:00:00', 200);
 
 INSERT INTO ATRAKSI (nama_atraksi, lokasi)
 VALUES 
@@ -488,28 +522,36 @@ VALUES
 ('Amphitheater Utama', 'Area Tengah Safari'),
 ('Zona Harimau', 'Area Utara Safari'),
 ('Area Petualangan Anak', 'Area Selatan Safari'),
-('Taman Air Mini', 'Area Barat Safari');
+('Taman Air Mini', 'Area Barat Safari'),
+('Kandang Reptil', 'Area Ekshibisi Reptil, Zona Barat'),
+('Rumah Burung', 'Taman Aviarium, Area Tenggara'),
+('Savana Afrika', 'Zona Safari Timur, Area Terbuka'),
+('Hutan Hujan', 'Zona Konservasi Tropis, Area Barat Daya'),
+('Taman Kupu-kupu', 'Taman Serangga, Dekat Entrance Selatan');
 
-INSERT INTO WAHANA (nama_wahana, peraturan, kapasitas, jadwal)
-VALUES 
-('Taman Air Mini', '1. Dilarang Berenang. 2. Dilarang membawa makanan. 3. Anak-anak harus didampingi orang dewasa.', 100, '10:00:00'),
-('Area Petualangan Anak', '1. Dilarang memanjat pagar. 2. Dilarang membawa makanan dan minuman. 3. Maksimal usia 12 tahun.', 75, '11:30:00'),
-('Zona Akuatik', '1. Wajib menggunakan alas kaki anti-slip. 2. Dilarang berenang. 3. Dilarang memberi makan hewan.', 150, '09:00:00'),
-('Kandang Reptil', '1. Dilarang menggunakan flash kamera. 2. Dilarang mengetuk kaca. 3. Jaga jarak aman.', 80, '13:00:00'),
-('Taman Kupu-kupu', '1. Jangan menyentuh kupu-kupu. 2. Dilarang membawa makanan. 3. Jaga ketenangan.', 50, '14:00:00');
+INSERT INTO WAHANA (nama_wahana, peraturan) VALUES
+('Zona Akuatik', 'Dilarang membawa makanan dan minuman. Anak-anak harus didampingi orang dewasa.'),
+('Amphitheater Utama', 'Dilarang merokok. Harap matikan ponsel selama pertunjukan.'),
+('Zona Harimau', 'Dilarang memberi makan hewan. Jaga jarak aman.'),
+('Area Petualangan Anak', 'Hanya untuk anak usia 4-12 tahun. Wajib menggunakan alas kaki.'),
+('Taman Air Mini', 'Wajib menggunakan pakaian renang. Anak-anak harus didampingi orang dewasa.'),
+('Kandang Reptil', 'Dilarang menggunakan flash kamera. Jaga ketenangan.'),
+('Rumah Burung', 'Dilarang membuat kebisingan. Tidak menyentuh burung.'),
+('Savana Afrika', 'Tetap di dalam kendaraan safari. Jendela harus tertutup.'),
+('Hutan Hujan', 'Tetap di jalur yang ditentukan. Dilarang memetik tanaman.'),
+('Taman Kupu-kupu', 'Tidak menangkap kupu-kupu. Dilarang menggunakan losion serangga.');
 
-INSERT INTO JADWAL_PENUGASAN (username_lh, tgl_penugasan, nama_atraksi)
-VALUES 
-('andrea_trainer', '2025-05-12 10:00:00', 'Zona Akuatik'),
-('bagus_pelatih', '2025-05-13 11:00:00', 'Zona Harimau'),
-('cindy_trainer', '2025-05-14 10:00:00', 'Amphitheater Utama'),
-('david_pelatih', '2025-05-15 09:30:00', 'Area Petualangan Anak'),
-('elsa_trainer', '2025-05-16 10:30:00', 'Taman Air Mini'),
-('fahmi_pelatih', '2025-05-17 14:00:00', 'Zona Akuatik'),
-('grace_trainer', '2025-05-18 11:00:00', 'Zona Harimau'),
-('hadi_pelatih', '2025-05-19 10:00:00', 'Amphitheater Utama'),
-('irene_trainer', '2025-05-20 09:30:00', 'Area Petualangan Anak'),
-('jaya_pelatih', '2025-05-21 10:30:00', 'Taman Air Mini');
+INSERT INTO JADWAL_PENUGASAN (username_lh, tgl_penugasan, nama_atraksi) VALUES
+('andrea_trainer', '2025-05-01 09:00:00', 'Zona Akuatik'),
+('bagus_pelatih', '2025-05-01 10:00:00', 'Amphitheater Utama'),
+('cindy_trainer', '2025-05-01 11:00:00', 'Zona Harimau'),
+('david_pelatih', '2025-05-01 09:30:00', 'Area Petualangan Anak'),
+('elsa_trainer', '2025-05-01 10:30:00', 'Taman Air Mini'),
+('fahmi_pelatih', '2025-05-01 11:30:00', 'Kandang Reptil'),
+('grace_trainer', '2025-05-01 13:00:00', 'Rumah Burung'),
+('hadi_pelatih', '2025-05-01 14:00:00', 'Savana Afrika'),
+('irene_trainer', '2025-05-01 15:00:00', 'Hutan Hujan'),
+('jaya_pelatih', '2025-05-01 16:00:00', 'Taman Kupu-kupu');
 
 INSERT INTO BERPARTISIPASI (nama_fasilitas, id_hewan)
 VALUES 
@@ -696,3 +738,28 @@ VALUES
 ('d850ebe0-1504-4d57-b0f7-83ac23cfa6d9', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a38', 'Lunas', '2023-12-25', '2024-12-25', 2100000),
 ('82079cc0-e4a0-4376-9518-943e7f20cc3d', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a39', 'Lunas', '2024-03-19', '2025-03-19', 1900000),
 ('4f75b2d7-8de0-43a4-b39b-89d9b26006b5', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a40', 'Belum', '2024-05-01', '2025-05-01', 1500000);
+
+INSERT INTO RESERVASI (username_p, nama_atraksi, tanggal_kunjungan, jumlah_tiket, status)
+VALUES 
+    ('ahmad_fauzi', 'Zona Akuatik', '2025-05-15', 3, 'Confirmed'),
+    ('bayu_setiawan', 'Amphitheater Utama', '2025-05-16', 2, 'Pending'),
+    ('citra_sakila', 'Zona Harimau', '2025-05-17', 4, 'Confirmed'),
+    ('dian_sastro', 'Rumah Burung', '2025-05-18', 5, 'Cancelled'),
+    ('eko_patrio', 'Savana Afrika', '2025-05-20', 2, 'Confirmed');
+
+-- table tambahan untuk tk4
+CREATE TABLE IF NOT EXISTS rotation_log (
+    id SERIAL PRIMARY KEY,
+    username_lh VARCHAR(50),
+    nama_atraksi VARCHAR(100),
+    message TEXT,
+    rotation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS SIZOPI.LOGIN_LOG (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(255),
+    attempt_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    success BOOLEAN,
+    message TEXT
+);

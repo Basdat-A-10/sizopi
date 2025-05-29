@@ -1,0 +1,1330 @@
+{% extends 'base.html' %}
+{% block title %}Rekam Medis Hewan | Sizopi{% endblock %}
+{% block content %}
+<style>
+  .rekam-medis-container {
+    max-width: 1600px; 
+    margin: 20px auto;
+    padding: 0 15px; 
+  }
+  
+  .rekam-medis-header {
+    background: linear-gradient(135deg, var(--charcoal) 0%, var(--paynes-gray) 100%);
+    color: white;
+    border-radius: 10px;
+    padding: 25px;
+    margin-bottom: 30px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .rekam-medis-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+  }
+  
+  .rekam-medis-title i {
+    margin-right: 12px;
+    font-size: 1.9rem;
+  }
+  
+  .table-container {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    padding: 25px;
+    margin-bottom: 20px;
+    overflow-x: auto;
+    width: 100%; 
+  }
+  
+  .table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: fixed; 
+  }
+  
+  .table th {
+    background-color: var(--charcoal);
+    color: white;
+    padding: 14px 18px; 
+    font-weight: 500;
+    text-align: left;
+  }
+  
+  .table th:first-child {
+    border-top-left-radius: 8px;
+    width: 12%; 
+  }
+  
+  .table th:nth-child(2) {
+    width: 15%; 
+  }
+  
+  .table th:nth-child(3) {
+    width: 10%; 
+  }
+  
+  .table th:nth-child(4) {
+    width: 18%; 
+  }
+  
+  .table th:nth-child(5) {
+    width: 18%; 
+  }
+  
+  .table th:nth-child(6) {
+    width: 20%; 
+  }
+  
+  .table th:last-child {
+    border-top-right-radius: 8px;
+    text-align: center;
+    width: 12%; 
+  }
+  
+  .table td {
+    padding: 14px 18px; 
+    border-bottom: 1px solid #f0f0f0;
+    color: var(--charcoal);
+    vertical-align: middle; 
+  }
+  
+  .table tr:last-child td {
+    border-bottom: none;
+  }
+  
+  .table tr:hover td {
+    background-color: #f9f9f9;
+  }
+  
+  .status-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-align: center;
+    width: 100%;
+    max-width: 100px;
+  }
+  
+  .status-sehat {
+    background-color: #d4edda;
+    color: #155724;
+  }
+  
+  .status-sakit {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+  
+  .action-btn-container {
+    display: flex;
+    justify-content: center;
+    gap: 8px; 
+  }
+  
+  .action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 12px;
+    border-radius: 5px;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+    text-decoration: none;
+    min-width: 70px; 
+    cursor: pointer;
+  }
+  
+  .btn-edit {
+    background-color: var(--paynes-gray);
+    color: white;
+  }
+  
+  .btn-edit:hover {
+    background-color: #455a67;
+    color: white;
+    text-decoration: none;
+  }
+  
+  .btn-delete {
+    background-color: #dc3545;
+    color: white;
+  }
+  
+  .btn-delete:hover {
+    background-color: #c82333;
+    color: white;
+    text-decoration: none;
+  }
+  
+  .empty-state {
+    text-align: center;
+    padding: 40px 0;
+    color: var(--paynes-gray);
+  }
+  
+  .empty-state i {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    opacity: 0.5;
+  }
+
+  .empty-state h3 {
+    color: var(--charcoal);
+    margin-bottom: 8px;
+    font-size: 1.1rem;
+    font-weight: 500;
+  }
+
+  .empty-state p {
+    color: #6c757d;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+  }
+
+  .empty-state .btn {
+    padding: 8px 16px;
+    font-size: 0.85rem;
+    border-radius: 5px;
+    font-weight: 400;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+  }
+
+  .empty-state .btn i {
+    font-size: 0.75rem;
+  }
+
+  .empty-state .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+  }
+
+  @media (max-width: 992px) {
+    .table {
+      table-layout: auto;
+    }
+    
+    .table th, 
+    .table td {
+      white-space: nowrap;
+    }
+  }
+
+  /* Modal styles */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1050;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+
+  .modal-dialog {
+    position: relative;
+    width: auto;
+    margin: 1.75rem auto;
+    max-width: 800px;
+  }
+
+  .modal-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  }
+
+  .modal-header {
+    background: linear-gradient(135deg, var(--charcoal) 0%, var(--paynes-gray) 100%);
+    color: white;
+    border-radius: 10px 10px 0 0;
+    padding: 20px 25px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .modal-header h2 {
+    font-size: 1.6rem;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .modal-header h2 i {
+    margin-right: 12px;
+    font-size: 1.8rem;
+  }
+
+  .modal-delete-header {
+    background: linear-gradient(135deg, #cb2d3e 0%, #ef473a 100%);
+  }
+
+  .modal-close {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 1.4rem;
+    cursor: pointer;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+  }
+
+  .modal-close:hover {
+    opacity: 1;
+  }
+
+  .modal-body {
+    padding: 25px;
+  }
+
+  .modal-footer {
+    padding: 15px 25px 25px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    border-top: 1px solid #eee;
+    margin-top: 10px;
+  }
+  
+  .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .form-label {
+    font-weight: 500;
+    margin-bottom: 10px;
+    color: var(--charcoal);
+    display: block;
+  }
+  
+  .form-control {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 1rem;
+  }
+  
+  .form-control:focus {
+    outline: none;
+    border-color: var(--paynes-gray);
+    box-shadow: 0 0 0 3px rgba(88, 111, 124, 0.15);
+  }
+  
+  .form-select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23546E7A'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E");
+    background-position: right 15px center;
+    background-repeat: no-repeat;
+    background-size: 16px;
+  }
+
+  .detail-card {
+    background-color: #f9f9f9;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .warning-detail-card {
+    background-color: #fff9f9;
+    border: 1px solid #f5c6cb;
+  }
+  
+  .detail-item {
+    margin-bottom: 12px;
+    display: flex;
+    border-bottom: 1px dashed #eee;
+    padding-bottom: 8px;
+  }
+  
+  .detail-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+  }
+  
+  .detail-label {
+    font-weight: 500;
+    width: 180px;
+    color: #495057;
+  }
+  
+  .detail-value {
+    flex-grow: 1;
+    color: #212529;
+  }
+
+  .warning-text {
+    color: #721c24;
+    text-align: center;
+    font-weight: 500;
+    margin-bottom: 20px;
+    padding: 10px;
+    border-radius: 6px;
+    background-color: #f8d7da;
+  }
+
+  /* Notifikasi popup */
+  .notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 12px 25px;
+    border-radius: 6px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    display: none;
+    z-index: 1060;
+    font-size: 0.9rem;
+    font-weight: 500;
+    max-width: 300px;
+  }
+  
+  .status-options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+
+  .status-option {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .status-radio {
+    display: none;
+  }
+
+  .status-label {
+    padding: 10px;
+    border-radius: 6px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 2px solid transparent;
+  }
+
+  .status-label.sehat {
+    background-color: #d4edda;
+    color: #155724;
+  }
+
+  .status-label.sakit {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+
+  .status-radio:checked + .status-label {
+    border-color: #343a40;
+    box-shadow: 0 0 0 2px rgba(52, 58, 64, 0.3);
+    font-weight: 500;
+  }
+
+  .conditional-fields {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px dashed #dee2e6;
+  }
+
+  /* Filter styles */
+  .filter-container {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    padding: 25px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+
+  .filter-label {
+    font-weight: 600;
+    color: var(--charcoal);
+    white-space: nowrap;
+  }
+
+  .filter-select {
+    flex-grow: 1;
+    padding: 10px 15px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23546E7A'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E");
+    background-position: right 15px center;
+    background-repeat: no-repeat;
+    background-size: 16px;
+    font-size: 1rem;
+  }
+
+  .filter-select:focus {
+    outline: none;
+    border-color: var(--paynes-gray);
+    box-shadow: 0 0 0 3px rgba(88, 111, 124, 0.15);
+  }
+
+  .hewan-info {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-left: 5px solid var(--paynes-gray);
+    display: none; 
+  }
+
+  .hewan-info h3 {
+    margin-top: 0;
+    color: var(--charcoal);
+    font-size: 1.4rem;
+    display: flex;
+    align-items: center;
+  }
+
+  .hewan-info h3 i {
+    margin-right: 10px;
+    color: var(--paynes-gray);
+  }
+
+  .hewan-details {
+    flex: 1;
+    min-width: 300px;
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e9ecef;
+  }
+
+  .hewan-detail {
+    margin-bottom: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid #f1f3f4;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .hewan-detail:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+  }
+
+  .hewan-detail strong {
+    color: var(--charcoal);
+    font-weight: 600;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+  }
+
+  .hewan-detail-value {
+    text-align: right;
+    font-size: 0.9rem;
+    color: #495057;
+    font-weight: 500;
+  }
+
+  .no-data-selected {
+    text-align: center;
+    padding: 40px 0;
+    color: #6c757d;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    font-size: 1.1rem;
+  }
+
+  .no-data-selected i {
+    display: block;
+    font-size: 3rem;
+    margin-bottom: 15px;
+    color: #adb5bd;
+  }
+
+  .hewan-profile-card {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 25px;
+    align-items: flex-start;
+  }
+
+  .hewan-photo-container {
+    flex: 0 0 280px;
+    max-width: 280px;
+    position: relative;
+  }
+
+  .hewan-photo {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+  }
+
+  .hewan-photo:hover {
+    transform: scale(1.02);
+  }
+
+  .hewan-photo-placeholder {
+    width: 100%;
+    height: 200px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 2px dashed #adb5bd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+  }
+
+  .hewan-photo-placeholder i {
+    font-size: 2.5rem;
+    margin-bottom: 12px;
+    opacity: 0.6;
+  }
+
+  .hewan-photo-placeholder span {
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  /* Responsive design untuk mobile */
+  @media (max-width: 768px) {
+    .hewan-profile-card {
+      flex-direction: column;
+      gap: 15px;
+    }
+    
+    .hewan-photo-container {
+      flex: none;
+      max-width: 100%;
+      align-self: center;
+      max-width: 250px;
+    }
+    
+    .hewan-details {
+      min-width: auto;
+      margin: 0;
+    }
+    
+    .hewan-detail {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      text-align: left;
+      padding: 10px 0;
+    }
+    
+    .hewan-detail strong {
+      font-size: 0.85rem;
+    }
+    
+    .hewan-detail-value {
+      font-size: 0.85rem;
+    }
+  }
+</style>
+
+<div class="rekam-medis-container">
+  <div class="rekam-medis-header">
+    <h1 class="rekam-medis-title">
+      <i class="fas fa-notes-medical"></i>
+      Rekam Medis Hewan
+    </h1>
+  </div>
+
+  <!-- Filter Container -->
+  <div class="filter-container">
+    <label class="filter-label">
+      <i class="fas fa-filter"></i>
+      Pilih Hewan:
+    </label>
+    <select class="filter-select" id="hewanFilter" onchange="filterByHewan()">
+      <option value="">-- Pilih Hewan untuk Melihat Rekam Medis --</option>
+      {% for hewan in hewan_data %}
+        <option value="{{ hewan.id }}" {% if selected_hewan == hewan.id %}selected{% endif %}>
+          {{ hewan.nama }} - {{ hewan.spesies }} ({{ hewan.status_kesehatan }})
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+
+  {% if selected_hewan_info %}
+  <!-- Info Hewan yang Dipilih -->
+  <div class="hewan-info" style="display: block;">
+    <h3>
+      <i class="fas fa-paw"></i>
+      Informasi Hewan: {{ selected_hewan_info.nama }}
+    </h3>
+    <div class="hewan-profile-card">
+      <div class="hewan-photo-container">
+        {% if selected_hewan_info.url_foto %}
+          <img src="{{ selected_hewan_info.url_foto }}" alt="Foto {{ selected_hewan_info.nama }}" class="hewan-photo">
+        {% else %}
+          <div class="hewan-photo-placeholder">
+            <i class="fas fa-camera"></i>
+            <span>Foto tidak tersedia</span>
+          </div>
+        {% endif %}
+      </div>
+      <div class="hewan-details">
+        <div class="hewan-detail">
+          <strong>Spesies:</strong> 
+          <span class="hewan-detail-value">{{ selected_hewan_info.spesies }}</span>
+        </div>
+        <div class="hewan-detail">
+          <strong>Status Kesehatan:</strong> 
+          <span class="status-badge {% if selected_hewan_info.status_kesehatan == 'Sehat' %}status-sehat{% else %}status-sakit{% endif %}">
+            {{ selected_hewan_info.status_kesehatan }}
+          </span>
+        </div>
+        <div class="hewan-detail">
+          <strong>Asal:</strong> 
+          <span class="hewan-detail-value">{{ selected_hewan_info.asal_hewan }}</span>
+        </div>
+        {% if selected_hewan_info.tanggal_lahir %}
+        <div class="hewan-detail">
+          <strong>Tanggal Lahir:</strong> 
+          <span class="hewan-detail-value">{{ selected_hewan_info.tanggal_lahir|date:"d M Y" }}</span>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if not selected_hewan %}
+  <!-- Pesan ketika belum ada hewan yang dipilih -->
+  <div class="no-data-selected">
+    <i class="fas fa-search"></i>
+    <p>Silakan pilih hewan dari dropdown di atas untuk melihat rekam medis.</p>
+  </div>
+  {% elif selected_hewan and rekam_medis_data %}
+  <!-- Tabel Rekam Medis -->
+  <div class="table-container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <h3 style="margin: 0; color: var(--charcoal);">
+        <i class="fas fa-file-medical-alt"></i>
+        Rekam Medis - {{ selected_hewan_info.nama }}
+      </h3>
+      <button class="btn btn-primary" onclick="openTambahModal()">
+        <i class="fas fa-plus"></i>
+        Tambah Rekam Medis
+      </button>
+    </div>
+    
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Tanggal</th>
+          <th>Nama Dokter</th>
+          <th>Status</th>
+          <th>Diagnosis</th>
+          <th>Pengobatan</th>
+          <th>Catatan Tindak Lanjut</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for rekam_medis in rekam_medis_data %}
+          <tr>
+            <td>{{ rekam_medis.tanggal_pemeriksaan|date:"d M Y" }}</td>
+            <td>{{ rekam_medis.nama_dokter }}</td>
+            <td>
+              <span class="status-badge 
+                  {% if rekam_medis.status_pemeriksaan == 'Sehat' %}status-sehat
+                  {% else %}status-sakit{% endif %}">
+                  {{ rekam_medis.status_pemeriksaan }}
+              </span>
+            </td>
+            <td>{% if rekam_medis.diagnosis %}{{ rekam_medis.diagnosis }}{% else %}-{% endif %}</td>
+            <td>{% if rekam_medis.pengobatan %}{{ rekam_medis.pengobatan }}{% else %}-{% endif %}</td>
+            <td>{% if rekam_medis.catatan_tindak_lanjut %}{{ rekam_medis.catatan_tindak_lanjut }}{% else %}-{% endif %}</td>
+            <td>
+              <div class="action-btn-container">
+                {% if rekam_medis.id_hewan and rekam_medis.tanggal_str %}
+                  <a class="action-btn btn-edit" 
+                     onclick="openEditModal('{{ rekam_medis.id_hewan }}_{{ rekam_medis.tanggal_str }}', '{{ rekam_medis.nama_hewan }}', '{{ rekam_medis.spesies }}', '{{ rekam_medis.tanggal_pemeriksaan|date:"d M Y" }}', '{{ rekam_medis.status_pemeriksaan }}', '{{ rekam_medis.diagnosis }}', '{{ rekam_medis.pengobatan }}', '{{ rekam_medis.catatan_tindak_lanjut|default:"" }}')">
+                    <i class="fas fa-edit me-1"></i>Edit
+                  </a>
+                  <a class="action-btn btn-delete" 
+                     onclick="openDeleteModal('{{ rekam_medis.id_hewan }}_{{ rekam_medis.tanggal_str }}', '{{ rekam_medis.nama_hewan }}', '{{ rekam_medis.spesies }}', '{{ rekam_medis.tanggal_pemeriksaan|date:"d M Y" }}', '{{ rekam_medis.status_pemeriksaan }}', '{{ rekam_medis.diagnosis }}', '{{ rekam_medis.pengobatan }}', '{{ rekam_medis.catatan_tindak_lanjut|default:"" }}')">
+                    <i class="fas fa-trash-alt me-1"></i>Hapus
+                  </a>
+                {% endif %}
+                </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% elif selected_hewan and not rekam_medis_data %}
+  <!-- Pesan ketika hewan dipilih tapi tidak ada rekam medis -->
+  <div class="empty-state">
+    <i class="fas fa-file-medical"></i>
+    <h3>Belum Ada Rekam Medis</h3>
+    <p>Hewan {{ selected_hewan_info.nama }} belum memiliki rekam medis.</p>
+    <button class="btn btn-primary" onclick="openTambahModal()">
+      <i class="fas fa-plus"></i>
+      Tambah Rekam Medis Pertama
+    </button>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Edit Modal -->
+<div class="modal" id="editModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i class="fas fa-edit"></i> Edit Rekam Medis</h2>
+        <button type="button" class="modal-close" onclick="closeEditModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <!-- Informasi Hewan & Pemeriksaan -->
+        <div class="detail-card">
+          <div class="detail-item">
+            <div class="detail-label">Nama Hewan:</div>
+            <div class="detail-value" id="edit-nama-hewan"></div>
+          </div>
+          
+          <div class="detail-item">
+            <div class="detail-label">Spesies:</div>
+            <div class="detail-value" id="edit-spesies"></div>
+          </div>
+          
+          <div class="detail-item">
+            <div class="detail-label">Tanggal Pemeriksaan:</div>
+            <div class="detail-value" id="edit-tanggal"></div>
+          </div>
+          
+          <div class="detail-item">
+            <div class="detail-label">Status Kesehatan:</div>
+            <div class="detail-value">
+              <span class="status-badge" id="edit-status-badge"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form Edit -->
+        <form id="editRekamMedisForm" method="post">
+          {% csrf_token %}
+          
+          <div class="form-group">
+            <label class="form-label" for="diagnosis">Diagnosis: <span style="color: #dc3545;">*</span></label>
+            <textarea class="form-control" id="diagnosis" name="diagnosis" rows="3" placeholder="Masukkan diagnosis hewan"></textarea>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="pengobatan">Pengobatan: <span style="color: #dc3545;">*</span></label>
+            <textarea class="form-control" id="pengobatan" name="pengobatan" rows="3" placeholder="Masukkan pengobatan yang diberikan"></textarea>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="catatan_tindak_lanjut">Catatan Tindak Lanjut: <span style="color: #6c757d; font-size: 0.85rem;">(Opsional)</span></label>
+            <textarea class="form-control" id="catatan_tindak_lanjut" name="catatan_tindak_lanjut" rows="3" placeholder="Masukkan catatan tindak lanjut untuk hewan ini"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light" onclick="closeEditModal()">
+          <i class="fas fa-times me-2"></i>Batal
+        </button>
+        <button type="button" class="btn btn-primary" onclick="submitEditForm()">
+          <i class="fas fa-save me-2"></i>Simpan Perubahan
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal" id="deleteModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header modal-delete-header">
+        <h2><i class="fas fa-trash-alt"></i> Hapus Rekam Medis</h2>
+        <button type="button" class="modal-close" onclick="closeDeleteModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="warning-text">
+          Apakah Anda yakin ingin menghapus rekam medis ini?<br>
+          <small>Tindakan ini tidak dapat dibatalkan.</small>
+        </div>
+        
+        <div class="detail-card warning-detail-card">
+          <div class="detail-item">
+            <div class="detail-label">Nama Hewan:</div>
+            <div class="detail-value" id="delete-nama-hewan"></div>
+          </div>
+          
+          <div class="detail-item">
+            <div class="detail-label">Spesies:</div>
+            <div class="detail-value" id="delete-spesies"></div>
+          </div>
+          
+          <div class="detail-item">
+            <div class="detail-label">Tanggal Pemeriksaan:</div>
+            <div class="detail-value" id="delete-tanggal"></div>
+          </div>
+          
+          <div class="detail-item">
+            <div class="detail-label">Status Kesehatan:</div>
+            <div class="detail-value">
+              <span class="status-badge" id="delete-status-badge"></span>
+            </div>
+          </div>
+
+          <div class="detail-item" id="delete-diagnosis-container">
+            <div class="detail-label">Diagnosis:</div>
+            <div class="detail-value" id="delete-diagnosis"></div>
+          </div>
+          
+          <div class="detail-item" id="delete-pengobatan-container">
+            <div class="detail-label">Pengobatan:</div>
+            <div class="detail-value" id="delete-pengobatan"></div>
+          </div>
+          
+          <div class="detail-item" id="delete-catatan-container">
+            <div class="detail-label">Catatan Tindak Lanjut:</div>
+            <div class="detail-value" id="delete-catatan"></div>
+          </div>
+        </div>
+
+        <form id="deleteRekamMedisForm" method="post">
+          {% csrf_token %}
+          <!-- Hidden form untuk submit -->
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light" onclick="closeDeleteModal()">
+          <i class="fas fa-times me-2"></i>Batal
+        </button>
+        <button type="button" class="btn btn-danger" onclick="submitDeleteForm()">
+          <i class="fas fa-trash-alt me-2"></i>Hapus
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Tambah Modal -->
+<div class="modal" id="tambahModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i class="fas fa-plus-circle"></i> Tambah Rekam Medis</h2>
+        <button type="button" class="modal-close" onclick="closeTambahModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="tambahRekamMedisForm" method="post">
+          {% csrf_token %}
+          
+          <div class="form-group">
+            <label class="form-label" for="id_hewan">Pilih Hewan:</label>
+            <select class="form-select" id="id_hewan" name="id_hewan" required>
+              <option value="" selected disabled>-- Pilih Hewan --</option>
+              {% for hewan in hewan_data %}
+                <option value="{{ hewan.id }}">{{ hewan.nama }} ({{ hewan.spesies }})</option>
+              {% endfor %}
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="tanggal_pemeriksaan">Tanggal Pemeriksaan:</label>
+            <input type="date" class="form-control" id="tanggal_pemeriksaan" name="tanggal_pemeriksaan" value="{{ today }}" required>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Status Kesehatan:</label>
+            <div class="status-options">
+              <div class="status-option">
+                <input type="radio" id="status-sehat" name="status_kesehatan" value="Sehat" class="status-radio" required>
+                <label for="status-sehat" class="status-label sehat">Sehat</label>
+              </div>
+              <div class="status-option">
+                <input type="radio" id="status-sakit" name="status_kesehatan" value="Sakit" class="status-radio">
+                <label for="status-sakit" class="status-label sakit">Sakit</label>
+              </div>
+            </div>
+          </div>
+          
+          <div class="conditional-fields" id="diagnosis-fields">
+            <div class="form-group">
+              <label class="form-label" for="tambah-diagnosis">Diagnosis:</label>
+              <textarea class="form-control" id="tambah-diagnosis" name="diagnosis" rows="3" placeholder="Masukkan diagnosis hewan"></textarea>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label" for="tambah-pengobatan">Pengobatan:</label>
+              <textarea class="form-control" id="tambah-pengobatan" name="pengobatan" rows="3" placeholder="Masukkan pengobatan yang diberikan"></textarea>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label" for="tambah-catatan-tindak-lanjut">Catatan Tindak Lanjut:</label>
+              <textarea class="form-control" id="tambah-catatan-tindak-lanjut" name="catatan_tindak_lanjut" rows="3" placeholder="Masukkan catatan tindak lanjut untuk hewan ini"></textarea>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light" onclick="closeTambahModal()">
+          <i class="fas fa-times me-2"></i>Batal
+        </button>
+        <button type="button" class="btn btn-primary" onclick="submitTambahForm()">
+          <i class="fas fa-save me-2"></i>Simpan Rekam Medis
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Notification -->
+<div id="notification" class="notification"></div>
+
+{% include 'kesehatan_perawatan_satwa/partials/toast_notification.html' %}
+
+<script>
+  let currentEditId = '';
+  let currentDeleteId = '';
+
+  function openEditModal(id, namaHewan, spesies, tanggal, status, diagnosis, pengobatan, catatan) {
+    currentEditId = id;
+
+    document.getElementById('edit-nama-hewan').textContent = namaHewan;
+    document.getElementById('edit-spesies').textContent = spesies;
+    document.getElementById('edit-tanggal').textContent = tanggal;
+    
+    const statusBadge = document.getElementById('edit-status-badge');
+    statusBadge.textContent = status;
+    statusBadge.className = 'status-badge';
+    if (status === 'Sehat') {
+      statusBadge.classList.add('status-sehat');
+    } else {
+      statusBadge.classList.add('status-sakit');
+    }
+    
+    document.getElementById('diagnosis').value = diagnosis;
+    document.getElementById('pengobatan').value = pengobatan;
+    document.getElementById('catatan_tindak_lanjut').value = catatan;
+    
+    document.getElementById('editModal').style.display = 'block';
+  }
+  
+  function closeEditModal() {
+    document.getElementById('editModal').style.display = 'none';
+  }
+  
+  function submitEditForm() {
+    const diagnosis = document.getElementById('diagnosis').value.trim();
+    const pengobatan = document.getElementById('pengobatan').value.trim();
+    
+    document.getElementById('diagnosis').style.borderColor = '#d1d5db';
+    document.getElementById('pengobatan').style.borderColor = '#d1d5db';
+    
+    if (!diagnosis && !pengobatan) {
+      showNotification('Diagnosis dan Pengobatan tidak boleh kosong');
+      document.getElementById('diagnosis').style.borderColor = '#dc3545';
+      document.getElementById('pengobatan').style.borderColor = '#dc3545';
+      return;
+    }
+    
+    if (!diagnosis) {
+      showNotification('Diagnosis tidak boleh kosong');
+      document.getElementById('diagnosis').style.borderColor = '#dc3545';
+      return;
+    }
+    
+    if (!pengobatan) {
+      showNotification('Pengobatan tidak boleh kosong');
+      document.getElementById('pengobatan').style.borderColor = '#dc3545';
+      return;
+    }
+
+    // Get current filter parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const hewanFilter = urlParams.get('hewan');
+    
+    const form = document.createElement('form');
+    form.method = 'POST';
+    let actionUrl = `/kesehatan-perawatan/rekam-medis/edit/${currentEditId}/`;
+    if (hewanFilter) {
+      actionUrl += `?hewan=${hewanFilter}`;
+    }
+    form.action = actionUrl;
+    
+    const csrfToken = document.getElementById('editRekamMedisForm').querySelector('input[name="csrfmiddlewaretoken"]').value;
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'csrfmiddlewaretoken';
+    csrfInput.value = csrfToken;
+    form.appendChild(csrfInput);
+    
+    const diagnosisInput = document.createElement('input');
+    diagnosisInput.type = 'hidden';
+    diagnosisInput.name = 'diagnosis';
+    diagnosisInput.value = diagnosis;
+    form.appendChild(diagnosisInput);
+    
+    const pengobatanInput = document.createElement('input');
+    pengobatanInput.type = 'hidden';
+    pengobatanInput.name = 'pengobatan';
+    pengobatanInput.value = pengobatan;
+    form.appendChild(pengobatanInput);
+    
+    const catatanInput = document.createElement('input');
+    catatanInput.type = 'hidden';
+    catatanInput.name = 'catatan_tindak_lanjut';
+    catatanInput.value = document.getElementById('catatan_tindak_lanjut').value;
+    form.appendChild(catatanInput);
+    
+    document.body.appendChild(form);
+    form.submit();
+  }
+  
+  function openDeleteModal(id, namaHewan, spesies, tanggal, status, diagnosis, pengobatan, catatan) {
+    currentDeleteId = id;
+    
+    document.getElementById('delete-nama-hewan').textContent = namaHewan;
+    document.getElementById('delete-spesies').textContent = spesies;
+    document.getElementById('delete-tanggal').textContent = tanggal;
+    
+    const statusBadge = document.getElementById('delete-status-badge');
+    statusBadge.textContent = status;
+    statusBadge.className = 'status-badge';
+    if (status === 'Sehat') {
+      statusBadge.classList.add('status-sehat');
+    } else {
+      statusBadge.classList.add('status-sakit');
+    }
+    
+    if (diagnosis) {
+      document.getElementById('delete-diagnosis').textContent = diagnosis;
+      document.getElementById('delete-diagnosis-container').style.display = 'flex';
+    } else {
+      document.getElementById('delete-diagnosis-container').style.display = 'none';
+    }
+    
+    if (pengobatan) {
+      document.getElementById('delete-pengobatan').textContent = pengobatan;
+      document.getElementById('delete-pengobatan-container').style.display = 'flex';
+    } else {
+      document.getElementById('delete-pengobatan-container').style.display = 'none';
+    }
+    
+    if (catatan) {
+      document.getElementById('delete-catatan').textContent = catatan;
+      document.getElementById('delete-catatan-container').style.display = 'flex';
+    } else {
+      document.getElementById('delete-catatan-container').style.display = 'none';
+    }
+    
+    document.getElementById('deleteModal').style.display = 'block';
+  }
+  
+  function closeDeleteModal() {
+    document.getElementById('deleteModal').style.display = 'none';
+  }
+  
+  function submitDeleteForm() {
+    // Get current filter parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const hewanFilter = urlParams.get('hewan');
+    
+    const form = document.createElement('form');
+    form.method = 'POST';
+    let actionUrl = `/kesehatan-perawatan/rekam-medis/hapus/${currentDeleteId}/`;
+    if (hewanFilter) {
+      actionUrl += `?hewan=${hewanFilter}`;
+    }
+    form.action = actionUrl;
+    
+    const csrfToken = document.getElementById('deleteRekamMedisForm').querySelector('input[name="csrfmiddlewaretoken"]').value;
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'csrfmiddlewaretoken';
+    csrfInput.value = csrfToken;
+    form.appendChild(csrfInput);
+    
+    document.body.appendChild(form);
+    form.submit();
+  }
+  
+  function openTambahModal() {
+    document.getElementById('tambahModal').style.display = 'block';
+    document.getElementById('tanggal_pemeriksaan').value = new Date().toISOString().split('T')[0];
+    
+    // Set hewan yang dipilih dari filter
+    const urlParams = new URLSearchParams(window.location.search);
+    const selectedHewan = urlParams.get('hewan');
+    if (selectedHewan) {
+      document.getElementById('id_hewan').value = selectedHewan;
+    }
+  }
+
+  function closeTambahModal() {
+    document.getElementById('tambahModal').style.display = 'none';
+  }
+
+  function submitTambahForm() {
+    const idHewan = document.getElementById('id_hewan').value;
+    const tanggal = document.getElementById('tanggal_pemeriksaan').value;
+    const selectedStatus = document.querySelector('input[name="status_kesehatan"]:checked');
+    
+    if (!idHewan || !tanggal || !selectedStatus) {
+      showNotification('Pilih hewan, tanggal dan status kesehatan');
+      return;
+    }
+    
+    if (selectedStatus.value === 'Sakit') {
+      const diagnosis = document.getElementById('tambah-diagnosis').value.trim();
+      const pengobatan = document.getElementById('tambah-pengobatan').value.trim();
+      
+      if (!diagnosis) {
+        document.getElementById('tambah-diagnosis').style.borderColor = '#dc3545';
+        showNotification('Diagnosis tidak boleh kosong untuk status Sakit');
+        return;
+      }
+      
+      if (!pengobatan) {
+        document.getElementById('tambah-pengobatan').style.borderColor = '#dc3545';
+        showNotification('Pengobatan tidak boleh kosong untuk status Sakit');
+        return;
+      }
+    }
+
+    // Get current filter parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const hewanFilter = urlParams.get('hewan');
+    
+    const form = document.createElement('form');
+    form.method = 'POST';
+    let actionUrl = "{% url 'kesehatan_perawatan_satwa:tambah_rekam_medis' %}";
+    if (hewanFilter) {
+      actionUrl += `?hewan=${hewanFilter}`;
+    }
+    form.action = actionUrl;
+    
+    const csrfToken = document.getElementById('tambahRekamMedisForm').querySelector('input[name="csrfmiddlewaretoken"]').value;
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'csrfmiddlewaretoken';
+    csrfInput.value = csrfToken;
+    form.appendChild(csrfInput);
+    
+    const idHewanInput = document.createElement('input');
+    idHewanInput.type = 'hidden';
+    idHewanInput.name = 'id_hewan';
+    idHewanInput.value = idHewan;
+    form.appendChild(idHewanInput);
+    
+    const tanggalInput = document.createElement('input');
+    tanggalInput.type = 'hidden';
+    tanggalInput.name = 'tanggal_pemeriksaan';
+    tanggalInput.value = tanggal;
+    form.appendChild(tanggalInput);
+    
+    const statusInput = document.createElement('input');
+    statusInput.type = 'hidden';
+    statusInput.name = 'status_kesehatan';
+    statusInput.value = selectedStatus.value;
+    form.appendChild(statusInput);
+    
+    const diagnosisInput = document.createElement('input');
+    diagnosisInput.type = 'hidden';
+    diagnosisInput.name = 'diagnosis';
+    diagnosisInput.value = document.getElementById('tambah-diagnosis').value;
+    form.appendChild(diagnosisInput);
+    
+    const pengobatanInput = document.createElement('input');
+    pengobatanInput.type = 'hidden';
+    pengobatanInput.name = 'pengobatan';
+    pengobatanInput.value = document.getElementById('tambah-pengobatan').value;
+    form.appendChild(pengobatanInput);
+    
+    const catatanInput = document.createElement('input');
+    catatanInput.type = 'hidden';
+    catatanInput.name = 'catatan_tindak_lanjut';
+    catatanInput.value = document.getElementById('tambah-catatan-tindak-lanjut').value;
+    form.appendChild(catatanInput);
+    
+    document.body.appendChild(form);
+    form.submit();
+  }
+  
+  document.addEventListener('DOMContentLoaded', function() {
+    // Fungsi untuk menampilkan notification yang sudah ada sebelumnya
+    function showNotification(message) {
+      const notification = document.getElementById('notification');
+      notification.textContent = message;
+      notification.style.display = 'block';
+      
+      setTimeout(function() {
+        notification.style.display = 'none';
+      }, 3000);
+      
+      showToast('info', message);
+    }
+    
+    function toggleDiagnosisFields() {
+      const selectedStatus = document.querySelector('input[name="status_kesehatan"]:checked');
+      if (selectedStatus) {
+        if (selectedStatus.value === 'Sakit') {
+          document.getElementById('tambah-diagnosis').setAttribute('required', true);
+          document.getElementById('tambah-pengobatan').setAttribute('required', true);
+        } else {
+          document.getElementById('tambah-diagnosis').removeAttribute('required');
+          document.getElementById('tambah-pengobatan').removeAttribute('required');
+        }
+      }
+    }
+    
+    const statusRadios = document.querySelectorAll('input[name="status_kesehatan"]');
+    if (statusRadios.length > 0) {
+      statusRadios.forEach(radio => {
+        radio.addEventListener('change', toggleDiagnosisFields);
+      });
+      
+      toggleDiagnosisFields();
+    }
+  });
+
+  // Filter function
+  function filterByHewan() {
+    const selectedHewan = document.getElementById('hewanFilter').value;
+    if (selectedHewan) {
+      window.location.href = `?hewan=${selectedHewan}`;
+    } else {
+      window.location.href = window.location.pathname;
+    }
+  }
+</script>
+{% endblock %}

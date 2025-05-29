@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white text-center">
+            <h2>FORM TAMBAH WAHANA</h2>
+        </div>
+        <div class="card-body">
+            <!-- Tampilkan pesan error jika ada -->
+            {% if error_message %}
+            <div class="alert alert-danger mb-3">
+                {{ error_message }}
+            </div>
+            {% endif %}
+            
+            <form method="POST" action="{% url 'tambah_wahana' %}">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="nama_wahana" class="form-label">Nama Wahana:</label>
+                    <input type="text" class="form-control" id="nama_wahana" name="nama_wahana" 
+                           value="{{ form_data.nama_wahana|default:'' }}" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="kapasitas_max" class="form-label">Kapasitas Maksimum:</label>
+                    <div class="input-group">
+                        <input type="number" class="form-control" id="kapasitas_max" name="kapasitas_max" min="1"
+                               value="{{ form_data.kapasitas_max|default:'' }}" required>
+                        <span class="input-group-text">orang</span>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="jadwal" class="form-label">Jadwal:</label>
+                    <input type="time" class="form-control" id="jadwal" name="jadwal"
+                           value="{{ form_data.jadwal|default:'' }}" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Peraturan:</label>
+                    <div id="peraturan-container">
+                        {% if form_data.peraturan_list %}
+                            {% for peraturan in form_data.peraturan_list %}
+                                <div class="input-group mb-2">
+                                    <span class="input-group-text">{{ forloop.counter }}.</span>
+                                    <input type="text" class="form-control" name="peraturan[]" value="{{ peraturan }}" required>
+                                    {% if forloop.counter > 1 %}
+                                    <button type="button" class="btn btn-outline-danger hapus-peraturan">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <!-- <div class="input-group mb-2">
+                                <!-- <span class="input-group-text"></span> -->
+                                <input type="text" class="form-control" name="peraturan[]" required>
+                            </div> -->
+                        {% endif %}
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-primary" id="tambah-peraturan">
+                        <i class="fas fa-plus"></i> Tambah Peraturan
+                    </button>
+                </div>
+                
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary me-2">SIMPAN</button>
+                    <a href="{% url 'daftar_wahana_dan_atraksi' %}" class="btn btn-secondary">BATAL</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const peraturanContainer = document.getElementById('peraturan-container');
+        const tambahPeraturanBtn = document.getElementById('tambah-peraturan');
+        
+        let peraturanCount = peraturanContainer.querySelectorAll('.input-group').length;
+        
+        // Add event listeners to existing delete buttons
+        peraturanContainer.querySelectorAll('.hapus-peraturan').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.closest('.input-group').remove();
+                
+                // Re-number the remaining peraturan
+                const peraturanItems = peraturanContainer.querySelectorAll('.input-group');
+                peraturanItems.forEach((item, index) => {
+                    item.querySelector('.input-group-text').textContent = (index + 1) + '.';
+                });
+                
+                peraturanCount = peraturanItems.length;
+            });
+        });
+        
+        tambahPeraturanBtn.addEventListener('click', function() {
+            peraturanCount++;
+            
+            const newPeraturan = document.createElement('div');
+            newPeraturan.className = 'input-group mb-2';
+            newPeraturan.innerHTML = `
+                <span class="input-group-text">${peraturanCount}.</span>
+                <input type="text" class="form-control" name="peraturan[]">
+                <button type="button" class="btn btn-outline-danger hapus-peraturan">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            peraturanContainer.appendChild(newPeraturan);
+            
+            // Add event listener for the delete button
+            newPeraturan.querySelector('.hapus-peraturan').addEventListener('click', function() {
+                newPeraturan.remove();
+                
+                // Re-number the remaining peraturan
+                const peraturanItems = peraturanContainer.querySelectorAll('.input-group');
+                peraturanItems.forEach((item, index) => {
+                    item.querySelector('.input-group-text').textContent = (index + 1) + '.';
+                });
+                
+                peraturanCount = peraturanItems.length;
+            });
+        });
+    });
+</script>
+{% endblock %}

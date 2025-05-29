@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<style>
+  .login-container {
+    max-width: 450px;
+    margin: 50px auto;
+  }
+
+  .login-card {
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
+
+  .login-header {
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    color: white;
+    padding: 25px 20px;
+    text-align: center;
+  }
+
+  .login-header h1 {
+    font-size: 2rem;
+    margin: 0;
+    font-weight: 600;
+  }
+
+  .login-body {
+    padding: 30px;
+  }
+
+  .form-control {
+    height: 50px;
+    border-radius: 8px;
+    padding: 10px 15px;
+    font-size: 1rem;
+  }
+
+  .form-control:focus {
+    box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.25);
+    border-color: #4285f4;
+  }
+
+  .btn-login {
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    border: none;
+    color: white;
+    padding: 12px 0;
+    font-size: 1.1rem;
+    font-weight: 500;
+    letter-spacing: 1px;
+    border-radius: 8px;
+    transition: all 0.3s;
+    box-shadow: 0 4px 10px rgba(37, 117, 252, 0.2);
+  }
+
+  .btn-login:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(37, 117, 252, 0.3);
+  }
+
+  .input-group-text {
+    background-color: #f8f9fa;
+    border-right: none;
+    border-radius: 8px 0 0 8px;
+  }
+
+  .input-password {
+    border-left: none;
+    border-radius: 0 8px 8px 0;
+  }
+
+  .register-link {
+    text-align: center;
+    margin-top: 20px;
+  }
+  
+  .alert {
+    border-radius: 8px;
+    padding: 15px;
+  }
+</style>
+
+<div class="login-container">
+
+  <div class="login-card">
+    <div class="login-header">
+      <h1>Login</h1>
+      <p>Silakan masuk untuk mengakses sistem</p>
+    </div>
+
+    <div class="login-body">
+      <form method="POST" action="{% url 'login' %}">
+        {% csrf_token %}
+
+        <div class="mb-4">
+          <label for="email" class="form-label">Email</label>
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="fas fa-envelope"></i>
+            </span>
+            <input
+              type="email"
+              class="form-control"
+              id="email"
+              name="email"
+              placeholder="Masukkan email Anda"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label for="password" class="form-label">Password</label>
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="fas fa-lock"></i>
+            </span>
+            <input
+              type="password"
+              class="form-control input-password"
+              id="password"
+              name="password"
+              placeholder="Masukkan password Anda"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="d-grid gap-2 mt-4">
+          <button type="submit" class="btn btn-login">MASUK</button>
+        </div>
+      </form>
+
+      <div class="register-link">
+        <p>
+          Belum punya akun? <a href="{% url 'register' %}">Daftar di sini</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    setTimeout(function () {
+      const alerts = document.querySelectorAll(".alert");
+      alerts.forEach(function (alert) {
+        const bsAlert = new bootstrap.Alert(alert);
+        bsAlert.close();
+      });
+    }, 5000);
+
+    document.getElementById("email").focus();
+  });
+</script>
+{% endblock %}

@@ -21,4 +21,9 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('main.urls')),
     path('kesehatan-perawatan/', include('kesehatan_perawatan_satwa.urls')),
+    path('wahana-atraksi/', include('wahana_atraksi.urls')),
+    path('', include('authentication.urls')),
+    path('satwa-habitat/', include('satwa_habitat.urls')),
+    path('dashboard', include('dashboard.urls')),
+    path('adopsi/', include('adopsi.urls')),
 ]

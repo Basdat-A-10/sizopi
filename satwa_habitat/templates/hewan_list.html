@@ -1,0 +1,387 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Satwa</title>
+    <style>
+        :root {
+            --color-black: #000000;
+            --color-teal-dark: #2a4546;
+            --color-slate-blue: #546a77;
+            --color-mint: #c2e5e2;
+            --color-white: #ffffff;
+            --transition: all 0.3s ease;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--color-white);
+            color: var(--color-teal-dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0;
+        }
+        
+        .header {
+            background: linear-gradient(90deg, var(--color-black), var(--color-teal-dark), var(--color-slate-blue));
+            padding: 2rem;
+            color: var(--color-white);
+            border-radius: 10px 10px 0 0;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            font-size: 2.2rem;
+            margin: 0;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 2;
+        }
+        
+        .header::after {
+            content: "";
+            position: absolute;
+            right: -50px;
+            bottom: -50px;
+            width: 200px;
+            height: 200px;
+            background-color: var(--color-mint);
+            opacity: 0.3;
+            border-radius: 50%;
+            z-index: 1;
+        }
+        
+        .content-card {
+            background-color: var(--color-white);
+            border-radius: 0 0 10px 10px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-top: 4px solid var(--color-mint);
+        }
+        
+        .add-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.85rem 1.5rem;
+            background-color: var(--color-mint);
+            color: var(--color-teal-dark);
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .add-btn:hover {
+            background-color: var(--color-teal-dark);
+            color: var(--color-white);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .satwa-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            border-radius: 10px;
+        }
+        
+        .satwa-table thead {
+            background: linear-gradient(90deg, var(--color-teal-dark), var(--color-slate-blue));
+            color: var(--color-white);
+        }
+        
+        .satwa-table th, 
+        .satwa-table td {
+            padding: 1rem;
+            text-align: left;
+            vertical-align: middle;
+        }
+        
+        .satwa-table th {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+        
+        .satwa-table tbody tr {
+            background-color: var(--color-white);
+            transition: var(--transition);
+        }
+        
+        .satwa-table tbody tr:nth-child(even) {
+            background-color: rgba(194, 229, 226, 0.2);
+        }
+        
+        .satwa-table tbody tr:hover {
+            background-color: rgba(194, 229, 226, 0.5);
+        }
+        
+        .status-badge {
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            display: inline-block;
+        }
+        
+        .status-sehat {
+            background-color: #c6f6d5;
+            color: #22543d;
+        }
+        
+        .status-sakit {
+            background-color: #fed7d7;
+            color: #822727;
+        }
+        
+        .status-perawatan {
+            background-color: #feebc8;
+            color: #744210;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 0.6rem;
+        }
+        
+        .btn {
+            padding: 0.5rem 0.8rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.85rem;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .btn-edit {
+            background-color: var(--color-mint);
+            color: var(--color-teal-dark);
+        }
+        
+        .btn-edit:hover {
+            background-color: #a3d8d4;
+            transform: translateY(-2px);
+        }
+        
+        .btn-delete {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+        
+        .btn-delete:hover {
+            background-color: #fecaca;
+            transform: translateY(-2px);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--color-slate-blue);
+        }
+        
+        .empty-state svg {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 1rem;
+            opacity: 0.7;
+        }
+        
+        .empty-state p {
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .animal-img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            transition: var(--transition);
+            border: 2px solid var(--color-mint);
+        }
+        
+        .animal-img:hover {
+            transform: scale(1.5);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            z-index: 10;
+            position: relative;
+        }
+        
+        .species-name {
+            font-style: italic;
+            color: var(--color-slate-blue);
+        }
+        
+        .habitat-cell {
+            position: relative;
+        }
+        
+        .habitat-cell::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--color-mint);
+            margin-right: 6px;
+        }
+        
+        @media (max-width: 992px) {
+            .satwa-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 1rem;
+                width: auto;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .btn {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Data Satwa</h1>
+        </div>
+        
+        <div class="content-card">
+            <a href="{% url 'hewan_create' %}" class="add-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                </svg>
+                Tambah Satwa
+            </a>
+            
+            {% if hewans %}
+            <div class="table-responsive">
+                <table class="satwa-table">
+                    <thead>
+                        <tr>
+                            <th>Nama Individu</th>
+                            <th>Spesies</th>
+                            <th>Asal Hewan</th>
+                            <th>Tanggal Lahir</th>
+                            <th>Status Kesehatan</th>
+                            <th>Habitat</th>
+                            <th>Foto</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for hewan in hewans %}
+                        <tr>
+                            <td><strong>{{ hewan.nama }}</strong></td>
+                            <td class="species-name">{{ hewan.spesies }}</td>
+                            <td>{{ hewan.asal_hewan }}</td>
+                            <td>{{ hewan.tanggal_lahir }}</td>
+                            <td>
+                                {% if hewan.status_kesehatan == 'Sehat' %}
+                                    <span class="status-badge status-sehat">{{ hewan.status_kesehatan }}</span>
+                                {% elif hewan.status_kesehatan == 'Sakit' %}
+                                    <span class="status-badge status-sakit">{{ hewan.status_kesehatan }}</span>
+                                {% elif hewan.status_kesehatan == 'Perawatan' %}
+                                    <span class="status-badge status-perawatan">{{ hewan.status_kesehatan }}</span>
+                                {% else %}
+                                    {{ hewan.status_kesehatan }}
+                                {% endif %}
+                            </td>
+                            <td class="habitat-cell">{{ hewan.habitat_nama }}</td>
+                            <td>
+                                <img src="{{ hewan.url_foto }}" alt="{{ hewan.nama_individu }}" class="animal-img">
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="{% url 'hewan_update' hewan.id %}" class="btn btn-edit">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                        </svg>
+                                        Edit
+                                    </a>
+                                    <a href="{% url 'hewan_delete' hewan.id %}" class="btn btn-delete">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                            <line x1="10" y1="11" x2="10" y2="17"></line>
+                                            <line x1="14" y1="11" x2="14" y2="17"></line>
+                                        </svg>
+                                        Hapus
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"></path>
+                    <path d="M12 6a1 1 0 1 0 0 2 1 1 0 1 0 0-2z"></path>
+                    <path d="M12 9v8"></path>
+                </svg>
+                <p>Belum ada data satwa yang ditambahkan.</p>
+                <a href="{% url 'hewan_create' %}" class="add-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="16"></line>
+                        <line x1="8" y1="12" x2="16" y2="12"></line>
+                    </svg>
+                    Tambah Satwa Pertama
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
+
+{% endblock %}
