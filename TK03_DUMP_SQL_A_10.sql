@@ -746,3 +746,12 @@ VALUES
     ('citra_sakila', 'Zona Harimau', '2025-05-17', 4, 'Confirmed'),
     ('dian_sastro', 'Rumah Burung', '2025-05-18', 5, 'Cancelled'),
     ('eko_patrio', 'Savana Afrika', '2025-05-20', 2, 'Confirmed');
+
+-- table tambahan untuk tk4
+CREATE TABLE IF NOT EXISTS rotation_log (
+    id SERIAL PRIMARY KEY,
+    username_lh VARCHAR(50),
+    nama_atraksi VARCHAR(100),
+    message TEXT,
+    rotation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
