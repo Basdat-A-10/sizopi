@@ -2,6 +2,24 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.db import connection
 from .forms import HabitatForm, HewanForm
 import uuid
+from django.shortcuts import render, redirect
+from django.db import DatabaseError, IntegrityError
+from django.contrib import messages
+import uuid
+from django.shortcuts import redirect
+from django.contrib import messages
+
+def role_required(allowed_roles):
+    def decorator(view_func):
+        def wrapper(request, *args, **kwargs):
+            user_role = request.COOKIES.get('user_role')
+            if user_role not in allowed_roles:
+                messages.error(request, "Anda tidak memiliki akses ke halaman ini.")
+                return redirect('dashboard')
+            return view_func(request, *args, **kwargs)
+        return wrapper
+    return decorator
+
 
 def fetch_all(query, params=None):
     with connection.cursor() as cursor:
@@ -22,12 +40,14 @@ def execute(query, params=None):
     with connection.cursor() as cursor:
         cursor.execute(query, params or [])
 
-# --- Habitat Views ---
 
+@role_required(['penjaga_hewan', 'staf_admin'])
 def habitat_list(request):
     habitats = fetch_all("SELECT * FROM habitat")
     return render(request, 'habitat_list.html', {'habitats': habitats})
 
+
+@role_required(['penjaga_hewan', 'staf_admin'])
 def habitat_create(request):
     if request.method == 'POST':
         form = HabitatForm(request.POST)
@@ -42,10 +62,12 @@ def habitat_create(request):
         form = HabitatForm()
     return render(request, 'habitat_form.html', {'form': form, 'title': 'Tambah Habitat'})
 
+
+@role_required(['penjaga_hewan', 'staf_admin'])
 def habitat_update(request, pk):
     habitat = fetch_one("SELECT * FROM habitat WHERE nama = %s", [pk])
     if habitat is None:
-        return render(request, '404.html')  # or raise 404
+        return render(request, '404.html')
 
     if request.method == 'POST':
         form = HabitatForm(request.POST)
@@ -60,10 +82,14 @@ def habitat_update(request, pk):
         form = HabitatForm(initial=habitat)
     return render(request, 'habitat_form.html', {'form': form, 'title': 'Edit Habitat'})
 
+
+@role_required(['penjaga_hewan', 'staf_admin'])
 def habitat_delete(request, pk):
     execute("DELETE FROM habitat WHERE nama = %s", [pk])
     return redirect('habitat_list')
 
+
+@role_required(['penjaga_hewan', 'staf_admin'])
 def habitat_detail(request, pk):
     habitat = fetch_one("SELECT * FROM habitat WHERE nama = %s", [pk])
     if habitat is None:
@@ -74,8 +100,7 @@ def habitat_detail(request, pk):
         'hewans': hewans
     })
 
-# --- Hewan Views ---
-
+@role_required(['dokter_hewan', 'penjaga_hewan', 'staf_admin'])
 def hewan_list(request):
     hewans = fetch_all("""
         SELECT h.*, hb.nama as habitat_nama
@@ -84,16 +109,13 @@ def hewan_list(request):
     """)
     return render(request, 'hewan_list.html', {'hewans': hewans})
 
+@role_required(['dokter_hewan', 'penjaga_hewan', 'staf_admin'])
 def hewan_create(request):
     if request.method == 'POST':
         form = HewanForm(request.POST)
         if form.is_valid():
             data = form.cleaned_data
-            # prevent duplicate based on nama + spesies
-            nama = data.get('nama')
-            spesies = data['spesies']
-            existing = fetch_one("SELECT 1 FROM hewan WHERE nama = %s AND spesies = %s", [nama, spesies])
-            if not existing:
+            try:
                 id_hewan = str(uuid.uuid4())
                 execute("""
                     INSERT INTO hewan (id, nama, spesies, asal_hewan, tanggal_lahir, status_kesehatan, nama_habitat, url_foto)
@@ -108,13 +130,16 @@ def hewan_create(request):
                     data['nama_habitat'],
                     data['url_foto']
                 ])
+                messages.success(request, 'Data satwa berhasil ditambahkan.')
                 return redirect('hewan_list')
-            else:
-                form.add_error(None, 'Data hewan ini sudah terdaftar.')
+            except (DatabaseError, IntegrityError) as e:
+                form.add_error(None, str(e))
     else:
         form = HewanForm()
+
     return render(request, 'hewan_form.html', {'form': form, 'title': 'Tambah Satwa'})
 
+@role_required(['dokter_hewan', 'penjaga_hewan', 'staf_admin'])
 def hewan_update(request, pk):
     hewan = fetch_one("SELECT * FROM hewan WHERE id = %s", [pk])
     if hewan is None:
@@ -144,6 +169,7 @@ def hewan_update(request, pk):
         form = HewanForm(initial=hewan)
     return render(request, 'hewan_form.html', {'form': form, 'title': 'Edit Satwa'})
 
+@role_required(['dokter_hewan', 'penjaga_hewan', 'staf_admin'])
 def hewan_delete(request, pk):
     execute("DELETE FROM hewan WHERE id = %s", [pk])
     return redirect('hewan_list')

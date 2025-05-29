@@ -302,30 +302,36 @@ def edit_wahana(request, nama_wahana):
         kapasitas_max = request.POST.get('kapasitas_max')
         jadwal_time = request.POST.get('jadwal')
         
-        # Konversi format jadwal ke timestamp
         import datetime
         today = datetime.date.today().strftime('%Y-%m-%d')
         jadwal_timestamp = f"{today} {jadwal_time}:00"
-        
-        peraturan = request.POST.getlist('peraturan[]')
-        peraturan_str = "\n".join([f"{i+1}. {p}" for i, p in enumerate(peraturan) if p])
 
         with connection.cursor() as cursor:
             cursor.execute("SET search_path TO SIZOPI;")
+            
             cursor.execute("""
                 UPDATE FASILITAS SET kapasitas_max = %s, jadwal = %s WHERE nama = %s
             """, [kapasitas_max, jadwal_timestamp, nama_wahana])
 
-            cursor.execute("""
-                UPDATE WAHANA SET peraturan = %s WHERE nama_wahana = %s
-            """, [peraturan_str, nama_wahana])
+            if 'peraturan[]' in request.POST:
+                peraturan = request.POST.getlist('peraturan[]')
+                peraturan_clean = [p.strip() for p in peraturan if p.strip()]
+                
+                if peraturan_clean:
+                    peraturan_str = "\n".join([f"{i+1}. {p}" for i, p in enumerate(peraturan_clean)])
+                else:
+                    peraturan_str = ""
+                
+                cursor.execute("""
+                    UPDATE WAHANA SET peraturan = %s WHERE nama_wahana = %s
+                """, [peraturan_str, nama_wahana])
 
+        messages.success(request, f'Wahana "{nama_wahana}" berhasil diupdate.')
         return redirect('daftar_wahana_dan_atraksi')
+    
     else:
-        # Data wahana
         wahana = {}
         
-        # Gunakan satu blok with untuk semua operasi database
         with connection.cursor() as cursor:
             cursor.execute("SET search_path TO SIZOPI;")
             cursor.execute("""
@@ -346,15 +352,12 @@ def edit_wahana(request, nama_wahana):
             if not row:
                 raise Http404("Wahana tidak ditemukan")
             
-            # Ekstrak time dari timestamp jika perlu
             import datetime
             jadwal = row[2]
             if isinstance(jadwal, datetime.datetime):
                 jadwal_time = jadwal.strftime('%H:%M')
             else:
-                # Jika jadwal sudah dalam bentuk string, coba ekstrak waktu
                 try:
-                    from datetime import datetime
                     parsed_datetime = datetime.strptime(str(jadwal), '%Y-%m-%d %H:%M:%S')
                     jadwal_time = parsed_datetime.strftime('%H:%M')
                 except:
@@ -364,20 +367,24 @@ def edit_wahana(request, nama_wahana):
                 'nama_wahana': row[0],
                 'kapasitas_max': row[1],
                 'jadwal': jadwal_time,
-                'peraturan': row[3],
-                'peraturan_list': []  # Inisialisasi dengan list kosong
+                'peraturan': row[3] or "",
+                'peraturan_list': []
             }
             
-            # Parse peraturan menjadi list
-            if wahana['peraturan']:
-                for line in wahana['peraturan'].split('\n'):
-                    # Hapus nomor dan titik di awal
-                    if '.' in line:
-                        wahana['peraturan_list'].append(line.split('.', 1)[1].strip())
-                    else:
-                        wahana['peraturan_list'].append(line.strip())
+            if wahana['peraturan'] and wahana['peraturan'].strip():
+                peraturan_lines = wahana['peraturan'].strip().split('\n')
+                for line in peraturan_lines:
+                    line = line.strip()
+                    if line:
+                        if '. ' in line:
+                            parts = line.split('. ', 1)
+                            if len(parts) == 2 and parts[0].isdigit():
+                                wahana['peraturan_list'].append(parts[1].strip())
+                            else:
+                                wahana['peraturan_list'].append(line)
+                        else:
+                            wahana['peraturan_list'].append(line)
         
-        # Render template dengan data wahana
         return render(request, 'wahana_atraksi/edit_wahana.html', {
             'wahana': wahana
         })
@@ -632,11 +639,10 @@ def tambah_atraksi(request):
 
 def edit_atraksi(request, nama_atraksi):
     if request.method == 'POST':
-        # Hanya ambil field yang boleh diedit
         kapasitas_max = request.POST.get('kapasitas_max')
         jadwal_datetime = request.POST.get('jadwal')
         
-        # Konversi format datetime dari form ke format database
+        # Konversi format datetime
         import datetime
         try:
             jadwal_obj = datetime.datetime.fromisoformat(jadwal_datetime)
@@ -649,7 +655,7 @@ def edit_atraksi(request, nama_atraksi):
         with connection.cursor() as cursor:
             cursor.execute("SET search_path TO SIZOPI;")
             
-            # Update FASILITAS untuk kapasitas dan jadwal
+            # Update FASILITAS
             cursor.execute("""
                 UPDATE FASILITAS 
                 SET kapasitas_max = %s, jadwal = %s 
@@ -658,7 +664,7 @@ def edit_atraksi(request, nama_atraksi):
             
             print(f"DEBUG: Updated FASILITAS for {nama_atraksi}")
             
-            # PERBAIKAN: Ambil pelatih yang sedang bertugas (yang terbaru)
+            # Ambil pelatih yang sedang bertugas (yang terbaru)
             cursor.execute("""
                 SELECT username_lh, tgl_penugasan
                 FROM JADWAL_PENUGASAN 
@@ -675,150 +681,122 @@ def edit_atraksi(request, nama_atraksi):
                 
                 print(f"DEBUG: Current pelatih: {current_pelatih}, assigned at: {current_date}")
                 
-                # PERBAIKAN: Cek apakah sudah ada assignment dengan timestamp yang sama
-                cursor.execute("""
-                    SELECT COUNT(*) FROM JADWAL_PENUGASAN
-                    WHERE username_lh = %s AND tgl_penugasan = %s
-                """, [current_pelatih, jadwal_timestamp])
+                # Clear PostgreSQL notices untuk tangkap rotation messages
+                if hasattr(connection.connection, 'notices'):
+                    connection.connection.notices.clear()
                 
-                existing_count = cursor.fetchone()[0]
-                
-                if existing_count == 0:
-                    # Tidak ada conflict, aman untuk insert
-                    try:
-                        # Clear previous notices untuk menangkap rotation messages
-                        if hasattr(connection.connection, 'notices'):
-                            connection.connection.notices.clear()
-                        
-                        cursor.execute("""
-                            INSERT INTO JADWAL_PENUGASAN 
-                            (username_lh, nama_atraksi, tgl_penugasan)
-                            VALUES (%s, %s, %s)
-                        """, [current_pelatih, nama_atraksi, jadwal_timestamp])
-                        
-                        print(f"DEBUG: Successfully inserted new assignment for {current_pelatih}")
-                        
-                        # Cek apakah ada rotasi yang terjadi (dari NOTICE messages)
-                        rotation_happened = False
-                        rotation_messages = []
-                        if hasattr(connection.connection, 'notices'):
-                            for notice in connection.connection.notices:
-                                notice_msg = str(notice).strip()
-                                if 'SUKSES:' in notice_msg and 'bertugas lebih dari 3 bulan' in notice_msg:
-                                    rotation_messages.append(notice_msg)
-                                    rotation_happened = True
-                                    print(f"DEBUG: Rotation detected - {notice_msg}")
-                        
-                        if rotation_happened:
-                            # ROTASI DIPERLUKAN - Ganti pelatih
-                            print(f"DEBUG: Performing trainer rotation for {current_pelatih}")
-                            
-                            # 1. Hapus SEMUA assignment pelatih lama di atraksi ini
-                            cursor.execute("""
-                                DELETE FROM JADWAL_PENUGASAN 
-                                WHERE nama_atraksi = %s 
-                                AND username_lh = %s
-                            """, [nama_atraksi, current_pelatih])
-                            
-                            print(f"DEBUG: Deleted all old assignments for {current_pelatih}")
-                            
-                            # 2. Pilih pelatih baru yang tidak conflict
-                            cursor.execute("""
-                                SELECT PH.username_lh,
-                                       TRIM(CONCAT(P.nama_depan, ' ', 
-                                           COALESCE(P.nama_tengah || ' ', ''), 
-                                           P.nama_belakang)) AS nama_lengkap
-                                FROM PELATIH_HEWAN PH
-                                JOIN PENGGUNA P ON PH.username_lh = P.username
-                                WHERE PH.username_lh != %s
-                                AND NOT EXISTS (
-                                    SELECT 1 FROM JADWAL_PENUGASAN JP 
-                                    WHERE JP.username_lh = PH.username_lh 
-                                    AND JP.tgl_penugasan = %s
-                                )
-                                ORDER BY RANDOM()
-                                LIMIT 1
-                            """, [current_pelatih, jadwal_timestamp])
-                            
-                            new_pelatih = cursor.fetchone()
-                            
-                            if new_pelatih:
-                                # 3. Assign pelatih baru
-                                cursor.execute("""
-                                    INSERT INTO JADWAL_PENUGASAN 
-                                    (username_lh, nama_atraksi, tgl_penugasan)
-                                    VALUES (%s, %s, %s)
-                                """, [new_pelatih[0], nama_atraksi, jadwal_timestamp])
-                                
-                                # Tampilkan pesan rotasi
-                                for msg in rotation_messages:
-                                    messages.success(request, msg)
-                                
-                                messages.info(request, 
-                                    f'Pelatih baru "{new_pelatih[1]}" telah ditugaskan menggantikan yang lama.')
-                                
-                                print(f"DEBUG: Successfully assigned new trainer {new_pelatih[1]}")
-                            else:
-                                messages.warning(request, "Rotasi diperlukan tapi tidak ada pelatih pengganti tersedia.")
-                        else:
-                            # TIDAK ADA ROTASI - Cleanup assignment lama saja
-                            cursor.execute("""
-                                DELETE FROM JADWAL_PENUGASAN 
-                                WHERE nama_atraksi = %s 
-                                AND username_lh = %s
-                                AND tgl_penugasan < %s
-                            """, [nama_atraksi, current_pelatih, jadwal_timestamp])
-                            
-                            print(f"DEBUG: Cleaned up old assignments, kept latest for {current_pelatih}")
-                        
-                        # Pesan sukses
-                        if rotation_happened:
-                            messages.info(request, f'Jadwal atraksi "{nama_atraksi}" berhasil diupdate dengan rotasi pelatih.')
-                        else:
-                            # Ambil nama pelatih untuk pesan
-                            cursor.execute("""
-                                SELECT TRIM(CONCAT(P.nama_depan, ' ', 
-                                       COALESCE(P.nama_tengah || ' ', ''), 
-                                       P.nama_belakang)) AS nama_lengkap
-                                FROM PENGGUNA P 
-                                WHERE P.username = %s
-                            """, [current_pelatih])
-                            
-                            result = cursor.fetchone()
-                            current_pelatih_nama = result[0] if result else current_pelatih
-                            
-                            messages.success(request, 
-                                f'Atraksi "{nama_atraksi}" berhasil diupdate. '
-                                f'Jadwal penugasan pelatih "{current_pelatih_nama}" telah diperbarui.')
-                        
-                    except Exception as e:
-                        print(f"DEBUG: Error during assignment update: {str(e)}")
-                        
-                        # PERBAIKAN: Jika ada duplicate key error, update saja
-                        if 'duplicate key' in str(e).lower():
-                            cursor.execute("""
-                                UPDATE JADWAL_PENUGASAN 
-                                SET nama_atraksi = %s
-                                WHERE username_lh = %s AND tgl_penugasan = %s
-                            """, [nama_atraksi, current_pelatih, jadwal_timestamp])
-                            
-                            messages.success(request, f'Atraksi "{nama_atraksi}" berhasil diupdate.')
-                            print(f"DEBUG: Updated existing assignment instead of inserting")
-                        else:
-                            messages.error(request, f"Terjadi kesalahan saat update penugasan: {str(e)}")
-                else:
-                    # Sudah ada assignment dengan timestamp yang sama, update saja
+                try:
+                    # SIMPLE INSERT - Biarkan trigger SQL handle rotasi
                     cursor.execute("""
-                        UPDATE JADWAL_PENUGASAN 
-                        SET nama_atraksi = %s
-                        WHERE username_lh = %s AND tgl_penugasan = %s
-                    """, [nama_atraksi, current_pelatih, jadwal_timestamp])
+                        INSERT INTO JADWAL_PENUGASAN 
+                        (username_lh, nama_atraksi, tgl_penugasan)
+                        VALUES (%s, %s, %s)
+                    """, [current_pelatih, nama_atraksi, jadwal_timestamp])
                     
-                    messages.success(request, f'Atraksi "{nama_atraksi}" berhasil diupdate (assignment sudah ada).')
-                    print(f"DEBUG: Updated existing assignment for {current_pelatih}")
+                    print(f"DEBUG: Inserted assignment for {current_pelatih}")
                     
+                    # Cek apakah ada NOTICE dari trigger tentang rotasi
+                    rotation_happened = False
+                    rotation_messages = []
+                    
+                    if hasattr(connection.connection, 'notices'):
+                        for notice in connection.connection.notices:
+                            notice_msg = str(notice).strip()
+                            print(f"DEBUG: Notice received: {notice_msg}")
+                            
+                            if 'ROTATION_SUCCESS:' in notice_msg:
+                                # Format: "ROTATION_SUCCESS: Old Name -> New Name"
+                                parts = notice_msg.replace('NOTICE:', '').replace('ROTATION_SUCCESS:', '').strip().split(' -> ')
+                                if len(parts) == 2:
+                                    old_name = parts[0].strip()
+                                    new_name = parts[1].strip()
+                                    rotation_messages.append(f'Pelatih "{old_name}" telah dirotasi dan diganti dengan "{new_name}".')
+                                    rotation_happened = True
+                            elif 'ROTATION_FAILED:' in notice_msg:
+                                rotation_messages.append('Rotasi diperlukan tetapi tidak ada pelatih pengganti yang tersedia.')
+                                rotation_happened = True
+                    
+                    # Ambil pesan rotasi dari rotation_log (simple version - ambil 3 terbaru)
+                    cursor.execute("""
+                        SELECT message 
+                        FROM rotation_log 
+                        WHERE nama_atraksi = %s 
+                        ORDER BY rotation_date DESC
+                        LIMIT 3
+                    """, [nama_atraksi])
+                    
+                    recent_logs = cursor.fetchall()
+                    for log in recent_logs:
+                        log_message = log[0]
+                        if 'SUKSES:' in log_message and 'bertugas lebih dari 3 bulan' in log_message:
+                            rotation_messages.append(log_message)
+                            rotation_happened = True
+                        elif 'INFO:' in log_message and 'ditugaskan menggantikan' in log_message:
+                            rotation_messages.append(log_message.replace('INFO: ', ''))
+                            rotation_happened = True
+                        elif 'WARNING:' in log_message and 'tidak ada trainer pengganti' in log_message:
+                            rotation_messages.append(log_message.replace('WARNING: ', ''))
+                            rotation_happened = True
+                    
+                    # Cleanup assignment lama jika tidak ada rotasi
+                    if not rotation_happened:
+                        cursor.execute("""
+                            DELETE FROM JADWAL_PENUGASAN 
+                            WHERE nama_atraksi = %s 
+                            AND username_lh = %s
+                            AND tgl_penugasan < %s
+                        """, [nama_atraksi, current_pelatih, jadwal_timestamp])
+                        
+                        print(f"DEBUG: Cleaned up old assignments for {current_pelatih}")
+                    
+                    # Tampilkan messages
+                    if rotation_happened:
+                        for msg in rotation_messages:
+                            if 'SUKSES:' in msg or 'bertugas lebih dari 3 bulan' in msg:
+                                messages.success(request, msg)
+                            elif 'INFO:' in msg or 'ditugaskan menggantikan' in msg:
+                                messages.info(request, msg)
+                            elif 'WARNING:' in msg or 'tidak ada' in msg:
+                                messages.warning(request, msg)
+                            else:
+                                messages.info(request, msg)
+                        
+                        messages.success(request, f'Atraksi "{nama_atraksi}" berhasil diupdate dengan rotasi pelatih otomatis.')
+                    else:
+                        # Ambil nama pelatih untuk pesan
+                        cursor.execute("""
+                            SELECT TRIM(CONCAT(P.nama_depan, ' ', 
+                                   COALESCE(P.nama_tengah || ' ', ''), 
+                                   P.nama_belakang)) AS nama_lengkap
+                            FROM PENGGUNA P 
+                            WHERE P.username = %s
+                        """, [current_pelatih])
+                        
+                        result = cursor.fetchone()
+                        current_pelatih_nama = result[0] if result else current_pelatih
+                        
+                        messages.success(request, 
+                            f'Atraksi "{nama_atraksi}" berhasil diupdate. '
+                            f'Jadwal penugasan pelatih "{current_pelatih_nama}" telah diperbarui.')
+                
+                except Exception as e:
+                    print(f"DEBUG: Error during assignment: {str(e)}")
+                    
+                    if 'duplicate key' in str(e).lower():
+                        # Update existing assignment
+                        cursor.execute("""
+                            UPDATE JADWAL_PENUGASAN 
+                            SET nama_atraksi = %s
+                            WHERE username_lh = %s AND tgl_penugasan = %s
+                        """, [nama_atraksi, current_pelatih, jadwal_timestamp])
+                        
+                        messages.success(request, f'Atraksi "{nama_atraksi}" berhasil diupdate.')
+                        print(f"DEBUG: Updated existing assignment")
+                    else:
+                        messages.error(request, f"Terjadi kesalahan saat update penugasan: {str(e)}")
+                        
             else:
-                # Tidak ada pelatih yang bertugas, assign pelatih random baru
+                # Tidak ada pelatih yang bertugas, assign pelatih baru
                 cursor.execute("""
                     SELECT PH.username_lh,
                            TRIM(CONCAT(P.nama_depan, ' ', 
@@ -847,7 +825,7 @@ def edit_atraksi(request, nama_atraksi):
                         f'Atraksi "{nama_atraksi}" berhasil diupdate. '
                         f'Pelatih "{new_pelatih[1]}" telah ditugaskan.')
                     
-                    print(f"DEBUG: Assigned new trainer {new_pelatih[1]} with date {jadwal_timestamp}")
+                    print(f"DEBUG: Assigned new trainer {new_pelatih[1]}")
                 else:
                     messages.warning(request, 
                         f'Atraksi "{nama_atraksi}" berhasil diupdate, namun tidak ada pelatih yang tersedia.')
@@ -910,6 +888,7 @@ def edit_atraksi(request, nama_atraksi):
                 WHERE
                     JP.nama_atraksi = %s
                 ORDER BY JP.tgl_penugasan DESC
+                LIMIT 5
             """, [nama_atraksi])
             
             current_pelatih = cursor.fetchall()
@@ -919,6 +898,24 @@ def edit_atraksi(request, nama_atraksi):
                     'tgl_penugasan': row[1].strftime('%d %B %Y, %H:%M') if row[1] else '-'
                 } 
                 for row in current_pelatih
+            ]
+            
+            # Cek log rotasi terbaru (simple version)
+            cursor.execute("""
+                SELECT message, rotation_date 
+                FROM rotation_log 
+                WHERE nama_atraksi = %s 
+                ORDER BY rotation_date DESC 
+                LIMIT 3
+            """, [nama_atraksi])
+            
+            rotation_logs = cursor.fetchall()
+            atraksi['rotation_history'] = [
+                {
+                    'message': row[0],
+                    'rotation_date': row[1].strftime('%d %B %Y, %H:%M') if row[1] else '-'
+                }
+                for row in rotation_logs
             ]
             
             cursor.execute("""
@@ -948,41 +945,54 @@ def delete_atraksi(request, nama_atraksi):
         with connection.cursor() as cursor:
             cursor.execute("SET search_path TO SIZOPI;")
             
-            # CEK APAKAH INI BENAR-BENAR ATRAKSI (bukan wahana)
+            # CEK APAKAH ADA DI TABEL ATRAKSI
             cursor.execute("SELECT nama_atraksi FROM ATRAKSI WHERE nama_atraksi = %s", [nama_atraksi])
             if not cursor.fetchone():
                 messages.error(request, f"'{nama_atraksi}' tidak ditemukan di tabel ATRAKSI")
                 return redirect('daftar_wahana_dan_atraksi')
             
-            # CEK APAKAH JUGA ADA DI WAHANA
-            cursor.execute("SELECT nama_wahana FROM WAHANA WHERE nama_wahana = %s", [nama_atraksi])
-            ada_di_wahana = cursor.fetchone()
-            
-            if ada_di_wahana:
-                messages.error(request, f"ERROR: '{nama_atraksi}' ada di kedua tabel ATRAKSI dan WAHANA. Tidak bisa dihapus sampai duplikasi ini diperbaiki!")
-                return redirect('daftar_wahana_dan_atraksi')
-            
             cursor.execute("BEGIN;")
             
             try:
-                # 1. Hapus referensi
-                cursor.execute("DELETE FROM RESERVASI WHERE nama_fasilitas = %s", [nama_atraksi])
+                print(f"Menghapus ATRAKSI: '{nama_atraksi}'")
+                
+                # 1. Hapus referensi yang spesifik untuk ATRAKSI
                 cursor.execute("DELETE FROM BERPARTISIPASI WHERE nama_fasilitas = %s", [nama_atraksi])
+                deleted_berpartisipasi = cursor.rowcount
+                print(f"Deleted from BERPARTISIPASI: {deleted_berpartisipasi} rows")
+                
                 cursor.execute("DELETE FROM JADWAL_PENUGASAN WHERE nama_atraksi = %s", [nama_atraksi])
+                deleted_jadwal = cursor.rowcount
+                print(f"Deleted from JADWAL_PENUGASAN: {deleted_jadwal} rows")
                 
-                # 2. Hapus dari ATRAKSI saja (bukan WAHANA)
+                # 2. Hapus dari ATRAKSI saja
                 cursor.execute("DELETE FROM ATRAKSI WHERE nama_atraksi = %s", [nama_atraksi])
+                deleted_atraksi = cursor.rowcount
+                print(f"Deleted from ATRAKSI: {deleted_atraksi} rows")
                 
-                # 3. JANGAN hapus dari FASILITAS kalau masih ada di WAHANA
+                # 3. CEK apakah masih ada di WAHANA sebelum hapus FASILITAS
+                cursor.execute("SELECT nama_wahana FROM WAHANA WHERE nama_wahana = %s", [nama_atraksi])
+                masih_ada_wahana = cursor.fetchone()
+                
+                if not masih_ada_wahana:
+                    # Kalau tidak ada di wahana, hapus dari FASILITAS juga
+                    cursor.execute("DELETE FROM FASILITAS WHERE nama = %s", [nama_atraksi])
+                    deleted_fasilitas = cursor.rowcount
+                    print(f"Deleted from FASILITAS: {deleted_fasilitas} rows")
+                    messages.success(request, f"ATRAKSI '{nama_atraksi}' berhasil dihapus sepenuhnya!")
+                else:
+                    # Kalau masih ada di wahana, jangan hapus FASILITAS
+                    print(f"FASILITAS '{nama_atraksi}' tidak dihapus karena masih digunakan WAHANA")
+                    messages.success(request, f"ATRAKSI '{nama_atraksi}' berhasil dihapus")
+                
                 cursor.execute("COMMIT;")
-                
-                messages.success(request, f"Atraksi '{nama_atraksi}' berhasil dihapus!")
                 
             except Exception as inner_e:
                 cursor.execute("ROLLBACK;")
                 raise inner_e
                 
     except Exception as e:
+        print(f"Error deleting atraksi: {str(e)}")
         messages.error(request, f"Error: {str(e)}")
         
     return redirect('daftar_wahana_dan_atraksi')

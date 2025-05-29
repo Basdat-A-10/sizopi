@@ -755,3 +755,13 @@ CREATE TABLE IF NOT EXISTS rotation_log (
     message TEXT,
     rotation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+
+CREATE TABLE IF NOT EXISTS SIZOPI.LOGIN_LOG (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(255),
+    attempt_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    success BOOLEAN,
+    message TEXT
+);
+

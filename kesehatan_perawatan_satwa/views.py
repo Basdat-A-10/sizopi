@@ -182,13 +182,10 @@ def tambah_rekam_medis(request):
                     if trigger_messages:
                         for msg in trigger_messages:
                             messages.success(request, msg)
-                    else:
-                        messages.success(request, f"Jadwal pemeriksaan hewan \"{nama_hewan}\" telah diperbarui karena status kesehatan \"Sakit\".")
                 else:
                     if trigger_messages:
                         for msg in trigger_messages:
                             messages.success(request, msg)
-                    messages.success(request, f"Rekam medis untuk {nama_hewan} berhasil ditambahkan")
                 
                 filter_hewan = request.GET.get('hewan')
                 if filter_hewan:
@@ -379,8 +376,6 @@ def hapus_rekam_medis(request, id):
                 if trigger_messages:
                     for msg in trigger_messages:
                         messages.success(request, msg)
-                else:
-                    messages.success(request, f"Rekam medis untuk {nama_hewan} berhasil dihapus")
             
             filter_hewan = request.GET.get('hewan')
             if filter_hewan:
@@ -544,11 +539,6 @@ def tambah_jadwal_pemeriksaan(request):
                         for msg in trigger_messages:
                             messages.success(request, msg)
                             print(f"DEBUG - Menambahkan pesan trigger: {msg}")
-                    else:
-                        # Fallback message dengan format yang konsisten
-                        fallback_message = f"SUKSES: Jadwal pemeriksaan untuk hewan \"{nama_hewan}\" berhasil ditambahkan."
-                        messages.success(request, fallback_message)
-                        print(f"DEBUG - Menggunakan fallback message: {fallback_message}")
             
             if filter_hewan:
                 return redirect(f'/kesehatan-perawatan/jadwal-pemeriksaan/?hewan={filter_hewan}')
@@ -696,12 +686,7 @@ def edit_frekuensi_pemeriksaan(request, id):
                     for msg in trigger_messages:
                         messages.success(request, msg)
                         print(f"DEBUG - Menambahkan pesan: {msg}")
-                else:
-                    # Fallback message jika trigger tidak mengirim pesan
-                    fallback_message = f"SUKSES: Jadwal pemeriksaan hewan \"{nama_hewan}\" telah diperbarui sesuai frekuensi baru {freq_pemeriksaan_rutin} bulan."
-                    messages.success(request, fallback_message)
-                    print(f"DEBUG - Menggunakan fallback message: {fallback_message}")
-        
+            
         if request.method == 'POST':
             filter_hewan = request.GET.get('hewan') or id
             if filter_hewan:
