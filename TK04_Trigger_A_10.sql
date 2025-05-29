@@ -259,3 +259,60 @@ CREATE TRIGGER trigger_update_frequency_schedules
 AFTER UPDATE ON JADWAL_PEMERIKSAAN_KESEHATAN
 FOR EACH ROW
 EXECUTE FUNCTION update_frequency_schedules();
+
+CREATE OR REPLACE FUNCTION prevent_duplicate_hewan()
+RETURNS TRIGGER AS $$
+DECLARE
+    existing_count INTEGER;
+BEGIN
+    SELECT COUNT(*) INTO existing_count
+    FROM HEWAN
+    WHERE nama = NEW.nama
+      AND spesies = NEW.spesies
+      AND asal_hewan = NEW.asal_hewan;
+
+    IF existing_count > 0 THEN
+        RAISE EXCEPTION 'Data satwa atas nama “%”, spesies “%”, dan berasal dari “%” sudah terdaftar.',
+            NEW.nama, NEW.spesies, NEW.asal_hewan;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_prevent_duplicate_hewan
+BEFORE INSERT ON HEWAN
+FOR EACH ROW
+EXECUTE FUNCTION prevent_duplicate_hewan();
+
+CREATE OR REPLACE FUNCTION log_riwayat_perubahan()
+RETURNS TRIGGER AS $$
+BEGIN
+
+    INSERT INTO RIWAYAT_SATWA (
+        id_hewan,
+        old_status_kesehatan,
+        new_status_kesehatan,
+        old_nama_habitat,
+        new_nama_habitat
+    )
+    VALUES (
+        NEW.id,
+        OLD.status_kesehatan,
+        NEW.status_kesehatan,
+        OLD.nama_habitat,
+        NEW.nama_habitat
+    );
+
+    RAISE NOTICE 'SUKSES: Riwayat perubahan status kesehatan dari “%” menjadi “%” atau habitat dari “%” menjadi “%” telah dicatat.',
+        OLD.status_kesehatan, NEW.status_kesehatan, OLD.nama_habitat, NEW.nama_habitat;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_log_riwayat_perubahan
+AFTER UPDATE OF status_kesehatan, nama_habitat ON HEWAN
+FOR EACH ROW
+EXECUTE FUNCTION log_riwayat_perubahan();
+

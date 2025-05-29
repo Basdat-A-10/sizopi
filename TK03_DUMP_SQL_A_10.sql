@@ -216,6 +216,17 @@ CREATE TABLE RESERVASI (
     FOREIGN KEY (nama_fasilitas) REFERENCES FASILITAS(nama_fasilitas)
 );
 
+CREATE TABLE IF NOT EXISTS RIWAYAT_SATWA (
+    id SERIAL PRIMARY KEY,
+    id_hewan UUID NOT NULL,
+    old_status_kesehatan VARCHAR(50),
+    new_status_kesehatan VARCHAR(50),
+    old_nama_habitat VARCHAR(100),
+    new_nama_habitat VARCHAR(100),
+    waktu_perubahan TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
 -- Insert datas for 1. PENGGUNA table
 -- 50 PENGUNJUNG
 INSERT INTO PENGGUNA (username, email, password, nama_depan, nama_tengah, nama_belakang, no_telepon)
