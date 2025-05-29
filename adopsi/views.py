@@ -211,17 +211,13 @@ def submit_adopsi_individu(request):
 def submit_adopsi_organisasi(request):
     if request.method == "POST":
         try:
-            print("username:", request.POST.get("username"))
-            print("id_hewan:", request.POST.get("id_hewan"))
-            print("kontribusi:", request.POST.get("kontribusi_finansial"))
-            print("periode:", request.POST.get("periode_adopsi"))
 
             username = request.POST.get("username")
             npp = request.POST.get("npp")
             nama_organisasi = request.POST.get("nama_organisasi")
             id_hewan = request.POST.get("id_hewan")
-            kontribusi = int(request.POST.get("kontribusi"))
-            periode = int(request.POST.get("periode"))
+            kontribusi = int(request.POST.get("kontribusi_finansial"))
+            periode = int(request.POST.get("periode_adopsi"))
 
             if not all([username, npp, nama_organisasi, id_hewan, kontribusi, periode]):
                 return HttpResponseBadRequest("Form tidak lengkap")
