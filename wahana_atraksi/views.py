@@ -302,30 +302,36 @@ def edit_wahana(request, nama_wahana):
         kapasitas_max = request.POST.get('kapasitas_max')
         jadwal_time = request.POST.get('jadwal')
         
-        # Konversi format jadwal ke timestamp
         import datetime
         today = datetime.date.today().strftime('%Y-%m-%d')
         jadwal_timestamp = f"{today} {jadwal_time}:00"
-        
-        peraturan = request.POST.getlist('peraturan[]')
-        peraturan_str = "\n".join([f"{i+1}. {p}" for i, p in enumerate(peraturan) if p])
 
         with connection.cursor() as cursor:
             cursor.execute("SET search_path TO SIZOPI;")
+            
             cursor.execute("""
                 UPDATE FASILITAS SET kapasitas_max = %s, jadwal = %s WHERE nama = %s
             """, [kapasitas_max, jadwal_timestamp, nama_wahana])
 
-            cursor.execute("""
-                UPDATE WAHANA SET peraturan = %s WHERE nama_wahana = %s
-            """, [peraturan_str, nama_wahana])
+            if 'peraturan[]' in request.POST:
+                peraturan = request.POST.getlist('peraturan[]')
+                peraturan_clean = [p.strip() for p in peraturan if p.strip()]
+                
+                if peraturan_clean:
+                    peraturan_str = "\n".join([f"{i+1}. {p}" for i, p in enumerate(peraturan_clean)])
+                else:
+                    peraturan_str = ""
+                
+                cursor.execute("""
+                    UPDATE WAHANA SET peraturan = %s WHERE nama_wahana = %s
+                """, [peraturan_str, nama_wahana])
 
+        messages.success(request, f'Wahana "{nama_wahana}" berhasil diupdate.')
         return redirect('daftar_wahana_dan_atraksi')
+    
     else:
-        # Data wahana
         wahana = {}
         
-        # Gunakan satu blok with untuk semua operasi database
         with connection.cursor() as cursor:
             cursor.execute("SET search_path TO SIZOPI;")
             cursor.execute("""
@@ -346,15 +352,12 @@ def edit_wahana(request, nama_wahana):
             if not row:
                 raise Http404("Wahana tidak ditemukan")
             
-            # Ekstrak time dari timestamp jika perlu
             import datetime
             jadwal = row[2]
             if isinstance(jadwal, datetime.datetime):
                 jadwal_time = jadwal.strftime('%H:%M')
             else:
-                # Jika jadwal sudah dalam bentuk string, coba ekstrak waktu
                 try:
-                    from datetime import datetime
                     parsed_datetime = datetime.strptime(str(jadwal), '%Y-%m-%d %H:%M:%S')
                     jadwal_time = parsed_datetime.strftime('%H:%M')
                 except:
@@ -364,20 +367,24 @@ def edit_wahana(request, nama_wahana):
                 'nama_wahana': row[0],
                 'kapasitas_max': row[1],
                 'jadwal': jadwal_time,
-                'peraturan': row[3],
-                'peraturan_list': []  # Inisialisasi dengan list kosong
+                'peraturan': row[3] or "",
+                'peraturan_list': []
             }
             
-            # Parse peraturan menjadi list
-            if wahana['peraturan']:
-                for line in wahana['peraturan'].split('\n'):
-                    # Hapus nomor dan titik di awal
-                    if '.' in line:
-                        wahana['peraturan_list'].append(line.split('.', 1)[1].strip())
-                    else:
-                        wahana['peraturan_list'].append(line.strip())
+            if wahana['peraturan'] and wahana['peraturan'].strip():
+                peraturan_lines = wahana['peraturan'].strip().split('\n')
+                for line in peraturan_lines:
+                    line = line.strip()
+                    if line:
+                        if '. ' in line:
+                            parts = line.split('. ', 1)
+                            if len(parts) == 2 and parts[0].isdigit():
+                                wahana['peraturan_list'].append(parts[1].strip())
+                            else:
+                                wahana['peraturan_list'].append(line)
+                        else:
+                            wahana['peraturan_list'].append(line)
         
-        # Render template dengan data wahana
         return render(request, 'wahana_atraksi/edit_wahana.html', {
             'wahana': wahana
         })
