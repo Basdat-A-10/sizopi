@@ -3,7 +3,8 @@ from django.db import connection, transaction
 from django.utils import timezone
 from datetime import date, timedelta
 from django.http import Http404, HttpResponseBadRequest, HttpResponse
-from django.views.decorators.csrf import csrf_exempt  
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
 from dateutil.relativedelta import relativedelta 
 import uuid
 
@@ -269,3 +270,36 @@ def submit_adopsi_organisasi(request):
             return HttpResponseBadRequest(f"Terjadi kesalahan: {e}")
 
     return HttpResponseBadRequest("Metode tidak diperbolehkan")
+
+def adopsi_home_adopter(request):
+    username = request.COOKIES.get('user_id')
+    print(username)
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT h.id, h.nama, h.spesies, h.status_kesehatan, hb.nama, a.tgl_mulai_adopsi, a.tgl_berhenti_adopsi, a.kontribusi_finansial, h.url_foto
+            FROM SIZOPI.hewan h
+            JOIN SIZOPI.habitat hb ON h.nama_habitat = hb.nama
+            JOIN SIZOPI.adopsi a ON h.id = a.id_hewan
+            JOIN SIZOPI.adopter ad ON a.id_adopter = ad.id_adopter
+            WHERE ad.username_adopter = %s
+        """, [username])
+        rows = cursor.fetchall()
+
+    adopted_animals = [
+        {
+            "id": row[0],
+            "nama": row[1],
+            "spesies": row[2],
+            "status_kesehatan": row[3],
+            "habitat": row[4],
+            "tgl_mulai": row[5],
+            "tgl_berhenti": row[6],
+            "kontribusi": row[7],
+            "url_foto": row[8],
+        }
+        for row in rows
+    ]
+
+    return render(request, 'adopsi/adopsi_home_adopter.html', {
+        'adopted_animals': adopted_animals
+    })
