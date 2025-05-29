@@ -7,7 +7,7 @@ class Adopter(models.Model):
     total_kontribusi = models.IntegerField()
 
     class Meta:
-        managed = False  # Ini wajib, supaya Django tahu tabel sudah ada
+        managed = False 
         db_table = 'adopter'
 
     def __str__(self):

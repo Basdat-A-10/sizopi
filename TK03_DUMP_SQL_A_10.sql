@@ -213,7 +213,7 @@ CREATE TABLE RESERVASI (
     status VARCHAR(50) NOT NULL,
     PRIMARY KEY (username_p, nama_fasilitas, tanggal_kunjungan),
     FOREIGN KEY (username_p) REFERENCES PENGUNJUNG(username_p),
-    FOREIGN KEY (nama_fasilitas) REFERENCES FASILITAS(nama_fasilitas)
+    FOREIGN KEY (nama_fasilitas) REFERENCES FASILITAS(nama)
 );
 
 CREATE TABLE IF NOT EXISTS RIWAYAT_SATWA (
@@ -739,7 +739,7 @@ VALUES
 ('82079cc0-e4a0-4376-9518-943e7f20cc3d', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a39', 'Lunas', '2024-03-19', '2025-03-19', 1900000),
 ('4f75b2d7-8de0-43a4-b39b-89d9b26006b5', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a40', 'Belum', '2024-05-01', '2025-05-01', 1500000);
 
-INSERT INTO RESERVASI (username_p, nama_atraksi, tanggal_kunjungan, jumlah_tiket, status)
+INSERT INTO RESERVASI (username_p, nama_fasilitas, tanggal_kunjungan, jumlah_tiket, status)
 VALUES 
     ('ahmad_fauzi', 'Zona Akuatik', '2025-05-15', 3, 'Confirmed'),
     ('bayu_setiawan', 'Amphitheater Utama', '2025-05-16', 2, 'Pending'),
