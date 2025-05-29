@@ -3,6 +3,7 @@ from django.db import connection
 from django.utils import timezone
 from datetime import timedelta
 from django.http import Http404
+from django.views.decorators.csrf import csrf_exempt  
 
 def dictfetchall(cursor):
     "Return all rows from a cursor as a dict"
@@ -75,7 +76,21 @@ def delete_adopsi(request, id_adopter, id_hewan, tgl_mulai_adopsi):
     return redirect('adopter_detail', id_adopter=id_adopter)
 
 def adopsi_home(request):
-    return render(request, 'adopsi/adopsi_home.html')
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT 
+                h.id, h.nama, h.spesies, h.status_kesehatan, h.url_foto,
+                a.status_pembayaran, a.tgl_mulai_adopsi, a.tgl_berhenti_adopsi,
+                ad.username_adopter AS adopter_username,
+                a.kontribusi_finansial
+            FROM SIZOPI.hewan h
+            LEFT JOIN SIZOPI.adopsi a ON h.id = a.id_hewan
+            LEFT JOIN SIZOPI.adopter ad ON a.id_adopter = ad.id_adopter
+        """)
+        animals = dictfetchall(cursor)
+    return render(request, 'adopsi/adopsi_home.html', {'animals': animals})
+
+
 
 def form_individu(request):
     return render(request, 'adopsi/form_adopsi_individu.html')
@@ -85,3 +100,22 @@ def form_organisasi(request):
 
 def adopter_home(request):
     return render(request, 'adopsi/adopsi_home_adopter.html')
+
+@csrf_exempt
+def update_status_pembayaran(request, id_hewan):
+    if request.method == 'POST':
+        new_status = request.POST.get('status_pembayaran')
+        if new_status == 'Lunas':
+            new_status_db = 'Lunas'
+        else:
+            new_status_db = 'Belum'
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                UPDATE SIZOPI.adopsi 
+                SET status_pembayaran = %s 
+                WHERE id_hewan = %s
+            """, [new_status_db, id_hewan])
+        return redirect('adopsi_home')
+    raise Http404("Invalid request")
+
+

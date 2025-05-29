@@ -10,4 +10,6 @@ urlpatterns = [
     path('form-individu/', views.form_individu, name='form_individu'),
     path('form-organisasi/', views.form_organisasi, name='form_organisasi'),
     path('adopter-home/', views.adopter_home, name='adopter_home'),
+    path('adoptions/<uuid:id_hewan>/update-status/', views.update_status_pembayaran, name='update_status_pembayaran'),
+
 ]
