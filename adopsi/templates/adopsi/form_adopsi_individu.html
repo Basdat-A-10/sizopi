@@ -1,66 +1,371 @@
 {% extends "base.html" %}
 {% block title %}Form Adopsi Satwa{% endblock %}
 {% block content %}
-<div class="container py-5">
-  <div class="card mb-4">
-    <div class="card-header text-center py-3">
+<style>
+    :root {
+        --primary-color: #2f4550;
+        --secondary-color: #B8DBD9;
+        --accent-color: #4f6d7a;
+        --success-color: #28a745;
+        --light-bg: #f8f9fa;
+        --card-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        --input-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        --gradient-primary: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+    }
+
+    body {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .form-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+
+    .form-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: var(--card-shadow);
+        border: none;
+        overflow: hidden;
+        backdrop-filter: blur(10px);
+    }
+
+    .form-header {
+        background: var(--gradient-primary);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .form-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="paw" patternUnits="userSpaceOnUse" width="20" height="20"><circle cx="5" cy="5" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="15" cy="5" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="10" cy="10" r="1.5" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23paw)"/></svg>');
+        opacity: 0.3;
+    }
+
+    .form-header h4 {
+        font-weight: 700;
+        font-size: 1.8rem;
+        margin: 0;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        position: relative;
+        z-index: 1;
+    }
+
+    .form-header .subtitle {
+        font-size: 1rem;
+        opacity: 0.9;
+        margin-top: 0.5rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .form-body {
+        padding: 2.5rem;
+        background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background: white;
+        border-radius: 15px;
+        box-shadow: var(--input-shadow);
+        border-left: 4px solid var(--secondary-color);
+    }
+
+    .section-title {
+        color: var(--primary-color);
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .section-title i {
+        margin-right: 0.5rem;
+        color: var(--secondary-color);
+    }
+
+    .form-label {
+        color: var(--primary-color);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .form-control, .form-select {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        background: white;
+        box-shadow: var(--input-shadow);
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--secondary-color);
+        box-shadow: 0 0 0 0.2rem rgba(184, 219, 217, 0.25);
+        transform: translateY(-1px);
+    }
+
+    .form-text {
+        color: #666;
+        font-style: italic;
+        line-height: 1.6;
+        margin: 1rem 0;
+        padding: 1rem;
+        background: rgba(184, 219, 217, 0.1);
+        border-radius: 8px;
+        border-left: 3px solid var(--secondary-color);
+    }
+
+    .input-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .button-container {
+        text-align: center;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 2px solid #eee;
+    }
+
+    .btn {
+        border-radius: 25px;
+        padding: 0.8rem 2rem;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-primary {
+        background: var(--gradient-primary);
+        color: white;
+        margin-right: 1rem;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, var(--accent-color) 0%, var(--primary-color) 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        color: white;
+    }
+
+    .btn-secondary {
+        background: linear-gradient(135deg, #6c757d 0%, #868e96 100%);
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background: linear-gradient(135deg, #868e96 0%, #6c757d 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        color: white;
+    }
+
+    .highlight-text {
+        color: var(--primary-color);
+        font-weight: 600;
+        background: linear-gradient(90deg, transparent, rgba(184, 219, 217, 0.3), transparent);
+        padding: 0.5rem 0;
+        border-radius: 5px;
+    }
+
+    .contribution-section {
+        background: linear-gradient(135deg, rgba(184, 219, 217, 0.1), rgba(79, 109, 122, 0.05));
+        border-left-color: var(--success-color);
+    }
+
+    @media (max-width: 768px) {
+        .form-container {
+            padding: 1rem;
+        }
+
+        .form-body {
+            padding: 1.5rem;
+        }
+
+        .form-section {
+            padding: 1rem;
+        }
+
+        .input-group {
+            grid-template-columns: 1fr;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            margin: 0.5rem 0;
+        }
+
+        .btn-primary {
+            margin-right: 0;
+        }
+
+        .form-header h4 {
+            font-size: 1.5rem;
+        }
+    }
+
+    .form-card {
+        animation: slideUp 0.6s ease-out;
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .form-section {
+        animation: fadeIn 0.8s ease-out forwards;
+        opacity: 0;
+    }
+
+    .form-section:nth-child(1) { animation-delay: 0.1s; }
+    .form-section:nth-child(2) { animation-delay: 0.2s; }
+    .form-section:nth-child(3) { animation-delay: 0.3s; }
+    .form-section:nth-child(4) { animation-delay: 0.4s; }
+
+    @keyframes fadeIn {
+        to {
+            opacity: 1;
+        }
+    }
+</style>
+
+<div class="container form-container">
+  <div class="card form-card mb-4">
+    <div class="card-header form-header">
       <h4 class="mb-0">FORM ADOPSI SATWA - INDIVIDU</h4>
+      <p class="subtitle">Bergabunglah dalam program adopsi untuk membantu kesejahteraan satwa</p>
     </div>
-    <div class="card-body">
+    <div class="card-body form-body">
       <form>
-        <p>Pihak di bawah ini,</p>
-        <div class="mb-3">
-          <label for="namaIndividu" class="form-label">Nama:</label>
-          <input type="text" class="form-control" id="namaIndividu" placeholder="Nama Depan Pengguna">
+        <div class="form-section">
+          <div class="section-title">
+            <i class="fas fa-user"></i>
+            Informasi Personal
+          </div>
+          <p class="form-text">Pihak di bawah ini,</p>
+          
+          <div class="input-group">
+            <div class="mb-3">
+              <label for="namaIndividu" class="form-label">
+                <i class="fas fa-signature me-1"></i>Nama Lengkap:
+              </label>
+              <input type="text" class="form-control" id="namaIndividu" placeholder="Masukkan nama lengkap Anda">
+            </div>
+            
+            <div class="mb-3">
+              <label for="nikIndividu" class="form-label">
+                <i class="fas fa-id-card me-1"></i>NIK:
+              </label>
+              <input type="text" class="form-control" id="nikIndividu" placeholder="Nomor Induk Kependudukan">
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label for="alamatIndividu" class="form-label">
+              <i class="fas fa-map-marker-alt me-1"></i>Alamat Lengkap:
+            </label>
+            <textarea class="form-control" id="alamatIndividu" rows="3" placeholder="Alamat lengkap tempat tinggal"></textarea>
+          </div>
+          
+          <div class="mb-3">
+            <label for="telpIndividu" class="form-label">
+              <i class="fas fa-phone me-1"></i>Nomor Telepon:
+            </label>
+            <input type="text" class="form-control" id="telpIndividu" placeholder="Contoh: 08123456789">
+          </div>
+          
+          <p class="form-text highlight-text">(selanjutnya disebut sebagai <strong>Adopter</strong>)</p>
+        </div>
+
+        <div class="form-section">
+          <div class="section-title">
+            <i class="fas fa-paw"></i>
+            Informasi Satwa yang Diadopsi
+          </div>
+          <p class="form-text">dengan ini menyatakan kepedulian dan minat untuk mengadopsi secara simbolis satwa</p>
+          
+          <div class="input-group">
+            <div class="mb-3">
+              <label for="namaHewanIndividu" class="form-label">
+                <i class="fas fa-heart me-1"></i>Nama Hewan:
+              </label>
+              <input type="text" class="form-control" id="namaHewanIndividu" placeholder="Nama satwa yang akan diadopsi">
+            </div>
+            
+            <div class="mb-3">
+              <label for="jenisHewanIndividu" class="form-label">
+                <i class="fas fa-cat me-1"></i>Jenis Hewan:
+              </label>
+              <input type="text" class="form-control" id="jenisHewanIndividu" placeholder="Spesies/jenis satwa">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section contribution-section">
+          <div class="section-title">
+            <i class="fas fa-hand-holding-heart"></i>
+            Kontribusi Finansial
+          </div>
+          <p class="form-text">Adopter juga bersedia memberikan kontribusi finansial kepada pihak taman safari sebagai dukungan untuk pemeliharaan satwa:</p>
+          
+          <div class="input-group">
+            <div class="mb-3">
+              <label for="nominalIndividu" class="form-label">
+                <i class="fas fa-money-bill-wave me-1"></i>Nominal Kontribusi:
+              </label>
+              <input type="text" class="form-control" id="nominalIndividu" placeholder="Contoh: 500.000">
+            </div>
+            
+            <div class="mb-3">
+              <label for="periodeIndividu" class="form-label">
+                <i class="fas fa-calendar-alt me-1"></i>Periode Adopsi:
+              </label>
+              <select class="form-select" id="periodeIndividu">
+                <option value="3">3 Bulan</option>
+                <option value="6">6 Bulan</option>
+                <option value="12">12 Bulan</option>
+              </select>
+            </div>
+          </div>
         </div>
         
-        <div class="mb-3">
-          <label for="nikIndividu" class="form-label">NIK:</label>
-          <input type="text" class="form-control" id="nikIndividu">
-        </div>
-        
-        <div class="mb-3">
-          <label for="alamatIndividu" class="form-label">Alamat:</label>
-          <textarea class="form-control" id="alamatIndividu" rows="2" placeholder="Alamat Pengunjung"></textarea>
-        </div>
-        
-        <div class="mb-3">
-          <label for="telpIndividu" class="form-label">Nomor Telepon:</label>
-          <input type="text" class="form-control" id="telpIndividu" placeholder="No. Telepon">
-        </div>
-        
-        <p>(selanjutnya disebut sebagai Adopter)</p>
-        <p>dengan ini menyatakan kepedulian dan minat untuk mengadopsi secara simbolis satwa</p>
-        
-        <div class="mb-3">
-          <label for="namaHewanIndividu" class="form-label">Nama Hewan:</label>
-          <input type="text" class="form-control" id="namaHewanIndividu">
-        </div>
-        
-        <div class="mb-3">
-          <label for="jenisHewanIndividu" class="form-label">Jenis Hewan:</label>
-          <input type="text" class="form-control" id="jenisHewanIndividu">
-        </div>
-        
-        <p>Adopter juga bersedia memberikan kontribusi finansial kepada pihak taman safari sebagai dukungan untuk pemeliharaan satwa:</p>
-        
-        <div class="mb-3">
-          <label for="nominalIndividu" class="form-label">Nominal Kontribusi:</label>
-          <input type="text" class="form-control" id="nominalIndividu">
-        </div>
-        
-        <div class="mb-3">
-          <label for="periodeIndividu" class="form-label">Periode Adopsi:</label>
-          <select class="form-select" id="periodeIndividu">
-            <option value="3">3 Bulan</option>
-            <option value="6">6 Bulan</option>
-            <option value="12">12 Bulan</option>
-          </select>
-        </div>
-        
-        <div class="text-center mt-4">
-          <button type="submit" class="btn btn-primary mx-2">Submit Form</button>
-          <button type="button" class="btn btn-secondary mx-2">Batal</button>
+        <div class="button-container">
+          <button type="button" class="btn btn-secondary">
+            <i class="fas fa-times me-2"></i>Batal
+          </button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-paper-plane me-2"></i>Submit Form
+          </button>
         </div>
       </form>
     </div>

@@ -417,7 +417,7 @@
                                 </h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                             </div>
-                            <form>
+                            <form method="POST" action="{% url 'verifikasi_adopter' animal.id %}">
                                 <div class="modal-body">
                                     <div class="mb-3">
                                         <label for="adopterUsername" class="form-label">

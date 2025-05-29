@@ -127,3 +127,21 @@ def hentikan_adopsi(request, id_hewan):
 
     return redirect('adopsi_home') 
 
+@csrf_exempt
+def verifikasi_adopter(request, id_hewan):
+    if request.method == "POST":
+        username = request.POST.get("adopterUsername")
+        adopter_type = request.POST.get("adopterType")
+
+        if adopter_type == "individu":
+            return render(request, 'adopsi/form_adopsi_individu.html', {
+                'username': username,
+                'id_hewan': id_hewan
+            })
+        elif adopter_type == "organisasi":
+            return render(request, 'adopsi/form_adopsi_organisasi.html', {
+                'username': username,
+                'id_hewan': id_hewan
+            })
+        else:
+            return redirect('adopsi_home') 
