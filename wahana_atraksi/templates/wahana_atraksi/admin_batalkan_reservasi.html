@@ -1,0 +1,250 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    /* Custom CSS untuk konfirmasi pembatalan admin */
+    .card {
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        margin-bottom: 30px;
+    }
+    
+    .card-header {
+        padding: 1.2rem;
+        font-weight: bold;
+        letter-spacing: 1px;
+    }
+    
+    .card-body {
+        padding: 2rem;
+        text-align: center;
+    }
+    
+    .btn {
+        border-radius: 8px;
+        font-weight: 600;
+        padding: 0.75rem 2rem;
+        transition: all 0.3s ease;
+        margin: 0.5rem;
+        min-width: 120px;
+    }
+    
+    .btn-danger {
+        background-color: #dc3545;
+        border-color: #dc3545;
+        box-shadow: 0 4px 15px rgba(220, 53, 69, 0.2);
+    }
+    
+    .btn-danger:hover {
+        background-color: #c82333;
+        border-color: #bd2130;
+        box-shadow: 0 6px 20px rgba(220, 53, 69, 0.3);
+        transform: translateY(-2px);
+    }
+    
+    .btn-secondary {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        box-shadow: 0 4px 15px rgba(108, 117, 125, 0.2);
+    }
+    
+    .btn-secondary:hover {
+        background-color: #545b62;
+        border-color: #4e555b;
+        box-shadow: 0 6px 20px rgba(108, 117, 125, 0.3);
+        transform: translateY(-2px);
+    }
+    
+    /* Header animasi */
+    .page-header {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        color: white;
+        padding: 40px 0;
+        text-align: center;
+        margin-bottom: 30px;
+        border-radius: 0 0 50px 50px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .page-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .confirmation-icon {
+        font-size: 4rem;
+        color: #dc3545;
+        margin-bottom: 1.5rem;
+    }
+    
+    .confirmation-text {
+        font-size: 1.25rem;
+        color: #495057;
+        margin-bottom: 1rem;
+        line-height: 1.6;
+    }
+    
+    .admin-warning {
+        background-color: #fff3cd;
+        border: 1px solid #ffeeba;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 2rem;
+        color: #856404;
+    }
+    
+    .reservasi-details {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        text-align: left;
+    }
+    
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+        padding: 0.25rem 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .detail-row:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+    
+    .detail-label {
+        font-weight: 600;
+        color: #495057;
+    }
+    
+    .detail-value {
+        color: #212529;
+    }
+    
+    /* Animasi untuk tampilan awal */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .animate-fade-in {
+        animation: fadeIn 0.8s ease forwards;
+    }
+    
+    /* Responsif untuk mobile */
+    @media (max-width: 768px) {
+        .page-header {
+            padding: 30px 0;
+        }
+        
+        .page-header h1 {
+            font-size: 2rem;
+        }
+        
+        .btn {
+            width: 100%;
+            margin: 0.25rem 0;
+        }
+        
+        .confirmation-icon {
+            font-size: 3rem;
+        }
+        
+        .confirmation-text {
+            font-size: 1.1rem;
+        }
+        
+        .detail-row {
+            flex-direction: column;
+        }
+        
+        .detail-label {
+            margin-bottom: 0.25rem;
+        }
+    }
+</style>
+
+<!-- Header Section -->
+<div class="page-header">
+    <div class="container">
+        <h1>ADMIN - BATALKAN RESERVASI</h1>
+        <p>Konfirmasi Pembatalan Reservasi Pengunjung</p>
+    </div>
+</div>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card animate-fade-in">
+                <div class="card-header bg-danger text-white text-center">
+                    <h3>KONFIRMASI PEMBATALAN</h3>
+                </div>
+                <div class="card-body">
+                    <div class="confirmation-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    
+                    <div class="admin-warning">
+                        <i class="fas fa-user-shield me-2"></i>
+                        <strong>Mode Administrator:</strong> Anda akan membatalkan reservasi pengunjung sebagai admin.
+                    </div>
+                    
+                    <div class="reservasi-details">
+                        <h5 class="mb-3"><i class="fas fa-ticket-alt me-2"></i>Detail Reservasi</h5>
+                        <div class="detail-row">
+                            <span class="detail-label">Username Pengunjung:</span>
+                            <span class="detail-value">{{ username }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Nama Fasilitas:</span>
+                            <span class="detail-value">{{ nama_atraksi }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Tanggal Kunjungan:</span>
+                            <span class="detail-value">{{ tanggal_kunjungan|date:"d F Y" }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="confirmation-text">
+                        <strong>Apakah Anda yakin ingin membatalkan reservasi ini?</strong><br>
+                        <small class="text-muted">Tindakan ini tidak dapat dibatalkan dan akan mengubah status reservasi menjadi "Dibatalkan".</small>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <form method="post" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('Konfirmasi pembatalan reservasi sebagai admin?')">
+                                <i class="fas fa-check"></i> YA, BATALKAN
+                            </button>
+                        </form>
+                        
+                        <a href="{% url 'daftar_wahana_dan_atraksi' %}" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> TIDAK, KEMBALI
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animasi saat halaman dimuat
+    const card = document.querySelector('.card');
+    card.classList.add('animate-fade-in');
+    
+    // Auto focus pada tombol YA
+    const yaButton = document.querySelector('.btn-danger');
+    if (yaButton) {
+        yaButton.focus();
+    }
+});
+</script>
+{% endblock %}
