@@ -13,6 +13,9 @@ urlpatterns = [
     path('adopsi/verifikasi/<uuid:id_hewan>/', views.verifikasi_adopter, name='verifikasi_adopter'),
     path('adopsi/submit/individu/', views.submit_adopsi_individu, name='submit_adopsi_individu'),
     path('adopsi/submit/organisasi/', views.submit_adopsi_organisasi, name='submit_adopsi_organisasi'),
+    path('adopter/<uuid:id_adopter>/riwayat/', views.riwayat_adopsi, name='riwayat_adopsi'),
+
+
 
 
 

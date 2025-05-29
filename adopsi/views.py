@@ -93,6 +93,49 @@ def adopsi_home(request):
 
 
 
+def riwayat_adopsi(request, id_adopter):
+    with connection.cursor() as cursor:
+        # Info Adopter (corrected)
+        cursor.execute("""
+            SELECT 
+                COALESCE(i.nama, o.nama_organisasi) AS nama_adopter,
+                p.alamat,
+                u.no_telepon
+            FROM ADOPTER ad
+            JOIN PENGUNJUNG p ON ad.username_adopter = p.username_P
+            JOIN PENGGUNA u ON p.username_P = u.username
+            LEFT JOIN INDIVIDU i ON ad.id_adopter = i.id_adopter
+            LEFT JOIN ORGANISASI o ON ad.id_adopter = o.id_adopter
+            WHERE ad.id_adopter = %s
+        """, [id_adopter])
+        info = cursor.fetchone()
+
+        # Riwayat Adopsi
+        cursor.execute("""
+            SELECT 
+                h.nama,
+                h.spesies,
+                a.tgl_mulai_adopsi,
+                a.tgl_berhenti_adopsi,
+                a.kontribusi_finansial,
+                CASE 
+                    WHEN a.tgl_berhenti_adopsi > CURRENT_DATE THEN 'Sedang Berlangsung'
+                    ELSE 'Selesai'
+                END AS status
+            FROM ADOPSI a
+            JOIN HEWAN h ON a.id_hewan = h.id
+            WHERE a.id_adopter = %s AND a.status_pembayaran = 'Lunas'
+        """, [id_adopter])
+        riwayat = cursor.fetchall()
+
+    return render(request, 'adopsi/riwayat_adopsi.html', {
+        'info': info,
+        'riwayat': riwayat,
+        'id_adopter': id_adopter
+    })
+
+
+
 def form_individu(request):
     return render(request, 'adopsi/form_adopsi_individu.html')
 

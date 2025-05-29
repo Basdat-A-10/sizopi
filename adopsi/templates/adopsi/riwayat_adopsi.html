@@ -1,0 +1,84 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Riwayat Adopsi Adopter</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1em;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 0.6em;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .badge {
+            padding: 0.3em 0.6em;
+            border-radius: 4px;
+            color: white;
+        }
+        .badge.selesai {
+            background-color: #28a745;
+        }
+        .badge.aktif {
+            background-color: #ffc107;
+            color: black;
+        }
+        .actions a {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Riwayat Adopsi</h2>
+
+    <a href="{% url 'adopter_list' %}">← Kembali</a>
+
+    <h3>Informasi Adopter</h3>
+    <p><strong>Nama Adopter:</strong> {{ info.0 }}</p>
+    <p><strong>Alamat:</strong> {{ info.1 }}</p>
+    <p><strong>Kontak:</strong> {{ info.2 }}</p>
+
+    <h3>Daftar Riwayat Adopsi</h3>
+
+    {% if riwayat %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Nama Hewan</th>
+                    <th>Jenis Hewan</th>
+                    <th>Tanggal Mulai</th>
+                    <th>Tanggal Akhir</th>
+                    <th>Kontribusi</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in riwayat %}
+                    <tr>
+                        <td>{{ r.0 }}</td>
+                        <td>{{ r.1 }}</td>
+                        <td>{{ r.2 }}</td>
+                        <td>{{ r.3 }}</td>
+                        <td>Rp{{ total_kontribusi|floatformat:0 }}</td>
+                        <td>
+                            <span class="badge {% if r.5 == 'Sedang Berlangsung' %}aktif{% else %}selesai{% endif %}">
+                                {{ r.5 }}
+                            </span>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Tidak ada riwayat adopsi yang ditemukan.</p>
+    {% endif %}
+
+</body>
+</html>
