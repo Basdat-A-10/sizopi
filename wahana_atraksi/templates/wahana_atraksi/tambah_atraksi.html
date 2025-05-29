@@ -38,27 +38,36 @@
                 </div>
                 
                 <div class="mb-3">
-                    <label for="jadwal" class="form-label">Jadwal:</label>
-                    <input type="time" class="form-control" id="jadwal" name="jadwal"
+                    <label for="jadwal" class="form-label">Tanggal & Waktu Jadwal:</label>
+                    <input type="datetime-local" class="form-control" id="jadwal" name="jadwal"
                            value="{{ form_data.jadwal|default:'' }}" required>
+                    <small class="form-text text-muted">Pilih tanggal dan waktu untuk jadwal atraksi (bisa masa lampau atau masa depan)</small>
                 </div>
                 
                 <div class="mb-3">
-                    <label for="pelatih" class="form-label">Pelatih:</label>
-                    <select class="form-select" id="pelatih" name="pelatih">
-                        <option value="">-- Pilih Pelatih --</option>
-                        {% for pelatih in pelatih_list %}
-                        <option value="{{ pelatih.username }}" {% if form_data.pelatih == pelatih.username %}selected{% endif %}>
-                            {{ pelatih.nama }}
-                        </option>
-                        {% endfor %}
-                    </select>
+                    <label class="form-label">Pelatih yang Ditugaskan:</label>
+                    <div class="card">
+                        <div class="card-body" style="max-height: 200px; overflow-y: auto;">
+                            {% for pelatih in pelatih_list %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="pelatih[]" id="pelatih{{ pelatih.username }}" 
+                                       value="{{ pelatih.username }}" {% if form_data.pelatih_ids and pelatih.username in form_data.pelatih_ids %}checked{% endif %}>
+                                <label class="form-check-label" for="pelatih{{ pelatih.username }}">
+                                    {{ pelatih.nama }}
+                                </label>
+                            </div>
+                            {% empty %}
+                            <p>Tidak ada data pelatih</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <small class="form-text text-muted">Pilih satu atau lebih pelatih untuk atraksi ini</small>
                 </div>
                 
                 <div class="mb-3">
                     <label class="form-label">Hewan yang Terlibat:</label>
                     <div class="card">
-                        <div class="card-body">
+                        <div class="card-body" style="max-height: 200px; overflow-y: auto;">
                             {% for hewan in hewan_list %}
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="hewan[]" id="hewan{{ hewan.id }}" 
@@ -72,6 +81,7 @@
                             {% endfor %}
                         </div>
                     </div>
+                    <small class="form-text text-muted">Pilih hewan yang akan berpartisipasi dalam atraksi ini</small>
                 </div>
                 
                 <div class="text-center">
@@ -82,4 +92,29 @@
         </div>
     </div>
 </div>
+
+<style>
+/* Styling untuk datetime-local input agar lebih menarik */
+input[type="datetime-local"] {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    font-size: 14px;
+}
+
+input[type="datetime-local"]:focus {
+    border-color: #198754;
+    box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
+}
+
+/* Untuk browser yang tidak mendukung datetime-local dengan baik */
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    background-color: #198754;
+    color: white;
+    border-radius: 3px;
+    padding: 2px;
+}
+</style>
+
 {% endblock %}
