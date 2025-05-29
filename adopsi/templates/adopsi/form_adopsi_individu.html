@@ -266,91 +266,75 @@
       <p class="subtitle">Bergabunglah dalam program adopsi untuk membantu kesejahteraan satwa</p>
     </div>
     <div class="card-body form-body">
-      <form>
+      <form method="POST" action="{% url 'submit_adopsi_individu' %}">
+        {% csrf_token %}
+
+        <input type="hidden" name="username" value="{{ username }}">
+        <input type="hidden" name="id_hewan" value="{{ id_hewan }}">
+
+        <!-- Informasi Personal -->
         <div class="form-section">
           <div class="section-title">
-            <i class="fas fa-user"></i>
-            Informasi Personal
+            <i class="fas fa-user"></i> Informasi Personal
           </div>
           <p class="form-text">Pihak di bawah ini,</p>
-          
+
           <div class="input-group">
             <div class="mb-3">
-              <label for="namaIndividu" class="form-label">
-                <i class="fas fa-signature me-1"></i>Nama Lengkap:
-              </label>
-              <input type="text" class="form-control" id="namaIndividu" placeholder="Masukkan nama lengkap Anda">
+              <label for="namaIndividu" class="form-label"><i class="fas fa-signature me-1"></i>Nama Lengkap:</label>
+              <input type="text" class="form-control" id="namaIndividu" placeholder="Masukkan nama lengkap Anda" required>
             </div>
-            
+
             <div class="mb-3">
-              <label for="nikIndividu" class="form-label">
-                <i class="fas fa-id-card me-1"></i>NIK:
-              </label>
-              <input type="text" class="form-control" id="nikIndividu" placeholder="Nomor Induk Kependudukan">
+              <label for="nikIndividu" class="form-label"><i class="fas fa-id-card me-1"></i>NIK:</label>
+              <input type="text" class="form-control" id="nikIndividu" placeholder="Nomor Induk Kependudukan" required>
             </div>
           </div>
-          
+
           <div class="mb-3">
-            <label for="alamatIndividu" class="form-label">
-              <i class="fas fa-map-marker-alt me-1"></i>Alamat Lengkap:
-            </label>
-            <textarea class="form-control" id="alamatIndividu" rows="3" placeholder="Alamat lengkap tempat tinggal"></textarea>
+            <label for="alamatIndividu" class="form-label"><i class="fas fa-map-marker-alt me-1"></i>Alamat Lengkap:</label>
+            <textarea class="form-control" id="alamatIndividu" rows="3" placeholder="Alamat lengkap tempat tinggal" required></textarea>
           </div>
-          
+
           <div class="mb-3">
-            <label for="telpIndividu" class="form-label">
-              <i class="fas fa-phone me-1"></i>Nomor Telepon:
-            </label>
-            <input type="text" class="form-control" id="telpIndividu" placeholder="Contoh: 08123456789">
+            <label for="telpIndividu" class="form-label"><i class="fas fa-phone me-1"></i>Nomor Telepon:</label>
+            <input type="text" class="form-control" id="telpIndividu" placeholder="Contoh: 08123456789" required>
           </div>
-          
+
           <p class="form-text highlight-text">(selanjutnya disebut sebagai <strong>Adopter</strong>)</p>
         </div>
 
+        <!-- Informasi Satwa -->
         <div class="form-section">
-          <div class="section-title">
-            <i class="fas fa-paw"></i>
-            Informasi Satwa yang Diadopsi
-          </div>
+          <div class="section-title"><i class="fas fa-paw"></i> Informasi Satwa yang Diadopsi</div>
           <p class="form-text">dengan ini menyatakan kepedulian dan minat untuk mengadopsi secara simbolis satwa</p>
-          
+
           <div class="input-group">
             <div class="mb-3">
-              <label for="namaHewanIndividu" class="form-label">
-                <i class="fas fa-heart me-1"></i>Nama Hewan:
-              </label>
-              <input type="text" class="form-control" id="namaHewanIndividu" placeholder="Nama satwa yang akan diadopsi">
+              <label class="form-label"><i class="fas fa-heart me-1"></i>Nama Hewan:</label>
+              <input type="text" class="form-control" value="{{ nama_hewan }}">
             </div>
-            
+
             <div class="mb-3">
-              <label for="jenisHewanIndividu" class="form-label">
-                <i class="fas fa-cat me-1"></i>Jenis Hewan:
-              </label>
-              <input type="text" class="form-control" id="jenisHewanIndividu" placeholder="Spesies/jenis satwa">
+              <label class="form-label"><i class="fas fa-cat me-1"></i>Jenis Hewan:</label>
+              <input type="text" class="form-control" value="{{ jenis_hewan }}">
             </div>
           </div>
         </div>
 
         <div class="form-section contribution-section">
-          <div class="section-title">
-            <i class="fas fa-hand-holding-heart"></i>
-            Kontribusi Finansial
-          </div>
-          <p class="form-text">Adopter juga bersedia memberikan kontribusi finansial kepada pihak taman safari sebagai dukungan untuk pemeliharaan satwa:</p>
-          
+          <div class="section-title"><i class="fas fa-hand-holding-heart"></i> Kontribusi Finansial</div>
+          <p class="form-text">Adopter juga bersedia memberikan kontribusi finansial sebagai dukungan:</p>
+
           <div class="input-group">
             <div class="mb-3">
-              <label for="nominalIndividu" class="form-label">
-                <i class="fas fa-money-bill-wave me-1"></i>Nominal Kontribusi:
-              </label>
-              <input type="text" class="form-control" id="nominalIndividu" placeholder="Contoh: 500.000">
+              <label for="kontribusi_finansial" class="form-label"><i class="fas fa-money-bill-wave me-1"></i>Nominal Kontribusi (Rp):</label>
+              <input type="number" class="form-control" name="kontribusi_finansial" min="10000" required>
             </div>
-            
+
             <div class="mb-3">
-              <label for="periodeIndividu" class="form-label">
-                <i class="fas fa-calendar-alt me-1"></i>Periode Adopsi:
-              </label>
-              <select class="form-select" id="periodeIndividu">
+              <label for="periode_adopsi" class="form-label"><i class="fas fa-calendar-alt me-1"></i>Periode Adopsi:</label>
+              <select class="form-select" name="periode_adopsi" required>
                 <option value="3">3 Bulan</option>
                 <option value="6">6 Bulan</option>
                 <option value="12">12 Bulan</option>
@@ -358,14 +342,10 @@
             </div>
           </div>
         </div>
-        
+
         <div class="button-container">
-          <button type="button" class="btn btn-secondary">
-            <i class="fas fa-times me-2"></i>Batal
-          </button>
-          <button type="submit" class="btn btn-primary">
-            <i class="fas fa-paper-plane me-2"></i>Submit Form
-          </button>
+          <a href="{% url 'adopsi_home' %}" class="btn btn-secondary"><i class="fas fa-times me-2"></i>Batal</a>
+          <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane me-2"></i>Submit Form</button>
         </div>
       </form>
     </div>

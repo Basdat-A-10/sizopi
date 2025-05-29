@@ -6,3 +6,4 @@ urllib3
 psycopg[binary]
 dj-database-url
 python-decouple
+python-dateutil

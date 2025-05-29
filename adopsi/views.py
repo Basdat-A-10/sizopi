@@ -1,9 +1,12 @@
 from django.shortcuts import render, redirect
-from django.db import connection
+from django.db import connection, transaction
 from django.utils import timezone
 from datetime import timedelta
-from django.http import Http404
+from django.http import Http404, HttpResponseBadRequest
 from django.views.decorators.csrf import csrf_exempt  
+from dateutil.relativedelta import relativedelta 
+import uuid
+
 
 def dictfetchall(cursor):
     "Return all rows from a cursor as a dict"
@@ -12,11 +15,9 @@ def dictfetchall(cursor):
 
 def adopter_list(request):
     with connection.cursor() as cursor:
-        # Get all adopters
         cursor.execute("SELECT * FROM SIZOPI.adopter")
         adopters = dictfetchall(cursor)
 
-        # Top 5 adopters by total contribution (lunas) in the last year
         one_year_ago = timezone.now().date() - timedelta(days=365)
         cursor.execute("""
             SELECT a.id_adopter, ad.username_adopter, SUM(a.kontribusi_finansial) AS total
@@ -145,3 +146,102 @@ def verifikasi_adopter(request, id_hewan):
             })
         else:
             return redirect('adopsi_home') 
+        
+@csrf_exempt
+def submit_adopsi_individu(request):
+    if request.method == "POST":
+        username = request.POST.get("username")
+        id_hewan = request.POST.get("id_hewan")
+        kontribusi = request.POST.get("kontribusi_finansial")
+        periode_bulan = int(request.POST.get("periode_adopsi"))
+
+        tgl_mulai = timezone.now().date()
+        tgl_berhenti = tgl_mulai + relativedelta(months=periode_bulan)
+
+        with connection.cursor() as cursor:
+            id_adopter = str(uuid.uuid4())
+
+            cursor.execute("""
+                INSERT INTO ADOPTER (username_adopter, id_adopter, total_kontribusi)
+                VALUES (%s, %s, %s)
+                ON CONFLICT (username_adopter) DO NOTHING
+            """, [username, id_adopter, kontribusi])
+
+            if cursor.rowcount == 0:
+                cursor.execute("SELECT id_adopter FROM ADOPTER WHERE username_adopter = %s", [username])
+                id_adopter = cursor.fetchone()[0]
+
+            cursor.execute("""
+                INSERT INTO ADOPSI (
+                    id_adopter, id_hewan, status_pembayaran,
+                    tgl_mulai_adopsi, tgl_berhenti_adopsi, kontribusi_finansial
+                )
+                VALUES (%s, %s, %s, %s, %s, %s)
+            """, [
+                id_adopter, id_hewan, "Belum",
+                tgl_mulai, tgl_berhenti, kontribusi
+            ])
+
+        return redirect("adopsi_home")
+
+@csrf_exempt
+def submit_adopsi_organisasi(request):
+    if request.method == "POST":
+        try:
+            username = request.POST.get("username")
+            npp = request.POST.get("npp")
+            nama_organisasi = request.POST.get("nama_organisasi")
+            id_hewan = request.POST.get("id_hewan")
+            kontribusi = int(request.POST.get("kontribusi"))
+            periode = int(request.POST.get("periode"))
+
+            if not all([username, npp, nama_organisasi, id_hewan, kontribusi, periode]):
+                return HttpResponseBadRequest("Form tidak lengkap")
+
+            with connection.cursor() as cursor, transaction.atomic():
+                # 1. Pastikan adopter sudah ada atau tambahkan
+                cursor.execute("SELECT id_adopter FROM SIZOPI.adopter WHERE username_adopter = %s", [username])
+                row = cursor.fetchone()
+
+                if row:
+                    id_adopter = row[0]
+                else:
+                    id_adopter = str(uuid.uuid4())
+                    cursor.execute("""
+                        INSERT INTO SIZOPI.adopter (id_adopter, username_adopter, total_kontribusi)
+                        VALUES (%s, %s, %s)
+                    """, [id_adopter, username, kontribusi])
+
+                # 2. Tambahkan organisasi jika belum ada
+                cursor.execute("SELECT * FROM SIZOPI.organisasi WHERE npp = %s", [npp])
+                if cursor.fetchone() is None:
+                    cursor.execute("""
+                        INSERT INTO SIZOPI.organisasi (npp, nama_organisasi, id_adopter)
+                        VALUES (%s, %s, %s)
+                    """, [npp, nama_organisasi, id_adopter])
+
+                # 3. Hitung tanggal mulai & berhenti adopsi
+                tgl_mulai = date.today()
+                tgl_berhenti = tgl_mulai + timedelta(days=30 * periode)
+
+                # 4. Tambahkan adopsi
+                cursor.execute("""
+                    INSERT INTO SIZOPI.adopsi (
+                        id_adopter, id_hewan, status_pembayaran,
+                        tgl_mulai_adopsi, tgl_berhenti_adopsi, kontribusi_finansial
+                    ) VALUES (%s, %s, %s, %s, %s, %s)
+                """, [id_adopter, id_hewan, "Belum", tgl_mulai, tgl_berhenti, kontribusi])
+
+                # 5. Tambahkan kontribusi total adopter
+                cursor.execute("""
+                    UPDATE SIZOPI.adopter
+                    SET total_kontribusi = total_kontribusi + %s
+                    WHERE id_adopter = %s
+                """, [kontribusi, id_adopter])
+
+            return redirect("adopsi_home")
+
+        except Exception as e:
+            return HttpResponseBadRequest(f"Terjadi kesalahan: {e}")
+
+    return HttpResponseBadRequest("Metode tidak diperbolehkan")
