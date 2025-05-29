@@ -201,6 +201,9 @@ def register_view(request):
             else:
                 messages.error(request, f"Terjadi kesalahan saat registrasi: {error_msg}")
             return render(request, 'authentication/register.html')
+    else:
+        return render(request, 'authentication/register.html')
+
 
 def profile_view(request):
     if 'user_id' not in request.COOKIES:
