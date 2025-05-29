@@ -14,5 +14,7 @@ urlpatterns = [
     path('adopsi/submit/individu/', views.submit_adopsi_individu, name='submit_adopsi_individu'),
     path('adopsi/submit/organisasi/', views.submit_adopsi_organisasi, name='submit_adopsi_organisasi'),
     path('adopter-home-user/', views.adopsi_home_adopter, name='adopsi_home_adopter'),
-
+    path('stop-adopsi/<uuid:id_hewan>/', views.hentikan_adopsi, name='hentikan_adopsi'),
+    path('adopsi/perpanjang/individu/<uuid:id_hewan>/', views.perpanjang_adopsi_individu, name='perpanjang_adopsi_individu'),
+    path('adopsi/perpanjang/organisasi/<uuid:id_hewan>/', views.perpanjang_adopsi_organisasi, name='perpanjang_adopsi_organisasi'),
 ]

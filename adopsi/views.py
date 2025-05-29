@@ -274,9 +274,12 @@ def submit_adopsi_organisasi(request):
 def adopsi_home_adopter(request):
     username = request.COOKIES.get('user_id')
     print(username)
+
     with connection.cursor() as cursor:
+        # Fetch daftar hewan yang diadopsi
         cursor.execute("""
-            SELECT h.id, h.nama, h.spesies, h.status_kesehatan, hb.nama, a.tgl_mulai_adopsi, a.tgl_berhenti_adopsi, a.kontribusi_finansial, h.url_foto
+            SELECT h.id, h.nama, h.spesies, h.status_kesehatan, hb.nama, 
+                   a.tgl_mulai_adopsi, a.tgl_berhenti_adopsi, a.kontribusi_finansial, h.url_foto
             FROM SIZOPI.hewan h
             JOIN SIZOPI.habitat hb ON h.nama_habitat = hb.nama
             JOIN SIZOPI.adopsi a ON h.id = a.id_hewan
@@ -285,21 +288,174 @@ def adopsi_home_adopter(request):
         """, [username])
         rows = cursor.fetchall()
 
-    adopted_animals = [
-        {
-            "id": row[0],
-            "nama": row[1],
-            "spesies": row[2],
-            "status_kesehatan": row[3],
-            "habitat": row[4],
-            "tgl_mulai": row[5],
-            "tgl_berhenti": row[6],
-            "kontribusi": row[7],
-            "url_foto": row[8],
-        }
-        for row in rows
-    ]
+        adopted_animals = []
+        for row in rows:
+            animal_id = row[0]
+            # Fetch rekam medis untuk hewan ini
+            cursor.execute("""
+                SELECT cm.tanggal_pemeriksaan, dh.username_dh, cm.status_kesehatan,
+                       cm.diagnosis, cm.pengobatan, cm.catatan_tindak_lanjut
+                FROM SIZOPI.catatan_medis cm
+                JOIN SIZOPI.dokter_hewan dh ON cm.username_dh = dh.username_dh
+                WHERE cm.id_hewan = %s
+                ORDER BY cm.tanggal_pemeriksaan DESC
+            """, [animal_id])
+            medis_rows = cursor.fetchall()
+
+            rekam_medis = [
+                {
+                    "tanggal": m[0],
+                    "dokter": m[1],
+                    "status": m[2],
+                    "diagnosis": m[3],
+                    "pengobatan": m[4],
+                    "catatan": m[5]
+                } for m in medis_rows
+            ]
+
+            # Cek apakah adopter ini individu
+            cursor.execute("""
+                SELECT COUNT(*) FROM SIZOPI.individu i
+                JOIN SIZOPI.adopter ad ON i.id_adopter = ad.id_adopter
+                WHERE ad.username_adopter = %s
+            """, [username])
+            is_individu = cursor.fetchone()[0] > 0
+
+            adopted_animals.append({
+                "id": row[0],
+                "nama": row[1],
+                "spesies": row[2],
+                "status_kesehatan": row[3],
+                "habitat": row[4],
+                "tgl_mulai": row[5],
+                "tgl_berhenti": row[6],
+                "kontribusi": row[7],
+                "url_foto": row[8],
+                "rekam_medis": rekam_medis,
+                "is_individu": is_individu,
+            })
 
     return render(request, 'adopsi/adopsi_home_adopter.html', {
         'adopted_animals': adopted_animals
     })
+
+def hentikan_adopsi(request, id_hewan):
+    username = request.COOKIES.get('user_id')
+    
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            DELETE FROM SIZOPI.adopsi
+            WHERE id_hewan = %s AND id_adopter = (
+                SELECT id_adopter FROM SIZOPI.adopter WHERE username_adopter = %s
+            )
+        """, [str(id_hewan), username])
+
+    return redirect('adopsi_home_adopter')
+
+@csrf_exempt
+def perpanjang_adopsi_individu(request, id_hewan):
+    if request.method == "POST":
+        username = request.COOKIES.get("user_id")
+        try:
+            tambahan_kontribusi = int(request.POST.get("kontribusi_finansial"))
+            periode_bulan = int(request.POST.get("periode_adopsi"))
+        except:
+            return HttpResponseBadRequest("Input tidak valid.")
+
+        with connection.cursor() as cursor:
+            # Ambil data adopsi yang aktif
+            cursor.execute("""
+                SELECT tgl_mulai_adopsi, tgl_berhenti_adopsi
+                FROM SIZOPI.adopsi a
+                JOIN SIZOPI.adopter ad ON a.id_adopter = ad.id_adopter
+                WHERE ad.username_adopter = %s AND a.id_hewan = %s
+                ORDER BY tgl_berhenti_adopsi DESC
+                LIMIT 1
+            """, [username, id_hewan])
+            result = cursor.fetchone()
+
+            if not result:
+                return HttpResponseBadRequest("Data adopsi tidak ditemukan.")
+
+            old_start, old_end = result
+            new_start = old_end + timedelta(days=1)
+            new_end = new_start + relativedelta(months=periode_bulan)
+
+            # Ambil id_adopter
+            cursor.execute("SELECT id_adopter FROM SIZOPI.adopter WHERE username_adopter = %s", [username])
+            id_adopter = cursor.fetchone()[0]
+
+            # Insert periode baru
+            cursor.execute("""
+                INSERT INTO SIZOPI.adopsi (
+                    id_adopter, id_hewan, status_pembayaran,
+                    tgl_mulai_adopsi, tgl_berhenti_adopsi, kontribusi_finansial
+                )
+                VALUES (%s, %s, 'Belum', %s, %s, %s)
+            """, [id_adopter, id_hewan, new_start, new_end, tambahan_kontribusi])
+
+            cursor.execute("""
+                UPDATE SIZOPI.adopter
+                SET total_kontribusi = total_kontribusi + %s
+                WHERE id_adopter = %s
+            """, [tambahan_kontribusi, id_adopter])
+
+        print("POST:", request.POST)
+        print("user_id cookie:", request.COOKIES.get("user_id"))
+
+        return redirect("adopsi_home_adopter")
+    
+    print("POST:", request.POST)
+    print("user_id cookie:", request.COOKIES.get("user_id"))
+
+
+    return HttpResponseBadRequest("Metode tidak diperbolehkan")
+
+@csrf_exempt
+def perpanjang_adopsi_organisasi(request, id_hewan):
+    if request.method == "POST":
+        username = request.COOKIES.get("user_id")
+        try:
+            tambahan_kontribusi = int(request.POST.get("kontribusi_finansial"))
+            periode_bulan = int(request.POST.get("periode_adopsi"))
+        except:
+            return HttpResponseBadRequest("Input tidak valid.")
+
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT tgl_mulai_adopsi, tgl_berhenti_adopsi
+                FROM SIZOPI.adopsi a
+                JOIN SIZOPI.adopter ad ON a.id_adopter = ad.id_adopter
+                WHERE ad.username_adopter = %s AND a.id_hewan = %s
+                ORDER BY tgl_berhenti_adopsi DESC
+                LIMIT 1
+            """, [username, id_hewan])
+            result = cursor.fetchone()
+
+            if not result:
+                return HttpResponseBadRequest("Data adopsi tidak ditemukan.")
+
+            old_start, old_end = result
+            new_start = old_end + timedelta(days=1)
+            new_end = new_start + relativedelta(months=periode_bulan)
+
+            cursor.execute("SELECT id_adopter FROM SIZOPI.adopter WHERE username_adopter = %s", [username])
+            id_adopter = cursor.fetchone()[0]
+
+            cursor.execute("""
+                INSERT INTO SIZOPI.adopsi (
+                    id_adopter, id_hewan, status_pembayaran,
+                    tgl_mulai_adopsi, tgl_berhenti_adopsi, kontribusi_finansial
+                )
+                VALUES (%s, %s, 'Belum', %s, %s, %s)
+            """, [id_adopter, id_hewan, new_start, new_end, tambahan_kontribusi])
+
+            cursor.execute("""
+                UPDATE SIZOPI.adopter
+                SET total_kontribusi = total_kontribusi + %s
+                WHERE id_adopter = %s
+            """, [tambahan_kontribusi, id_adopter])
+
+        return redirect("adopsi_home_adopter")
+
+    return HttpResponseBadRequest("Metode tidak diperbolehkan")
