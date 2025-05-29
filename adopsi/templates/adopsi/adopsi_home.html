@@ -79,7 +79,10 @@
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
                                     <button type="submit" class="btn btn-primary">Simpan Status</button>
-                                    <button type="button" class="btn btn-danger">Hentikan Adopsi</button>
+                                    <a href="{% url 'hentikan_adopsi' animal.id %}" class="btn btn-danger"
+                                      onclick="return confirm('Apakah yakin ingin menghentikan adopsi ini?');">
+                                        Hentikan Adopsi
+                                    </a>
                                 </div>
                             </form>
                         </div>

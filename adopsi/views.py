@@ -118,4 +118,12 @@ def update_status_pembayaran(request, id_hewan):
         return redirect('adopsi_home')
     raise Http404("Invalid request")
 
+def hentikan_adopsi(request, id_hewan):
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            DELETE FROM SIZOPI.adopsi
+            WHERE id_hewan = %s
+        """, [str(id_hewan)])
+
+    return redirect('adopsi_home') 
 
