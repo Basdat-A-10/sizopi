@@ -17,4 +17,5 @@ urlpatterns = [
     path('stop-adopsi/<uuid:id_hewan>/', views.hentikan_adopsi, name='hentikan_adopsi'),
     path('adopsi/perpanjang/individu/<uuid:id_hewan>/', views.perpanjang_adopsi_individu, name='perpanjang_adopsi_individu'),
     path('adopsi/perpanjang/organisasi/<uuid:id_hewan>/', views.perpanjang_adopsi_organisasi, name='perpanjang_adopsi_organisasi'),
+    path('adopter/<uuid:id_adopter>/riwayat/', views.riwayat_adopsi, name='riwayat_adopsi'),
 ]
