@@ -197,36 +197,33 @@ def register_view(request):
             messages.error(request, "Email sudah terdaftar.")
             return render(request, 'authentication/register.html')
         
-        existing_username = get_user_by_username(username)
-        if existing_username:
-            messages.error(request, "Username sudah digunakan.")
-            return render(request, 'authentication/register.html')
-        
         try:
-            # Insert new user into PENGGUNA table
             with connection.cursor() as cursor:
+                # Cukup insert, trigger akan cegah duplikasi
                 cursor.execute("""
                     INSERT INTO SIZOPI.PENGGUNA 
                     (username, email, password, nama_depan, nama_tengah, nama_belakang, no_telepon)
                     VALUES (%s, %s, %s, %s, %s, %s, %s)
                 """, [username, email, password, nama_depan, nama_tengah, nama_belakang, no_telepon])
                 
-                # Insert into PENGUNJUNG table (by default all new users are pengunjung)
+                # Insert ke pengunjung
                 today = datetime.date.today()
                 cursor.execute("""
                     INSERT INTO SIZOPI.PENGUNJUNG 
                     (username_P, alamat, tgl_lahir)
                     VALUES (%s, %s, %s)
                 """, [username, 'Belum diisi', today])
-            
+
             messages.success(request, "Registrasi berhasil! Silakan login.")
             return redirect('login')
-        
+
         except Exception as e:
-            messages.error(request, f"Terjadi kesalahan saat registrasi: {str(e)}")
+            error_msg = str(e)
+            if "ERROR: Username" in error_msg:
+                messages.error(request, error_msg.replace("ERROR: ", ""))
+            else:
+                messages.error(request, f"Terjadi kesalahan saat registrasi: {error_msg}")
             return render(request, 'authentication/register.html')
-    
-    return render(request, 'authentication/register.html')
 
 def profile_view(request):
     if 'user_id' not in request.COOKIES:
