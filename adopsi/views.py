@@ -90,7 +90,10 @@ def adopsi_home(request):
             LEFT JOIN SIZOPI.adopter ad ON a.id_adopter = ad.id_adopter
         """)
         animals = dictfetchall(cursor)
-    return render(request, 'adopsi/adopsi_home.html', {'animals': animals})
+    
+    message = request.session.pop('alert_message', None)
+
+    return render(request, 'adopsi/adopsi_home.html', {'animals': animals, 'alert_message': message})
 
 
 
@@ -107,27 +110,30 @@ def adopter_home(request):
 def update_status_pembayaran(request, id_hewan):
     if request.method == 'POST':
         new_status = request.POST.get('status_pembayaran')
-        if new_status == 'Lunas':
-            new_status_db = 'Lunas'
-        else:
-            new_status_db = 'Belum'
+        new_status_db = 'Lunas' if new_status == 'Lunas' else 'Belum'
+
         with connection.cursor() as cursor:
             cursor.execute("""
                 UPDATE SIZOPI.adopsi 
                 SET status_pembayaran = %s 
                 WHERE id_hewan = %s
             """, [new_status_db, id_hewan])
+
+            # Jika status 'Lunas', panggil fungsi untuk sinkronisasi kontribusi
+            if new_status_db == 'Lunas':
+                cursor.execute("SELECT id_adopter FROM SIZOPI.adopsi WHERE id_hewan = %s LIMIT 1", [id_hewan])
+                id_adopter = cursor.fetchone()[0]
+                cursor.execute("SELECT sync_total_kontribusi_adopter(%s)", [id_adopter])
+                message = cursor.fetchone()[0]
+            else:
+                message = "Status pembayaran diubah menjadi 'Belum'."
+
+        # Simpan message ke session
+        request.session['alert_message'] = message
         return redirect('adopsi_home')
+
     raise Http404("Invalid request")
 
-def hentikan_adopsi(request, id_hewan):
-    with connection.cursor() as cursor:
-        cursor.execute("""
-            DELETE FROM SIZOPI.adopsi
-            WHERE id_hewan = %s
-        """, [str(id_hewan)])
-
-    return redirect('adopsi_home') 
 
 @csrf_exempt
 def verifikasi_adopter(request, id_hewan):
@@ -204,6 +210,8 @@ def submit_adopsi_individu(request):
                 tgl_mulai, tgl_berhenti, kontribusi
             ])
 
+            cursor.execute("SELECT sync_total_kontribusi_adopter(%s)", [id_adopter_val])
+
         return redirect("adopsi_home")
     else:
         return HttpResponse("Metode request tidak valid.", status=405)
@@ -237,6 +245,8 @@ def submit_adopsi_organisasi(request):
                         VALUES (%s, %s, %s)
                     """, [id_adopter, username, kontribusi])
 
+                cursor.execute("SELECT sync_total_kontribusi_adopter(%s)", [id_adopter])
+
                 # 2. Tambahkan organisasi jika belum ada
                 cursor.execute("SELECT * FROM SIZOPI.organisasi WHERE npp = %s", [npp])
                 if cursor.fetchone() is None:
@@ -256,6 +266,8 @@ def submit_adopsi_organisasi(request):
                         tgl_mulai_adopsi, tgl_berhenti_adopsi, kontribusi_finansial
                     ) VALUES (%s, %s, %s, %s, %s, %s)
                 """, [id_adopter, id_hewan, "Belum", tgl_mulai, tgl_berhenti, kontribusi])
+
+                
 
                 # 5. Tambahkan kontribusi total adopter
                 cursor.execute("""
