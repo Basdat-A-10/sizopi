@@ -418,12 +418,13 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                             </div>
                             <form method="POST" action="{% url 'verifikasi_adopter' animal.id %}">
+                                {% csrf_token %}
                                 <div class="modal-body">
                                     <div class="mb-3">
                                         <label for="adopterUsername" class="form-label">
                                             <i class="fas fa-user me-1"></i>Username calon adopter
                                         </label>
-                                        <input type="text" class="form-control" id="adopterUsername" 
+                                        <input type="text" class="form-control" id="adopterUsername" name="adopterUsername"
                                                placeholder="Masukkan username">
                                     </div>
                                     <div class="mb-3">
@@ -432,11 +433,11 @@
                                         </label>
                                         <div class="mt-2">
                                             <div class="form-check form-check-inline">
-                                                <input class="form-check-input" type="radio" name="adopterType" value="individu">
+                                                <input class="form-check-input" type="radio" name="adopterType" value="individu" required>
                                                 <label class="form-check-label">Individu</label>
                                             </div>
                                             <div class="form-check form-check-inline">
-                                                <input class="form-check-input" type="radio" name="adopterType" value="organisasi">
+                                                <input class="form-check-input" type="radio" name="adopterType" value="organisasi" required>
                                                 <label class="form-check-label">Organisasi</label>
                                             </div>
                                         </div>

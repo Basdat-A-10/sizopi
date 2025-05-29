@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect
 from django.db import connection, transaction
 from django.utils import timezone
-from datetime import timedelta
-from django.http import Http404, HttpResponseBadRequest
+from datetime import date, timedelta
+from django.http import Http404, HttpResponseBadRequest, HttpResponse
 from django.views.decorators.csrf import csrf_exempt  
 from dateutil.relativedelta import relativedelta 
 import uuid
@@ -152,42 +152,70 @@ def submit_adopsi_individu(request):
     if request.method == "POST":
         username = request.POST.get("username")
         id_hewan = request.POST.get("id_hewan")
-        kontribusi = request.POST.get("kontribusi_finansial")
-        periode_bulan = int(request.POST.get("periode_adopsi"))
+        
+        try:
+            # Pastikan kontribusi adalah angka (integer atau float sesuai kebutuhan)
+            kontribusi = int(request.POST.get("kontribusi_finansial")) 
+        except (ValueError, TypeError):
+            return HttpResponse("Nominal kontribusi tidak valid.", status=400)
+
+        try:
+            periode_bulan = int(request.POST.get("periode_adopsi"))
+        except (ValueError, TypeError):
+            return HttpResponse("Periode adopsi tidak valid.", status=400)
+
+        # Validasi dasar untuk field yang wajib ada
+        if not username or not id_hewan:
+            return HttpResponse("Username atau ID Hewan tidak boleh kosong.", status=400)
+        if kontribusi < 10000: # Sesuai min="10000" di form Anda
+             return HttpResponse("Nominal kontribusi minimal Rp 10.000.", status=400)
+
 
         tgl_mulai = timezone.now().date()
         tgl_berhenti = tgl_mulai + relativedelta(months=periode_bulan)
 
         with connection.cursor() as cursor:
-            id_adopter = str(uuid.uuid4())
-
+            
             cursor.execute("""
-                INSERT INTO ADOPTER (username_adopter, id_adopter, total_kontribusi)
+                INSERT INTO SIZOPI.ADOPTER (id_adopter, username_adopter, total_kontribusi)
                 VALUES (%s, %s, %s)
-                ON CONFLICT (username_adopter) DO NOTHING
-            """, [username, id_adopter, kontribusi])
+                ON CONFLICT (username_adopter) DO UPDATE SET
+                    total_kontribusi = SIZOPI.ADOPTER.total_kontribusi + EXCLUDED.total_kontribusi
+                RETURNING id_adopter;
+            """, [str(uuid.uuid4()), username, kontribusi])
+            
+            result = cursor.fetchone()
+            if not result:
+                # Ini seharusnya tidak terjadi jika query UPSERT berhasil
+                return HttpResponse("Gagal membuat atau memperbarui data adopter.", status=500)
+            
+            id_adopter_val = result[0]
 
-            if cursor.rowcount == 0:
-                cursor.execute("SELECT id_adopter FROM ADOPTER WHERE username_adopter = %s", [username])
-                id_adopter = cursor.fetchone()[0]
-
+            # Langkah 3: Insert ke tabel ADOPSI
             cursor.execute("""
-                INSERT INTO ADOPSI (
+                INSERT INTO SIZOPI.ADOPSI (
                     id_adopter, id_hewan, status_pembayaran,
                     tgl_mulai_adopsi, tgl_berhenti_adopsi, kontribusi_finansial
                 )
                 VALUES (%s, %s, %s, %s, %s, %s)
             """, [
-                id_adopter, id_hewan, "Belum",
+                id_adopter_val, id_hewan, "Belum", 
                 tgl_mulai, tgl_berhenti, kontribusi
             ])
 
         return redirect("adopsi_home")
+    else:
+        return HttpResponse("Metode request tidak valid.", status=405)
 
 @csrf_exempt
 def submit_adopsi_organisasi(request):
     if request.method == "POST":
         try:
+            print("username:", request.POST.get("username"))
+            print("id_hewan:", request.POST.get("id_hewan"))
+            print("kontribusi:", request.POST.get("kontribusi_finansial"))
+            print("periode:", request.POST.get("periode_adopsi"))
+
             username = request.POST.get("username")
             npp = request.POST.get("npp")
             nama_organisasi = request.POST.get("nama_organisasi")
