@@ -2,7 +2,7 @@
 
 {% block content %}
 <style>
-    /* Custom CSS untuk form reservasi */
+    /* Custom CSS untuk form reservasi wahana */
     .card {
         border-radius: 15px;
         overflow: hidden;
@@ -39,8 +39,8 @@
     }
     
     .form-control:focus {
-        border-color: #007bff;
-        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        border-color: #28a745;
+        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
     }
     
     .btn {
@@ -51,16 +51,16 @@
         margin-right: 0.5rem;
     }
     
-    .btn-primary {
-        background-color: #007bff;
-        border-color: #007bff;
-        box-shadow: 0 4px 15px rgba(0, 123, 255, 0.2);
+    .btn-success {
+        background-color: #28a745;
+        border-color: #28a745;
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2);
     }
     
-    .btn-primary:hover {
-        background-color: #0056b3;
-        border-color: #004085;
-        box-shadow: 0 6px 20px rgba(0, 123, 255, 0.3);
+    .btn-success:hover {
+        background-color: #218838;
+        border-color: #1e7e34;
+        box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3);
         transform: translateY(-2px);
     }
     
@@ -79,7 +79,7 @@
     
     /* Header animasi */
     .page-header {
-        background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
         color: white;
         padding: 40px 0;
         text-align: center;
@@ -95,29 +95,35 @@
         text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
     }
     
-    .atraksi-info {
+    .wahana-info {
         background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
         border-radius: 12px;
         padding: 1.5rem;
         margin-bottom: 2rem;
-        border-left: 5px solid #007bff;
+        border-left: 5px solid #28a745;
     }
     
-    .atraksi-info h4 {
-        color: #007bff;
+    .wahana-info h4 {
+        color: #28a745;
         margin-bottom: 1rem;
     }
     
     .info-item {
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         margin-bottom: 0.5rem;
     }
     
     .info-item i {
         width: 20px;
         margin-right: 10px;
-        color: #007bff;
+        color: #28a745;
+        margin-top: 2px;
+    }
+    
+    .peraturan-list {
+        margin: 0;
+        padding-left: 1rem;
     }
     
     /* Alert styling */
@@ -171,7 +177,7 @@
 <div class="page-header">
     <div class="container">
         <h1>FORM RESERVASI</h1>
-        <p>Pemesanan Tiket Atraksi</p>
+        <p>Pemesanan Tiket Wahana</p>
     </div>
 </div>
 
@@ -191,7 +197,7 @@
         {% for message in messages %}
             <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show mb-4 animate-fade-in" role="alert">
                 {% if message.tags == 'success' %}
-                    <i class="fas fa-check-circle"></i>
+                    <i class="fas fa-sync-alt"></i>
                 {% else %}
                     <i class="fas fa-info-circle"></i>
                 {% endif %}
@@ -203,52 +209,57 @@
 
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <!-- Informasi Atraksi -->
-            <div class="atraksi-info animate-fade-in">
-                <h4><i class="fas fa-star"></i> Informasi Atraksi</h4>
+            <!-- Informasi Wahana -->
+            <div class="wahana-info animate-fade-in">
+                <h4><i class="fas fa-water"></i> Informasi Wahana</h4>
                 <div class="info-item">
                     <i class="fas fa-ticket-alt"></i>
-                    <strong>Nama Atraksi:</strong> {{ atraksi.nama_atraksi }}
-                </div>
-                <div class="info-item">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <strong>Lokasi:</strong> {{ atraksi.lokasi }}
+                    <strong>Nama Wahana:</strong> {{ wahana.nama_wahana }}
                 </div>
                 <div class="info-item">
                     <i class="fas fa-users"></i>
-                    <strong>Kapasitas Maksimum:</strong> {{ atraksi.kapasitas_max }} orang
+                    <strong>Kapasitas Maksimum:</strong> {{ wahana.kapasitas_max }} orang
                 </div>
                 <div class="info-item">
                     <i class="fas fa-clock"></i>
-                    <strong>Jam:</strong> {{ atraksi.jadwal|time:"H:i" }}
+                    <strong>Jam:</strong> {{ wahana.jadwal|time:"H:i" }}
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <div>
+                        <strong>Peraturan:</strong>
+                        <div class="peraturan-list mt-1">
+                            {{ wahana.peraturan|linebreaks }}
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <!-- Form Reservasi -->
             <div class="card animate-fade-in">
-                <div class="card-header bg-primary text-white text-center">
+                <div class="card-header bg-success text-white text-center">
                     <h3>FORM RESERVASI</h3>
                 </div>
                 <div class="card-body">
-                    <form method="post" action="{% url 'buat_reservasi' %}">
+                    <form method="post" action="{% url 'buat_reservasi_wahana' %}">
                         {% csrf_token %}
-                        <input type="hidden" name="nama_atraksi" value="{{ atraksi.nama_atraksi }}">
+                        <input type="hidden" name="nama_wahana" value="{{ wahana.nama_wahana }}">
                         
                         <div class="form-group">
-                            <label class="form-label" for="nama_atraksi_display">Nama Atraksi:</label>
-                            <select class="form-control" id="nama_atraksi_display" disabled>
-                                <option>{{ atraksi.nama_atraksi }}</option>
+                            <label class="form-label" for="nama_wahana_display">Nama Wahana:</label>
+                            <select class="form-control" id="nama_wahana_display" disabled>
+                                <option>{{ wahana.nama_wahana }}</option>
                             </select>
                         </div>
                         
                         <div class="form-group">
-                            <label class="form-label" for="lokasi">Lokasi:</label>
-                            <input type="text" class="form-control" id="lokasi" value="{{ atraksi.lokasi }}" readonly>
+                            <label class="form-label" for="peraturan">Peraturan:</label>
+                            <textarea class="form-control" id="peraturan" rows="4" readonly>{{ wahana.peraturan }}</textarea>
                         </div>
                         
                         <div class="form-group">
                             <label class="form-label" for="jam">Jam:</label>
-                            <input type="text" class="form-control" id="jam" value="{{ atraksi.jadwal|time:"H:i" }}" readonly>
+                            <input type="text" class="form-control" id="jam" value="{{ wahana.jadwal|time:"H:i" }}" readonly>
                         </div>
                         
                         <div class="form-group">
@@ -261,11 +272,11 @@
                         <div class="form-group">
                             <label class="form-label" for="jumlah_tiket">Jumlah tiket yang ingin dibeli:</label>
                             <input type="number" class="form-control" id="jumlah_tiket" name="jumlah_tiket" 
-                                   min="1"
+                                   min="1" 
                                    value="{{ form_data.jumlah_tiket|default:'1' }}" required>
-                            <small class="form-text text-muted">
-                                <i class="fas fa-info-circle"></i>
-                                Sistem akan mengecek ketersediaan kapasitas secara otomatis
+                            <small class="form-text text-info">
+                                <i class="fas fa-users"></i>
+                                Kapasitas maksimum: {{ wahana.kapasitas_max }} orang per sesi
                             </small>
                             {% if tiket_tersedia %}
                                 <small class="text-info d-block">Tiket tersedia: {{ tiket_tersedia }}</small>
@@ -273,7 +284,7 @@
                         </div>
                         
                         <div class="text-center mt-4">
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn btn-success">
                                 <i class="fas fa-ticket-alt"></i> BUAT RESERVASI
                             </button>
                             <a href="{% url 'daftar_wahana_dan_atraksi' %}" class="btn btn-secondary">
@@ -287,12 +298,12 @@
             <!-- Info Panel Kapasitas -->
             <div class="card mt-3 animate-fade-in">
                 <div class="card-header bg-info text-white">
-                    <h5 class="mb-0"><i class="fas fa-info-circle"></i> Informasi Kapasitas</h5>
+                    <h5 class="mb-0"><i class="fas fa-info-circle"></i> Informasi Sistem</h5>
                 </div>
                 <div class="card-body">
                     <p class="mb-0">
-                        <strong>Atraksi:</strong> {{ atraksi.nama_atraksi }}<br>
-                        <strong>Kapasitas Maksimum:</strong> {{ atraksi.kapasitas_max }} orang per sesi<br>
+                        <strong>Wahana:</strong> {{ wahana.nama_wahana }}<br>
+                        <strong>Kapasitas Maksimum:</strong> {{ wahana.kapasitas_max }} orang per sesi<br>
                     </p>
                 </div>
             </div>
@@ -319,6 +330,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const today = new Date();
         today.setHours(0, 0, 0, 0); // Reset waktu untuk perbandingan tanggal saja
         
+        // Hanya validasi basic, kapasitas akan dicek oleh stored procedure
         if (jumlahTiket <= 0) {
             e.preventDefault();
             alert('Jumlah tiket harus lebih dari 0');
@@ -334,7 +346,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Konfirmasi sebelum submit
-        const confirmMessage = `Apakah Anda yakin ingin memesan ${jumlahTiket} tiket untuk atraksi ${document.getElementById('nama_atraksi_display').value} pada tanggal ${tanggalInput.value}?`;
+        const confirmMessage = `Apakah Anda yakin ingin memesan ${jumlahTiket} tiket untuk wahana ${document.getElementById('nama_wahana_display').value} pada tanggal ${tanggalInput.value}?`;
         if (!confirm(confirmMessage)) {
             e.preventDefault();
             return;
