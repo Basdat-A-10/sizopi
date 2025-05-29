@@ -100,7 +100,29 @@ def login_view(request):
         
         user = get_user_by_email(email)
         
-        if user and user['password'] == password:  # In production, use check_password()
+        # Tentukan apakah login berhasil atau gagal
+        login_success = user and user['password'] == password
+        
+        # Log ke database dengan trigger
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                INSERT INTO SIZOPI.LOGIN_LOG (email, success)
+                VALUES (%s, %s)
+            """, [email, login_success])
+            
+            # Ambil message dari trigger
+            cursor.execute("""
+                SELECT message FROM SIZOPI.LOGIN_LOG 
+                WHERE email = %s 
+                ORDER BY attempt_time DESC 
+                LIMIT 1
+            """, [email])
+            
+            result = cursor.fetchone()
+            trigger_message = result[0] if result else "Username atau password salah, silakan coba lagi."
+        
+        if login_success:
+            # Login berhasil
             response = redirect('dashboard')
             
             max_age = 7 * 24 * 60 * 60  # 7 days
@@ -118,7 +140,8 @@ def login_view(request):
             messages.success(request, f"Selamat datang, {user_fullname}!")
             return response
         else:
-            messages.error(request, "Email atau password tidak valid.")
+            # Login gagal - tampilkan pesan dari trigger
+            messages.error(request, trigger_message)
     
     return render(request, 'authentication/login.html')
 
